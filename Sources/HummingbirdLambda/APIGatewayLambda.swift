@@ -8,11 +8,18 @@ extension HBLambda where In == APIGateway.Request {
     
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
     public func request(context: Lambda.Context, application: HBApplication, from: APIGateway.Request) -> HBRequest {
+        var uri = from.path
+        if let queryStringParameters = from.queryStringParameters {
+            let queryParams = queryStringParameters.map { "\($0.key)=\($0.value)"}
+            if queryParams.count > 0 {
+                uri += "?\(queryParams.joined(separator: "&"))"
+            }
+        }
         let headers = NIOHTTP1.HTTPHeaders(from.headers.map { ($0.key, $0.value) })
         let head = HTTPRequestHead(
             version: .init(major: 2, minor: 0),
             method: .init(rawValue: from.httpMethod.rawValue),
-            uri: from.path,
+            uri: uri,
             headers: headers
         )
         let body: ByteBuffer?

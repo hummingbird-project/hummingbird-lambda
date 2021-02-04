@@ -40,5 +40,8 @@ struct MathsHandler: HBLambda {
             let operands = try request.decode(as: Operands.self)
             return Result(result: operands.lhs / operands.rhs)
         }
+        app.router.post("path") { request -> String in
+            return "\(request.uri)"
+        }
     }
 }
