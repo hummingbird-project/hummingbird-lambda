@@ -6,14 +6,12 @@ import NIO
 
 
 Lambda.run { context in
-    return MathsHandler(context: context)
+    return HBLambdaHandler<MathsHandler>(context: context)
 }
 
-struct MathsHandler: HBLambdaHandler {
+struct MathsHandler: HBLambda {
     typealias In = APIGateway.Request
     typealias Out = APIGateway.Response
-    
-    var extensions: HBExtensions<MathsHandler>
     
     struct Operands: Decodable {
         let lhs: Double
@@ -24,7 +22,6 @@ struct MathsHandler: HBLambdaHandler {
     }
     
     init(_ app: HBApplication) {
-        self.extensions = .init()
         app.encoder = JSONEncoder()
         app.decoder = JSONDecoder()
         app.router.post("add") { request -> Result in

@@ -1,24 +1,23 @@
-import AWSLambdaEvents
 import AWSLambdaRuntime
 import Hummingbird
 import NIO
 
-public protocol HBLambdaHandler: EventLoopLambdaHandler {
-    init(_ app: HBApplication)
-    func request(context: Lambda.Context, from: In) -> HBRequest
-    func output(from: HBResponse) -> Out
-    var extensions: HBExtensions<Self> { get set }
-}
+/// Specialization of EventLoopLambdaHandler which runs an HBLambda
+public struct HBLambdaHandler<L: HBLambda>: EventLoopLambdaHandler {
+    public typealias In = L.In
+    public typealias Out = L.Out
 
-extension HBLambdaHandler {
     public init(context: Lambda.InitializationContext) {
+        // create application
         let application = HBApplication(eventLoopGroupProvider: .shared(context.eventLoop))
-        self.init(application)
+        // initialize application
+        self.lambda = .init(application)
+        // store application and responder
         self.application = application
         self.responder = application.constructResponder()
     }
     
-    func shutdown(context: Lambda.ShutdownContext) -> EventLoopFuture<Void> {
+    public func shutdown(context: Lambda.ShutdownContext) -> EventLoopFuture<Void> {
         do {
             try self.application.shutdownApplication()
             return context.eventLoop.makeSucceededFuture(())
@@ -26,18 +25,15 @@ extension HBLambdaHandler {
             return context.eventLoop.makeFailedFuture(error)
         }
     }
-    
-    public func handle(context: Lambda.Context, event: In) -> EventLoopFuture<Out> {
-        self.responder.respond(to: request(context: context, from: event)).map { output(from: $0) }
+
+    public func handle(context: Lambda.Context, event: L.In) -> EventLoopFuture<L.Out> {
+        let request = lambda.request(context: context, application: self.application, from: event)
+        return self.responder.respond(to: request)
+            .map { self.lambda.output(from: $0) }
     }
     
-    public var application: HBApplication {
-        get { self.extensions.get(\.application) }
-        set { self.extensions.set(\.application, value: newValue) }
-    }
-    
-    var responder: HBResponder {
-        get { self.extensions.get(\.responder) }
-        set { self.extensions.set(\.responder, value: newValue) }
-    }
+    let application: HBApplication
+    let responder: HBResponder
+    let lambda: L
 }
+
