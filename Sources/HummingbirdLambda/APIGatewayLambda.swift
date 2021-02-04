@@ -7,50 +7,39 @@ import NIO
 extension HBLambda where In == APIGateway.Request {
     
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
-    public func request(context: Lambda.Context, application: HBApplication, from: APIGateway.Request) -> HBRequest {
-        var uri = from.path
-        if let queryStringParameters = from.queryStringParameters {
-            let queryParams = queryStringParameters.map { "\($0.key)=\($0.value)"}
-            if queryParams.count > 0 {
-                uri += "?\(queryParams.joined(separator: "&"))"
-            }
-        }
-        let headers = NIOHTTP1.HTTPHeaders(from.headers.map { ($0.key, $0.value) })
-        let head = HTTPRequestHead(
-            version: .init(major: 2, minor: 0),
-            method: .init(rawValue: from.httpMethod.rawValue),
-            uri: uri,
-            headers: headers
-        )
-        let body: ByteBuffer?
-        if let apiGatewayBody = from.body {
-            body = context.allocator.buffer(string: apiGatewayBody)
-        } else {
-            body = nil
-        }
-        return HBRequest(
-            head: head,
-            body: .byteBuffer(body),
-            application: application,
-            eventLoop: context.eventLoop,
-            allocator: context.allocator
-        )
+    public func request(context: Lambda.Context, application: HBApplication, from: In) -> HBRequest {
+        let request = HBRequest(context: context, application: application, from: from)
+        // store api gateway request so it is available in routes
+        request.extensions.set(\.apiGatewayRequest, value: from)
+        return request
     }
 }
 
 extension HBLambda where Out == APIGateway.Response {
     /// Specialization of HBLambda.request where `Out` is `APIGateway.Response`
-    public func output(from response: HBResponse) -> APIGateway.Response {
-        let headers = HTTPHeaders(response.headers.map { ($0.name, $0.value) }) { first, _ in first}
-        var body: String? = nil
-        if case .byteBuffer(let buffer) = response.body {
-            body = String(buffer: buffer)
-        }
-        return .init(
-            statusCode: .init(code: response.status.code),
-            headers: headers,
-            multiValueHeaders: nil,
-            body: body
-        )
+    public func output(from response: HBResponse) -> Out {
+        return response.apiResponse()
+    }
+}
+
+// conform `APIGateway.Request` to `APIRequest` so we can use HBRequest.init(context:application:from)
+extension APIGateway.Request: APIRequest { }
+
+// conform `APIGateway.Response` to `APIResponse` so we can use HBResponse.apiReponse()
+extension APIGateway.Response: APIResponse {
+    init(
+        statusCode: AWSLambdaEvents.HTTPResponseStatus,
+        headers: AWSLambdaEvents.HTTPHeaders?,
+        multiValueHeaders: HTTPMultiValueHeaders?,
+        body: String?
+    ) {
+        self.init(statusCode: statusCode, headers: headers, multiValueHeaders: multiValueHeaders, body: body, isBase64Encoded: nil)
+    }
+}
+
+extension HBRequest {
+    /// `APIGateway.Request` that generated this `HBRequest`
+    var apiGatewayRequest: APIGateway.Request {
+        self.extensions.get(\.apiGatewayRequest)
     }
 }

@@ -32,7 +32,7 @@ struct MathsHandler: HBLambda {
             let operands = try request.decode(as: Operands.self)
             return Result(result: operands.lhs - operands.rhs)
         }
-        app.router.post("multiple") { request -> Result in
+        app.router.post("multiply") { request -> Result in
             let operands = try request.decode(as: Operands.self)
             return Result(result: operands.lhs * operands.rhs)
         }
@@ -40,8 +40,13 @@ struct MathsHandler: HBLambda {
             let operands = try request.decode(as: Operands.self)
             return Result(result: operands.lhs / operands.rhs)
         }
-        app.router.post("path") { request -> String in
-            return "\(request.uri)"
+        app.router.post("request") { request -> String in
+            var result = ""
+            result = "URI: \(request.uri)\n"
+            result += "Headers: \(request.headers)"
+            request.response.setCookie(.init(name: "Token1", value: "Value1"))
+            request.response.setCookie(.init(name: "Token2", value: "Value2"))
+            return result
         }
     }
 }
