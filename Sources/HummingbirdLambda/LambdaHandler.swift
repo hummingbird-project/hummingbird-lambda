@@ -10,6 +10,7 @@ public struct HBLambdaHandler<L: HBLambda>: EventLoopLambdaHandler {
     public init(context: Lambda.InitializationContext) {
         // create application
         let application = HBApplication(eventLoopGroupProvider: .shared(context.eventLoop))
+        application.logger = context.logger
         // initialize application
         self.lambda = .init(application)
         // store application and responder
