@@ -26,16 +26,7 @@ extension HBLambda where Out == APIGateway.Response {
 extension APIGateway.Request: APIRequest { }
 
 // conform `APIGateway.Response` to `APIResponse` so we can use HBResponse.apiReponse()
-extension APIGateway.Response: APIResponse {
-    init(
-        statusCode: AWSLambdaEvents.HTTPResponseStatus,
-        headers: AWSLambdaEvents.HTTPHeaders?,
-        multiValueHeaders: HTTPMultiValueHeaders?,
-        body: String?
-    ) {
-        self.init(statusCode: statusCode, headers: headers, multiValueHeaders: multiValueHeaders, body: body, isBase64Encoded: nil)
-    }
-}
+extension APIGateway.Response: APIResponse { }
 
 extension HBRequest {
     /// `APIGateway.Request` that generated this `HBRequest`

@@ -1,5 +1,6 @@
 import AWSLambdaEvents
 import AWSLambdaRuntime
+import ExtrasBase64
 import Hummingbird
 import NIOHTTP1
 
@@ -8,7 +9,8 @@ protocol APIResponse {
         statusCode: AWSLambdaEvents.HTTPResponseStatus,
         headers: AWSLambdaEvents.HTTPHeaders?,
         multiValueHeaders: HTTPMultiValueHeaders?,
-        body: String?
+        body: String?,
+        isBase64Encoded: Bool?
     )
 }
 
@@ -38,14 +40,28 @@ extension HBResponse {
             }
         }
         var body: String? = nil
+        var isBase64Encoded: Bool? = nil
         if case .byteBuffer(let buffer) = self.body {
-            body = String(buffer: buffer)
+            if let contentType = self.headers["content-type"].first {
+                let type = contentType[..<(contentType.firstIndex(of: ";") ?? contentType.endIndex)]
+                switch type {
+                case "text/plain", "application/json", "application/x-www-form-urlencoded":
+                    body = String(buffer: buffer)
+                default:
+                    break
+                }
+            }
+            if body == nil {
+                body = String(base64Encoding: buffer.readableBytesView)
+                isBase64Encoded = true
+            }
         }
         return .init(
             statusCode: .init(code: self.status.code),
             headers: singleHeaders,
             multiValueHeaders: multiHeaders,
-            body: body
+            body: body,
+            isBase64Encoded: isBase64Encoded
         )
     }
 }

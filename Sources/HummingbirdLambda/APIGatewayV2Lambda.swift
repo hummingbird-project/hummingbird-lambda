@@ -38,9 +38,10 @@ extension APIGateway.V2.Response: APIResponse {
         statusCode: AWSLambdaEvents.HTTPResponseStatus,
         headers: AWSLambdaEvents.HTTPHeaders?,
         multiValueHeaders: HTTPMultiValueHeaders?,
-        body: String?
+        body: String?,
+        isBase64Encoded: Bool?
     ) {
-        self.init(statusCode: statusCode, headers: headers, multiValueHeaders: multiValueHeaders, body: body, isBase64Encoded: nil, cookies: nil)
+        self.init(statusCode: statusCode, headers: headers, multiValueHeaders: multiValueHeaders, body: body, isBase64Encoded: isBase64Encoded, cookies: nil)
     }
 }
 
