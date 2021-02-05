@@ -16,7 +16,7 @@
 set -eu
 
 # Lambda Function name
-function_name=hbLambdaTest
+function_name=hbLambdaTestV2
 executable=HBLambdaTest
 role_name="${function_name}-lamba-role"
 

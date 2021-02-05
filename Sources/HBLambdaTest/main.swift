@@ -4,14 +4,21 @@ import HummingbirdLambda
 import HummingbirdFoundation
 import NIO
 
+struct DebugMiddleware: HBMiddleware {
+    func apply(to request: HBRequest, next: HBResponder) -> EventLoopFuture<HBResponse> {
+        request.logger.debug("\(request.method) \(request.uri)")
+        request.logger.debug("\(request.apiGatewayV2Request)")
+        return next.respond(to: request)
+    }
+}
 
 Lambda.run { context in
     return HBLambdaHandler<MathsHandler>(context: context)
 }
 
 struct MathsHandler: HBLambda {
-    typealias In = APIGateway.Request
-    typealias Out = APIGateway.Response
+    typealias In = APIGateway.V2.Request
+    typealias Out = APIGateway.V2.Response
     
     struct Operands: Decodable {
         let lhs: Double
@@ -24,6 +31,7 @@ struct MathsHandler: HBLambda {
     init(_ app: HBApplication) {
         app.encoder = JSONEncoder()
         app.decoder = JSONDecoder()
+        app.middleware.add(DebugMiddleware())
         app.router.post("add") { request -> Result in
             let operands = try request.decode(as: Operands.self)
             return Result(result: operands.lhs + operands.rhs)
@@ -39,14 +47,6 @@ struct MathsHandler: HBLambda {
         app.router.post("divide") { request -> Result in
             let operands = try request.decode(as: Operands.self)
             return Result(result: operands.lhs / operands.rhs)
-        }
-        app.router.post("request") { request -> String in
-            var result = ""
-            result = "URI: \(request.uri)\n"
-            result += "Headers: \(request.headers)"
-            request.response.setCookie(.init(name: "Token1", value: "Value1"))
-            request.response.setCookie(.init(name: "Token2", value: "Value2"))
-            return result
         }
     }
 }

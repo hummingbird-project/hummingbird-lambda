@@ -28,9 +28,13 @@ public struct HBLambdaHandler<L: HBLambda>: EventLoopLambdaHandler {
     }
 
     public func handle(context: Lambda.Context, event: L.In) -> EventLoopFuture<L.Out> {
-        let request = lambda.request(context: context, application: self.application, from: event)
-        return self.responder.respond(to: request)
-            .map { self.lambda.output(from: $0) }
+        do {
+            let request = try lambda.request(context: context, application: self.application, from: event)
+            return self.responder.respond(to: request)
+                .map { self.lambda.output(from: $0) }
+        } catch {
+            return context.eventLoop.makeFailedFuture(error)
+        }
     }
     
     let application: HBApplication

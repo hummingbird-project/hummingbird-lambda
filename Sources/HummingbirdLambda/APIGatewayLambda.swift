@@ -7,8 +7,8 @@ import NIO
 extension HBLambda where In == APIGateway.Request {
     
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
-    public func request(context: Lambda.Context, application: HBApplication, from: In) -> HBRequest {
-        let request = HBRequest(context: context, application: application, from: from)
+    public func request(context: Lambda.Context, application: HBApplication, from: In) throws -> HBRequest {
+        let request = try HBRequest(context: context, application: application, from: from)
         // store api gateway request so it is available in routes
         request.extensions.set(\.apiGatewayRequest, value: from)
         return request
@@ -39,7 +39,7 @@ extension APIGateway.Response: APIResponse {
 
 extension HBRequest {
     /// `APIGateway.Request` that generated this `HBRequest`
-    var apiGatewayRequest: APIGateway.Request {
+    public var apiGatewayRequest: APIGateway.Request {
         self.extensions.get(\.apiGatewayRequest)
     }
 }

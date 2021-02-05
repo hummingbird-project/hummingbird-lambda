@@ -16,7 +16,7 @@ public protocol HBLambda {
     ///   - context: Lambda context
     ///   - application: Application instance
     ///   - from: input type
-    func request(context: Lambda.Context, application: HBApplication, from: In) -> HBRequest
+    func request(context: Lambda.Context, application: HBApplication, from: In) throws -> HBRequest
     
     /// Convert from `HBResponse` to `Out` type
     /// - Parameter from: response from Hummingbird

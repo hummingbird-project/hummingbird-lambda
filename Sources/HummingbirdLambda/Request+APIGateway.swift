@@ -1,5 +1,6 @@
 import AWSLambdaEvents
 import AWSLambdaRuntime
+import ExtrasBase64
 import Hummingbird
 import NIOHTTP1
 
@@ -11,11 +12,12 @@ protocol APIRequest {
     var headers: AWSLambdaEvents.HTTPHeaders { get }
     var multiValueHeaders: HTTPMultiValueHeaders { get }
     var body: String? { get }
+    var isBase64Encoded: Bool { get }
 }
 
 extension HBRequest {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
-    convenience init(context: Lambda.Context, application: HBApplication, from: APIRequest) {
+    convenience init(context: Lambda.Context, application: HBApplication, from: APIRequest) throws {
         // construct URI with query parameters
         var uri = from.path
         var queryParams: [String] = []
@@ -48,7 +50,12 @@ extension HBRequest {
         // get body
         let body: ByteBuffer?
         if let apiGatewayBody = from.body {
-            body = context.allocator.buffer(string: apiGatewayBody)
+            if from.isBase64Encoded {
+                let base64Decoded = try apiGatewayBody.base64decoded()
+                body = context.allocator.buffer(bytes: base64Decoded)
+            } else {
+                body = context.allocator.buffer(string: apiGatewayBody)
+            }
         } else {
             body = nil
         }

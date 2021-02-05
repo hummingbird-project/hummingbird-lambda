@@ -13,12 +13,14 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/swift-server/swift-aws-lambda-runtime.git", from: "0.3.0"),
+        .package(url: "https://github.com/swift-extras/swift-extras-base64.git", from: "0.5.0"),
         .package(url: "https://github.com/hummingbird-project/hummingbird.git", .branch("main"))
     ],
     targets: [
         .target(name: "HummingbirdLambda", dependencies: [
             .product(name: "AWSLambdaRuntime", package: "swift-aws-lambda-runtime"),
             .product(name: "AWSLambdaEvents", package: "swift-aws-lambda-runtime"),
+            .product(name: "ExtrasBase64", package: "swift-extras-base64"),
             .product(name: "Hummingbird", package: "hummingbird")
         ]),
         .target(name: "HBLambdaTest", dependencies: [

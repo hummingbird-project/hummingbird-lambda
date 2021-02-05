@@ -6,8 +6,8 @@ import NIO
 
 extension HBLambda where In == APIGateway.V2.Request {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
-    public func request(context: Lambda.Context, application: HBApplication, from: In) -> HBRequest {
-        let request = HBRequest(context: context, application: application, from: from)
+    public func request(context: Lambda.Context, application: HBApplication, from: In) throws -> HBRequest {
+        let request = try HBRequest(context: context, application: application, from: from)
         // store api gateway v2 request so it is available in routes
         request.extensions.set(\.apiGatewayV2Request, value: from)
         return request
@@ -23,7 +23,10 @@ extension HBLambda where Out == APIGateway.V2.Response {
 
 // conform `APIGateway.V2.Request` to `APIRequest` so we can use HBRequest.init(context:application:from)
 extension APIGateway.V2.Request: APIRequest {
-    var path: String { context.http.path }
+    var path: String {
+        // use routeKey as path has stage in it
+        return String(routeKey.split(separator: " ", maxSplits: 1).last!)
+    }
     var httpMethod: AWSLambdaEvents.HTTPMethod { context.http.method }
     var multiValueQueryStringParameters: [String : [String]]? { nil }
     var multiValueHeaders: HTTPMultiValueHeaders { [:] }
@@ -43,7 +46,7 @@ extension APIGateway.V2.Response: APIResponse {
 
 extension HBRequest {
     /// `APIGateway.V2.Request` that generated this `HBRequest`
-    var apiGatewayV2Request: APIGateway.V2.Request {
+    public var apiGatewayV2Request: APIGateway.V2.Request {
         self.extensions.get(\.apiGatewayV2Request)
     }
 }
