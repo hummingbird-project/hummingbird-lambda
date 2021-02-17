@@ -7,6 +7,10 @@ public struct HBLambdaHandler<L: HBLambda>: EventLoopLambdaHandler {
     public typealias In = L.In
     public typealias Out = L.Out
 
+    /// Initialize `HBLambdaHandler`.
+    ///
+    /// Create application, set it up and create `HBLambda` from application and create responder
+    /// - Parameter context: Lambda initialization context
     public init(context: Lambda.InitializationContext) {
         // create application
         let application = HBApplication(eventLoopGroupProvider: .shared(context.eventLoop))
@@ -19,7 +23,8 @@ public struct HBLambdaHandler<L: HBLambda>: EventLoopLambdaHandler {
         self.application = application
         self.responder = application.constructResponder()
     }
-    
+
+    /// Shutdown Lambda handler and shutdown application
     public func shutdown(context: Lambda.ShutdownContext) -> EventLoopFuture<Void> {
         do {
             try self.application.shutdownApplication()
@@ -29,6 +34,7 @@ public struct HBLambdaHandler<L: HBLambda>: EventLoopLambdaHandler {
         }
     }
 
+    /// Handle invoke
     public func handle(context: Lambda.Context, event: L.In) -> EventLoopFuture<L.Out> {
         do {
             let request = try lambda.request(context: context, application: self.application, from: event)
