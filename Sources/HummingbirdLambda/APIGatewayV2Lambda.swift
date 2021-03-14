@@ -41,7 +41,8 @@ extension APIGateway.V2.Response: APIResponse {
         body: String?,
         isBase64Encoded: Bool?
     ) {
-        self.init(statusCode: statusCode, headers: headers, multiValueHeaders: multiValueHeaders, body: body, isBase64Encoded: isBase64Encoded, cookies: nil)
+        precondition(multiValueHeaders == nil, "Multi value headers are unavailable in APIGatewayV2")
+        self.init(statusCode: statusCode, headers: headers, body: body, isBase64Encoded: isBase64Encoded, cookies: nil)
     }
 }
 
