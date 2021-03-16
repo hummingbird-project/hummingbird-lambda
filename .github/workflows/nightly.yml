@@ -15,6 +15,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Test
+    - name: Build
       run: |
-        swift test --enable-test-discovery  --enable-code-coverage --sanitize=thread
+        swift build
