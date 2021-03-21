@@ -18,12 +18,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ['swift:5.3-amazonlinux2']
+        image: ['swift:5.3-bionic', 'swift:5.3-focal', 'swift:5.3-amazonlinux2', 'swift:5.3-centos8']
     container:
       image: ${{ matrix.image }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Build
+    - name: Test
       run: |
-        swift build
+        swift test --enable-test-discovery  --enable-code-coverage --sanitize=thread
+    - name: Convert coverage files
+      run: |
+        llvm-cov export -format="lcov" \
+          .build/debug/hummingbird-lambdaPackageTests.xctest \
+          -ignore-filename-regex="\/Tests\/" \
+          -instr-profile .build/debug/codecov/default.profdata > info.lcov
+    - name: Upload to codecov.io
+      uses: codecov/codecov-action@v1
+      with:
+        file: info.lcov
