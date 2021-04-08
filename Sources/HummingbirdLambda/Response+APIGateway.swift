@@ -1,3 +1,17 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Hummingbird server framework project
+//
+// Copyright (c) 2021-2021 the Hummingbird authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+// See hummingbird/CONTRIBUTORS.txt for the list of Hummingbird authors
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
 import AWSLambdaEvents
 import AWSLambdaRuntime
 import ExtrasBase64
@@ -39,8 +53,8 @@ extension HBResponse {
                 return nil
             }
         }
-        var body: String? = nil
-        var isBase64Encoded: Bool? = nil
+        var body: String?
+        var isBase64Encoded: Bool?
         if case .byteBuffer(let buffer) = self.body {
             if let contentType = self.headers["content-type"].first {
                 let type = contentType[..<(contentType.firstIndex(of: ";") ?? contentType.endIndex)]

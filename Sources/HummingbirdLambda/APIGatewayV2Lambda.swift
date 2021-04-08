@@ -1,8 +1,22 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Hummingbird server framework project
+//
+// Copyright (c) 2021-2021 the Hummingbird authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+// See hummingbird/CONTRIBUTORS.txt for the list of Hummingbird authors
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
 import AWSLambdaEvents
 import AWSLambdaRuntimeCore
 import Hummingbird
-import NIOHTTP1
 import NIO
+import NIOHTTP1
 
 extension HBLambda where In == APIGateway.V2.Request {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
@@ -27,8 +41,9 @@ extension APIGateway.V2.Request: APIRequest {
         // use routeKey as path has stage in it
         return String(routeKey.split(separator: " ", maxSplits: 1).last!)
     }
+
     var httpMethod: AWSLambdaEvents.HTTPMethod { context.http.method }
-    var multiValueQueryStringParameters: [String : [String]]? { nil }
+    var multiValueQueryStringParameters: [String: [String]]? { nil }
     var multiValueHeaders: HTTPMultiValueHeaders { [:] }
 }
 

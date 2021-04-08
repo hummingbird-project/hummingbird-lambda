@@ -1,3 +1,17 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Hummingbird server framework project
+//
+// Copyright (c) 2021-2021 the Hummingbird authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+// See hummingbird/CONTRIBUTORS.txt for the list of Hummingbird authors
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
 import AWSLambdaEvents
 import AWSLambdaRuntime
 import ExtrasBase64
@@ -28,7 +42,7 @@ extension HBRequest {
             queryStringParameters[multiValueQuery.key] = nil
             queryParams += multiValueQuery.value.map { "\(multiValueQuery.key)=\($0)" }
         }
-        queryParams += queryStringParameters.map { "\($0.key)=\($0.value)"}
+        queryParams += queryStringParameters.map { "\($0.key)=\($0.value)" }
         if queryParams.count > 0 {
             uri += "?\(queryParams.joined(separator: "&"))"
         }

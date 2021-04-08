@@ -1,7 +1,21 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Hummingbird server framework project
+//
+// Copyright (c) 2021-2021 the Hummingbird authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+// See hummingbird/CONTRIBUTORS.txt for the list of Hummingbird authors
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
 import AWSLambdaEvents
 import AWSLambdaRuntime
-import HummingbirdLambda
 import HummingbirdFoundation
+import HummingbirdLambda
 import NIO
 
 struct DebugMiddleware: HBMiddleware {
@@ -19,15 +33,16 @@ Lambda.run { context in
 struct MathsHandler: HBLambda {
     typealias In = APIGateway.V2.Request
     typealias Out = APIGateway.V2.Response
-    
+
     struct Operands: Decodable {
         let lhs: Double
         let rhs: Double
     }
+
     struct Result: HBResponseEncodable {
         let result: Double
     }
-    
+
     init(_ app: HBApplication) {
         app.encoder = JSONEncoder()
         app.decoder = JSONDecoder()
