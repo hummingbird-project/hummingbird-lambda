@@ -12,9 +12,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-import HummingbirdLambda
-@testable import AWSLambdaRuntimeCore
 import AWSLambdaEvents
+@testable import AWSLambdaRuntimeCore
+import HummingbirdLambda
 import Logging
 import XCTest
 
@@ -36,15 +36,17 @@ final class LambdaTests: XCTestCase {
     }
 
     func newContext() -> Lambda.Context {
-        Lambda.Context(requestID: UUID().uuidString,
-                       traceID: "abc123",
-                       invokedFunctionARN: "aws:arn:",
-                       deadline: .now() + .seconds(3),
-                       cognitoIdentity: nil,
-                       clientContext: nil,
-                       logger: Logger(label: "test"),
-                       eventLoop: self.eventLoopGroup.next(),
-                       allocator: ByteBufferAllocator())
+        Lambda.Context(
+            requestID: UUID().uuidString,
+            traceID: "abc123",
+            invokedFunctionARN: "aws:arn:",
+            deadline: .now() + .seconds(3),
+            cognitoIdentity: nil,
+            clientContext: nil,
+            logger: Logger(label: "test"),
+            eventLoop: self.eventLoopGroup.next(),
+            allocator: ByteBufferAllocator()
+        )
     }
 
     func newEvent(uri: String, method: String, body: ByteBuffer? = nil) throws -> APIGateway.Request {
@@ -67,7 +69,6 @@ final class LambdaTests: XCTestCase {
                     return "Hello"
                 }
             }
-
         }
         let lambda = HBLambdaHandler<HelloLambda>(context: self.initializationContext)
         let context = self.newContext()
@@ -90,11 +91,10 @@ final class LambdaTests: XCTestCase {
                     return request.body.buffer
                 }
             }
-
         }
         let lambda = HBLambdaHandler<HelloLambda>(context: self.initializationContext)
         let context = self.newContext()
-        let data = (0...255).map { _ in UInt8.random(in: 0...255)}
+        let data = (0...255).map { _ in UInt8.random(in: 0...255) }
         let event = try newEvent(uri: "/", method: "POST", body: ByteBufferAllocator().buffer(bytes: data))
         let response = try lambda.handle(context: context, event: event).wait()
         XCTAssertEqual(response.isBase64Encoded, true)
