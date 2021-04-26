@@ -29,6 +29,10 @@ protocol APIRequest {
     var isBase64Encoded: Bool { get }
 }
 
+extension Lambda.Context: HBRequestContext {
+    public var remoteAddress: SocketAddress? { return nil }
+}
+
 extension HBRequest {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
     convenience init(context: Lambda.Context, application: HBApplication, from: APIRequest) throws {
@@ -78,8 +82,7 @@ extension HBRequest {
             head: head,
             body: .byteBuffer(body),
             application: application,
-            eventLoop: context.eventLoop,
-            allocator: context.allocator
+            context: context
         )
     }
 }
