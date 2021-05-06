@@ -27,7 +27,7 @@ struct DebugMiddleware: HBMiddleware {
 }
 
 Lambda.run { context in
-    return HBLambdaHandler<MathsHandler>(context: context)
+    return try HBLambdaHandler<MathsHandler>(context: context)
 }
 
 struct MathsHandler: HBLambda {
