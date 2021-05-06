@@ -31,8 +31,8 @@ Lambda.run { context in
 }
 
 struct MathsHandler: HBLambda {
-    typealias In = APIGateway.V2.Request
-    typealias Out = APIGateway.V2.Response
+    typealias In = APIGateway.Request
+    typealias Out = APIGateway.Response
 
     struct Operands: Decodable {
         let lhs: Double
