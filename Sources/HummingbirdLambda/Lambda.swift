@@ -23,7 +23,7 @@ public protocol HBLambda {
     /// Initialize application.
     ///
     /// This is where you add your routes, and setup middleware
-    init(_ app: HBApplication)
+    init(_ app: HBApplication) throws
 
     /// Convert from `In` type to `HBRequest`
     /// - Parameters:

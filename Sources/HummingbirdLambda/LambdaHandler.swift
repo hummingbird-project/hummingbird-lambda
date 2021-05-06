@@ -25,14 +25,14 @@ public struct HBLambdaHandler<L: HBLambda>: EventLoopLambdaHandler {
     ///
     /// Create application, set it up and create `HBLambda` from application and create responder
     /// - Parameter context: Lambda initialization context
-    public init(context: Lambda.InitializationContext) {
+    public init(context: Lambda.InitializationContext) throws {
         // create application
         let application = HBApplication(eventLoopGroupProvider: .shared(context.eventLoop))
         application.logger = context.logger
         // add error middleware to catch HBHTTPErrors
         application.middleware.add(LambdaErrorMiddleware())
         // initialize application
-        self.lambda = .init(application)
+        self.lambda = try .init(application)
         // store application and responder
         self.application = application
         self.responder = application.constructResponder()
