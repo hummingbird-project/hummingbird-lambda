@@ -35,7 +35,7 @@ extension Lambda.Context: HBRequestContext {
 
 extension HBRequest {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
-    convenience init(context: Lambda.Context, application: HBApplication, from: APIRequest) throws {
+    init(context: Lambda.Context, application: HBApplication, from: APIRequest) throws {
         // construct URI with query parameters
         var uri = from.path
         var queryParams: [String] = []
