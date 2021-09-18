@@ -15,7 +15,7 @@
 import AWSLambdaEvents
 import AWSLambdaRuntimeCore
 import Hummingbird
-import NIO
+import NIOCore
 import NIOHTTP1
 
 extension HBLambda where In == APIGateway.Request {

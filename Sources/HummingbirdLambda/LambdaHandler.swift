@@ -14,7 +14,7 @@
 
 import AWSLambdaRuntime
 import Hummingbird
-import NIO
+import NIOCore
 
 /// Specialization of EventLoopLambdaHandler which runs an HBLambda
 public struct HBLambdaHandler<L: HBLambda>: EventLoopLambdaHandler {

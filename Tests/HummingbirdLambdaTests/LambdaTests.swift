@@ -16,6 +16,7 @@ import AWSLambdaEvents
 @testable import AWSLambdaRuntimeCore
 import HummingbirdLambda
 import Logging
+import NIOPosix
 import XCTest
 
 final class LambdaTests: XCTestCase {
