@@ -18,6 +18,8 @@ import Hummingbird
 import NIOCore
 import NIOHTTP1
 
+extension APIGateway.Request: @unchecked Sendable {}
+
 extension HBLambda where In == APIGateway.Request {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
     public func request(context: Lambda.Context, application: HBApplication, from: In) throws -> HBRequest {

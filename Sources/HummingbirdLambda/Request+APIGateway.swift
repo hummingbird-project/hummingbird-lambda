@@ -29,7 +29,7 @@ protocol APIRequest {
     var isBase64Encoded: Bool { get }
 }
 
-extension Lambda.Context: HBRequestContext {
+extension Lambda.Context: HBRequestContext, @unchecked Sendable {
     public var remoteAddress: SocketAddress? { return nil }
 }
 
