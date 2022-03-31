@@ -18,9 +18,9 @@ import Hummingbird
 import NIOCore
 import NIOHTTP1
 
-extension HBLambda where In == APIGateway.Request {
+extension HBLambda where Event == APIGatewayRequest {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
-    public func request(context: Lambda.Context, application: HBApplication, from: In) throws -> HBRequest {
+    public func request(context: LambdaContext, application: HBApplication, from: Event) throws -> HBRequest {
         var request = try HBRequest(context: context, application: application, from: from)
         // store api gateway request so it is available in routes
         request.extensions.set(\.apiGatewayRequest, value: from)
@@ -28,22 +28,22 @@ extension HBLambda where In == APIGateway.Request {
     }
 }
 
-extension HBLambda where Out == APIGateway.Response {
+extension HBLambda where Output == APIGatewayResponse {
     /// Specialization of HBLambda.request where `Out` is `APIGateway.Response`
-    public func output(from response: HBResponse) -> Out {
+    public func output(from response: HBResponse) -> Output {
         return response.apiResponse()
     }
 }
 
 // conform `APIGateway.Request` to `APIRequest` so we can use HBRequest.init(context:application:from)
-extension APIGateway.Request: APIRequest {}
+extension APIGatewayRequest: APIRequest {}
 
 // conform `APIGateway.Response` to `APIResponse` so we can use HBResponse.apiReponse()
-extension APIGateway.Response: APIResponse {}
+extension APIGatewayResponse: APIResponse {}
 
 extension HBRequest {
     /// `APIGateway.Request` that generated this `HBRequest`
-    public var apiGatewayRequest: APIGateway.Request {
+    public var apiGatewayRequest: APIGatewayRequest {
         self.extensions.get(\.apiGatewayRequest)
     }
 }

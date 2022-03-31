@@ -18,9 +18,18 @@ import NIOCore
 
 /// Specialization of EventLoopLambdaHandler which runs an HBLambda
 public struct HBLambdaHandler<L: HBLambda>: EventLoopLambdaHandler {
-    public typealias In = L.In
-    public typealias Out = L.Out
+    public typealias Event = L.Event
+    public typealias Output = L.Output
 
+    static public func makeHandler(context: Lambda.InitializationContext) -> EventLoopFuture<HBLambdaHandler<L>> {
+        do {
+            let handler = try Self(context: context)
+            return context.eventLoop.makeSucceededFuture(handler)
+        } catch {
+            return context.eventLoop.makeFailedFuture(error)
+        }
+
+    }
     /// Initialize `HBLambdaHandler`.
     ///
     /// Create application, set it up and create `HBLambda` from application and create responder
@@ -49,7 +58,7 @@ public struct HBLambdaHandler<L: HBLambda>: EventLoopLambdaHandler {
     }
 
     /// Handle invoke
-    public func handle(context: Lambda.Context, event: L.In) -> EventLoopFuture<L.Out> {
+    public func handle(_ event: L.Event, context: LambdaContext) -> EventLoopFuture<L.Output> {
         do {
             let request = try lambda.request(context: context, application: self.application, from: event)
             return self.responder.respond(to: request)

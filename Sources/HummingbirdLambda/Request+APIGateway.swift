@@ -29,13 +29,13 @@ protocol APIRequest {
     var isBase64Encoded: Bool { get }
 }
 
-extension Lambda.Context: HBRequestContext {
+extension LambdaContext: HBRequestContext {
     public var remoteAddress: SocketAddress? { return nil }
 }
 
 extension HBRequest {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
-    init(context: Lambda.Context, application: HBApplication, from: APIRequest) throws {
+    init(context: LambdaContext, application: HBApplication, from: APIRequest) throws {
         // construct URI with query parameters
         var uri = from.path
         var queryParams: [String] = []

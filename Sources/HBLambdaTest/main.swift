@@ -26,13 +26,11 @@ struct DebugMiddleware: HBMiddleware {
     }
 }
 
-Lambda.run { context in
-    return try HBLambdaHandler<MathsHandler>(context: context)
-}
+HBLambdaHandler<MathsHandler>.main()
 
 struct MathsHandler: HBLambda {
-    typealias In = APIGateway.Request
-    typealias Out = APIGateway.Response
+    typealias Event = APIGatewayRequest
+    typealias Output = APIGatewayResponse
 
     struct Operands: Decodable {
         let lhs: Double

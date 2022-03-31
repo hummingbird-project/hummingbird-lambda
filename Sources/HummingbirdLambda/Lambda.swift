@@ -17,8 +17,8 @@ import Hummingbird
 
 /// Protocol for Hummingbird Lambdas. Define the `In` and `Out` types, how you convert from `In` to `HBRequest` and `HBResponse` to `Out`
 public protocol HBLambda {
-    associatedtype In: Decodable
-    associatedtype Out: Encodable
+    associatedtype Event: Decodable
+    associatedtype Output: Encodable
 
     /// Initialize application.
     ///
@@ -30,9 +30,9 @@ public protocol HBLambda {
     ///   - context: Lambda context
     ///   - application: Application instance
     ///   - from: input type
-    func request(context: Lambda.Context, application: HBApplication, from: In) throws -> HBRequest
+    func request(context: LambdaContext, application: HBApplication, from: Event) throws -> HBRequest
 
     /// Convert from `HBResponse` to `Out` type
     /// - Parameter from: response from Hummingbird
-    func output(from: HBResponse) -> Out
+    func output(from: HBResponse) -> Output
 }
