@@ -24,7 +24,7 @@ let package = Package(
             .product(name: "ExtrasBase64", package: "swift-extras-base64"),
             .product(name: "Hummingbird", package: "hummingbird"),
         ]),
-        .target(name: "HBLambdaTest", dependencies: [
+        .executableTarget(name: "HBLambdaTest", dependencies: [
             .byName(name: "HummingbirdLambda"),
             .product(name: "HummingbirdFoundation", package: "hummingbird"),
         ]),
