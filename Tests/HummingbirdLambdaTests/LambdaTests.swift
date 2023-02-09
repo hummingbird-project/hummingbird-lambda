@@ -14,7 +14,7 @@
 
 import AWSLambdaEvents
 @testable import AWSLambdaRuntimeCore
-@testable import HummingbirdLambda
+import HummingbirdLambda
 import Logging
 import NIOPosix
 import XCTest
@@ -76,7 +76,7 @@ final class LambdaTests: XCTestCase {
                 }
             }
         }
-        let lambda = try HBLambdaHandler<HelloLambda>(context: self.initializationContext)
+        let lambda = try HBLambdaHandler<HelloLambda>.makeHandler(context: self.initializationContext).wait()
         let context = self.newContext()
         let event = try newEvent(uri: "/hello", method: "GET")
         let response = try lambda.handle(event, context: context).wait()
@@ -98,7 +98,7 @@ final class LambdaTests: XCTestCase {
                 }
             }
         }
-        let lambda = try HBLambdaHandler<HelloLambda>(context: self.initializationContext)
+        let lambda = try HBLambdaHandler<HelloLambda>.makeHandler(context: self.initializationContext).wait()
         let context = self.newContext()
         let data = (0...255).map { _ in UInt8.random(in: 0...255) }
         let event = try newEvent(uri: "/", method: "POST", body: ByteBufferAllocator().buffer(bytes: data))
