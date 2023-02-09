@@ -18,14 +18,29 @@ import NIOCore
 
 /// Specialization of EventLoopLambdaHandler which runs an HBLambda
 public struct HBLambdaHandler<L: HBLambda>: EventLoopLambdaHandler {
-    public typealias In = L.In
-    public typealias Out = L.Out
+    public typealias Event = L.Event
+    public typealias Output = L.Output
+
+    /// Create a Lambda handler for the runtime.
+    public static func makeHandler(context: LambdaInitializationContext) -> EventLoopFuture<Self> {
+        return context.eventLoop.makeCompletedFuture {
+            let lambda = try Self(context: context)
+
+            context.terminator.register(name: "Application") { eventLoop in
+                return eventLoop.makeCompletedFuture {
+                    try lambda.application.shutdownApplication()
+                }
+            }
+
+            return lambda
+        }
+    }
 
     /// Initialize `HBLambdaHandler`.
     ///
     /// Create application, set it up and create `HBLambda` from application and create responder
     /// - Parameter context: Lambda initialization context
-    public init(context: Lambda.InitializationContext) throws {
+    init(context: LambdaInitializationContext) throws {
         // create application
         let application = HBApplication(eventLoopGroupProvider: .shared(context.eventLoop))
         application.logger = context.logger
@@ -38,18 +53,8 @@ public struct HBLambdaHandler<L: HBLambda>: EventLoopLambdaHandler {
         self.responder = application.constructResponder()
     }
 
-    /// Shutdown Lambda handler and shutdown application
-    public func shutdown(context: Lambda.ShutdownContext) -> EventLoopFuture<Void> {
-        do {
-            try self.application.shutdownApplication()
-            return context.eventLoop.makeSucceededFuture(())
-        } catch {
-            return context.eventLoop.makeFailedFuture(error)
-        }
-    }
-
     /// Handle invoke
-    public func handle(context: Lambda.Context, event: L.In) -> EventLoopFuture<L.Out> {
+    public func handle(_ event: Event, context: LambdaContext) -> EventLoopFuture<Output> {
         do {
             let request = try lambda.request(context: context, application: self.application, from: event)
             return self.responder.respond(to: request)
