@@ -1,0 +1,16 @@
+name: Deploy Example
+
+on:
+  workflow_dispatch:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    container:
+      image: swift:5.7-amazonlinux2
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Archive
+      run: |
+        swift package archive
