@@ -18,9 +18,9 @@ import Hummingbird
 import NIOCore
 import NIOHTTP1
 
-extension HBLambda where In == APIGateway.V2.Request {
+extension HBLambda where Event == APIGatewayV2Request {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
-    public func request(context: Lambda.Context, application: HBApplication, from: In) throws -> HBRequest {
+    public func request(context: LambdaContext, application: HBApplication, from: Event) throws -> HBRequest {
         var request = try HBRequest(context: context, application: application, from: from)
         // store api gateway v2 request so it is available in routes
         request.extensions.set(\.apiGatewayV2Request, value: from)
@@ -28,15 +28,15 @@ extension HBLambda where In == APIGateway.V2.Request {
     }
 }
 
-extension HBLambda where Out == APIGateway.V2.Response {
+extension HBLambda where Output == APIGatewayV2Response {
     /// Specialization of HBLambda.request where `Out` is `APIGateway.Response`
-    public func output(from response: HBResponse) -> Out {
+    public func output(from response: HBResponse) -> Output {
         return response.apiResponse()
     }
 }
 
 // conform `APIGateway.V2.Request` to `APIRequest` so we can use HBRequest.init(context:application:from)
-extension APIGateway.V2.Request: APIRequest {
+extension APIGatewayV2Request: APIRequest {
     var path: String {
         // use routeKey as path has stage in it
         return String(routeKey.split(separator: " ", maxSplits: 1).last!)
@@ -48,7 +48,7 @@ extension APIGateway.V2.Request: APIRequest {
 }
 
 // conform `APIGateway.V2.Response` to `APIResponse` so we can use HBResponse.apiReponse()
-extension APIGateway.V2.Response: APIResponse {
+extension APIGatewayV2Response: APIResponse {
     init(
         statusCode: AWSLambdaEvents.HTTPResponseStatus,
         headers: AWSLambdaEvents.HTTPHeaders?,
@@ -63,7 +63,7 @@ extension APIGateway.V2.Response: APIResponse {
 
 extension HBRequest {
     /// `APIGateway.V2.Request` that generated this `HBRequest`
-    public var apiGatewayV2Request: APIGateway.V2.Request {
+    public var apiGatewayV2Request: APIGatewayV2Request {
         self.extensions.get(\.apiGatewayV2Request)
     }
 }
