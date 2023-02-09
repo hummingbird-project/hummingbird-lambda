@@ -3,6 +3,10 @@ name: Deploy Example
 on:
   workflow_dispatch:
 
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
 jobs:
   linux:
     runs-on: ubuntu-latest
@@ -13,4 +17,5 @@ jobs:
       uses: actions/checkout@v3
     - name: Archive
       run: |
+        swift build
         swift package archive
