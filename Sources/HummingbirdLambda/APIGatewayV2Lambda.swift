@@ -35,7 +35,7 @@ extension HBLambda where Output == APIGatewayV2Response {
     }
 }
 
-// conform `APIGateway.V2.Request` to `APIRequest` so we can use HBRequest.init(context:application:from)
+// conform `APIGatewayV2Request` to `APIRequest` so we can use HBRequest.init(context:application:from)
 extension APIGatewayV2Request: APIRequest {
     var path: String {
         // use routeKey as path has stage in it
@@ -47,7 +47,7 @@ extension APIGatewayV2Request: APIRequest {
     var multiValueHeaders: HTTPMultiValueHeaders { [:] }
 }
 
-// conform `APIGateway.V2.Response` to `APIResponse` so we can use HBResponse.apiReponse()
+// conform `APIGatewayV2Response` to `APIResponse` so we can use HBResponse.apiReponse()
 extension APIGatewayV2Response: APIResponse {
     init(
         statusCode: AWSLambdaEvents.HTTPResponseStatus,
@@ -56,7 +56,7 @@ extension APIGatewayV2Response: APIResponse {
         body: String?,
         isBase64Encoded: Bool?
     ) {
-        precondition(multiValueHeaders == nil, "Multi value headers are unavailable in APIGatewayV2")
+        precondition(multiValueHeaders == nil || multiValueHeaders?.count == 0, "Multi value headers are unavailable in APIGatewayV2")
         self.init(statusCode: statusCode, headers: headers, body: body, isBase64Encoded: isBase64Encoded, cookies: nil)
     }
 }
