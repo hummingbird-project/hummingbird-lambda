@@ -63,6 +63,65 @@ final class LambdaTests: XCTestCase {
         return try JSONDecoder().decode(APIGatewayRequest.self, from: Data(request.utf8))
     }
 
+    func newV2Event(uri: String, method: String) throws -> APIGatewayV2Request {
+        let request = """
+        {
+            "routeKey":"\(method) \(uri)",
+            "version":"2.0",
+            "rawPath":"\(uri)",
+            "stageVariables":{
+                "foo":"bar"
+            },
+            "requestContext":{
+                "timeEpoch":1587750461466,
+                "domainPrefix":"hello",
+                "authorizer":{
+                    "jwt":{
+                        "scopes":[
+                            "hello"
+                        ],
+                        "claims":{
+                            "aud":"customers",
+                            "iss":"https://hello.test.com/",
+                            "iat":"1587749276",
+                            "exp":"1587756476"
+                        }
+                    }
+                },
+                "accountId":"0123456789",
+                "stage":"$default",
+                "domainName":"hello.test.com",
+                "apiId":"pb5dg6g3rg",
+                "requestId":"LgLpnibOFiAEPCA=",
+                "http":{
+                    "path":"\(uri)",
+                    "userAgent":"Paw/3.1.10 (Macintosh; OS X/10.15.4) GCDHTTPRequest",
+                    "method":"\(method)",
+                    "protocol":"HTTP/1.1",
+                    "sourceIp":"91.64.117.86"
+                },
+                "time":"24/Apr/2020:17:47:41 +0000"
+            },
+            "isBase64Encoded":false,
+            "rawQueryString":"foo=bar",
+            "queryStringParameters":{
+                "foo":"bar"
+            },
+            "headers":{
+                "x-forwarded-proto":"https",
+                "x-forwarded-for":"91.64.117.86",
+                "x-forwarded-port":"443",
+                "authorization":"Bearer abc123",
+                "host":"hello.test.com",
+                "x-amzn-trace-id":"Root=1-5ea3263d-07c5d5ddfd0788bed7dad831",
+                "user-agent":"Paw/3.1.10 (Macintosh; OS X/10.15.4) GCDHTTPRequest",
+                "content-length":"0"
+            }
+        }
+        """
+        return try JSONDecoder().decode(APIGatewayV2Request.self, from: Data(request.utf8))
+    }
+
     func testSimpleRoute() throws {
         struct HelloLambda: HBLambda {
             // define input and output
@@ -105,5 +164,47 @@ final class LambdaTests: XCTestCase {
         let response = try lambda.handle(event, context: context).wait()
         XCTAssertEqual(response.isBase64Encoded, true)
         XCTAssertEqual(response.body, String(base64Encoding: data))
+    }
+
+    func testAPIGatewayV2Decoding() throws {
+        struct HelloLambda: HBLambda {
+            // define input and output
+            typealias Event = APIGatewayV2Request
+            typealias Output = APIGatewayV2Response
+
+            init(_ app: HBApplication) {
+                app.middleware.add(HBLogRequestsMiddleware(.debug))
+                app.router.post { _ in
+                    return "hello"
+                }
+            }
+        }
+        let lambda = try HBLambdaHandler<HelloLambda>.makeHandler(context: self.initializationContext).wait()
+        let context = self.newContext()
+        let event = try newV2Event(uri: "/", method: "POST")
+        let response = try lambda.handle(event, context: context).wait()
+        XCTAssertEqual(response.statusCode, .ok)
+        XCTAssertEqual(response.body, "hello")
+    }
+
+    func testErrorEncoding() throws {
+        struct HelloLambda: HBLambda {
+            // define input and output
+            typealias Event = APIGatewayV2Request
+            typealias Output = APIGatewayV2Response
+
+            init(_ app: HBApplication) {
+                app.middleware.add(HBLogRequestsMiddleware(.debug))
+                app.router.post { _ -> String in
+                    throw HBHTTPError(.badRequest, message: "BadRequest")
+                }
+            }
+        }
+        let lambda = try HBLambdaHandler<HelloLambda>.makeHandler(context: self.initializationContext).wait()
+        let context = self.newContext()
+        let event = try newV2Event(uri: "/", method: "POST")
+        let response = try lambda.handle(event, context: context).wait()
+        XCTAssertEqual(response.statusCode, .badRequest)
+        XCTAssertEqual(response.body, "BadRequest")
     }
 }

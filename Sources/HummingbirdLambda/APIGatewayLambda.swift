@@ -35,10 +35,10 @@ extension HBLambda where Output == APIGatewayResponse {
     }
 }
 
-// conform `APIGateway.Request` to `APIRequest` so we can use HBRequest.init(context:application:from)
+// conform `APIGatewayRequest` to `APIRequest` so we can use HBRequest.init(context:application:from)
 extension APIGatewayRequest: APIRequest {}
 
-// conform `APIGateway.Response` to `APIResponse` so we can use HBResponse.apiReponse()
+// conform `APIGatewayResponse` to `APIResponse` so we can use HBResponse.apiReponse()
 extension APIGatewayResponse: APIResponse {}
 
 extension HBRequest {
