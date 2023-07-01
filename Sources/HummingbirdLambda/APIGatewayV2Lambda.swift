@@ -38,10 +38,8 @@ extension HBLambda where Output == APIGatewayV2Response {
 // conform `APIGatewayV2Request` to `APIRequest` so we can use HBRequest.init(context:application:from)
 extension APIGatewayV2Request: APIRequest {
     var path: String {
-        // use routeKey as path has stage in it
-        return String(routeKey.split(separator: " ", maxSplits: 1).last!)
+        return context.http.path
     }
-
     var httpMethod: AWSLambdaEvents.HTTPMethod { context.http.method }
     var multiValueQueryStringParameters: [String: [String]]? { nil }
     var multiValueHeaders: HTTPMultiValueHeaders { [:] }
