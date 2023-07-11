@@ -40,6 +40,7 @@ extension APIGatewayV2Request: APIRequest {
     var path: String {
         return context.http.path
     }
+
     var httpMethod: AWSLambdaEvents.HTTPMethod { context.http.method }
     var multiValueQueryStringParameters: [String: [String]]? { nil }
     var multiValueHeaders: HTTPMultiValueHeaders { [:] }
