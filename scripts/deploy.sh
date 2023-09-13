@@ -19,6 +19,8 @@ set -eu
 function_name=hbLambdaTest
 executable=HBLambdaTest
 role_name="${function_name}-lamba-role"
+zip_file=fileb://.build/plugins/AWSLambdaPackager/outputs/AWSLambdaPackager/"$executable"/"$executable".zip
+architecture=arm64
 
 # does function already exist
 if [ -n "$(aws lambda list-functions --output json --query 'Functions[*].FunctionName' | grep -w "$function_name")" ]; then
@@ -26,7 +28,7 @@ if [ -n "$(aws lambda list-functions --output json --query 'Functions[*].Functio
     echo "-------------------------------------------------------------------------"
     echo "updating lambda \"$function_name\""
     echo "-------------------------------------------------------------------------"
-    aws lambda update-function-code --function "$function_name" --zip-file fileb://.build/lambda/"$executable"/lambda.zip
+    aws lambda update-function-code --function "$function_name" --zip-file "$zip_file"
     
 else
     # function does not exist need to create role to run it
@@ -40,6 +42,12 @@ else
     echo "-------------------------------------------------------------------------"
     echo "creating lambda \"$function_name\""
     echo "-------------------------------------------------------------------------"
-    aws lambda create-function --function "$function_name" --role "$iam_role_name" --runtime provided --handler "$function_name" --zip-file fileb://.build/lambda/"$executable"/lambda.zip
+    aws lambda create-function \
+        --function "$function_name" \
+        --role "$iam_role_name" \
+        --runtime provided.al2 \
+        --architectures "$architecture" \
+        --handler "$function_name" \
+        --zip-file "$zip_file"
 fi
 

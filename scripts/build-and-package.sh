@@ -13,19 +13,4 @@
 ##
 ##===----------------------------------------------------------------------===##
 
-set -eu
-
-base=$(pwd)
-executable=HBLambdaTest
-swift_docker=swift:5.4-amazonlinux2
-
-echo "-------------------------------------------------------------------------"
-echo "building \"$executable\" lambda"
-echo "-------------------------------------------------------------------------"
-docker run --rm -v "$base":/src -w /src/ $swift_docker bash -cl "swift build --product $executable -c release -Xswiftc -static-stdlib"
-echo "done"
-
-echo "-------------------------------------------------------------------------"
-echo "packaging \"$executable\" lambda"
-echo "-------------------------------------------------------------------------"
-./scripts/package.sh $executable
+swift package --disable-sandbox archive
