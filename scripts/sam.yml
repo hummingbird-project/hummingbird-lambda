@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: A sample SAM template for deploying Lambda functions.
+
+Globals:
+  Function:
+    Timeout: 3
+    MemorySize: 128
+
+Resources:
+# HelloWorld Function
+  hbLambdaTestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Provided
+      Runtime: provided.al2
+      Architectures: 
+        - arm64
+      CodeUri: ../.build/plugins/AWSLambdaPackager/outputs/AWSLambdaPackager/HBLambdaTest/HBLambdaTest.zip
+      # Instructs new versions to be published to an alias named "live".
+      AutoPublishAlias: live
+      Events:
+        Add:
+          Type: Api
+          Properties:
+            Path: /add
+            Method: post
+        Subtract:
+          Type: Api
+          Properties:
+            Path: /subtract
+            Method: post
+        Multiply:
+          Type: Api
+          Properties:
+            Path: /multiply
+            Method: post
+        Divide:
+          Type: Api
+          Properties:
+            Path: /divide
+            Method: post
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  AddFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Add function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/add/"
+  SubtractFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Subtract function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/subtract/"
+  MultipleFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Multiple function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/multiple/"
+  DivideFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Divide function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/divide/"
