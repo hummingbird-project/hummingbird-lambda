@@ -15,5 +15,11 @@
 
 here=$(dirname "$0")
 
+if [ ! $(which sam) ]; then
+    echo "The deploy script requires AWS SAM."
+    echo "More information about AWS SAM and installation instructions can be found at https://aws.amazon.com/serverless/sam/"
+    exit -1
+fi
+
 cd "$here"/..
 sam deploy --template scripts/sam.yml $@
