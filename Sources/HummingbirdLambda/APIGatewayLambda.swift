@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2021-2021 the Hummingbird authors
+// Copyright (c) 2023 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -20,18 +20,27 @@ import NIOHTTP1
 
 extension HBLambda where Event == APIGatewayRequest {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
-    public func request(context: LambdaContext, application: HBApplication, from: Event) throws -> HBRequest {
-        var request = try HBRequest(context: context, application: application, from: from)
-        // store api gateway request so it is available in routes
-        request.extensions.set(\.apiGatewayRequest, value: from)
-        return request
+    public func request(context: LambdaContext, from: Event) throws -> HBRequest {
+        return try HBRequest(context: context, from: from)
     }
 }
 
 extension HBLambda where Output == APIGatewayResponse {
     /// Specialization of HBLambda.request where `Out` is `APIGateway.Response`
-    public func output(from response: HBResponse) -> Output {
-        return response.apiResponse()
+    public func output(from response: HBResponse) async throws -> Output {
+        return try await response.apiResponse()
+    }
+}
+
+extension HBLambda where Event == APIGatewayRequest, Output == APIGatewayResponse, Context == APIGatewayRequestContext {
+    public func requestContext(
+        coreContext: HBCoreRequestContext,
+        context: LambdaContext,
+        from: Event
+    ) throws -> APIGatewayRequestContext {
+        var context = APIGatewayRequestContext(coreContext: coreContext)
+        context.apiGatewayRequest = from
+        return context
     }
 }
 
@@ -41,9 +50,12 @@ extension APIGatewayRequest: APIRequest {}
 // conform `APIGatewayResponse` to `APIResponse` so we can use HBResponse.apiReponse()
 extension APIGatewayResponse: APIResponse {}
 
-extension HBRequest {
-    /// `APIGateway.Request` that generated this `HBRequest`
-    public var apiGatewayRequest: APIGatewayRequest {
-        self.extensions.get(\.apiGatewayRequest)
+public struct APIGatewayRequestContext: HBRequestContext {
+    public var coreContext: HBCoreRequestContext
+    public var apiGatewayRequest: APIGatewayRequest?
+
+    public init(coreContext: HBCoreRequestContext) {
+        self.coreContext = coreContext
+        self.apiGatewayRequest = nil
     }
 }

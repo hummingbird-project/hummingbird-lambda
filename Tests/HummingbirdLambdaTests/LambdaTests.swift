@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2021-2021 the Hummingbird authors
+// Copyright (c) 2023 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -18,19 +18,12 @@ import HummingbirdLambda
 import Logging
 import NIOPosix
 import XCTest
+import NIOCore
 
 final class LambdaTests: XCTestCase {
-    var eventLoopGroup: EventLoopGroup!
+    var eventLoopGroup: EventLoopGroup = NIOSingletons.posixEventLoopGroup
     let allocator = ByteBufferAllocator()
     let logger = Logger(label: "LambdaTests")
-
-    override func setUp() {
-        self.eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-    }
-
-    override func tearDown() {
-        try! self.eventLoopGroup.syncShutdownGracefully()
-    }
 
     var initializationContext: LambdaInitializationContext {
         .init(
@@ -122,88 +115,124 @@ final class LambdaTests: XCTestCase {
         return try JSONDecoder().decode(APIGatewayV2Request.self, from: Data(request.utf8))
     }
 
-    func testSimpleRoute() throws {
+    func testSimpleRoute() async throws {
         struct HelloLambda: HBLambda {
             // define input and output
             typealias Event = APIGatewayRequest
             typealias Output = APIGatewayResponse
+            typealias Context = APIGatewayRequestContext
 
-            init(_ app: HBApplication) {
-                app.middleware.add(HBLogRequestsMiddleware(.debug))
-                app.router.get("hello") { _ in
+            let router: HBRouterBuilder<Context>
+            var responder: some HBResponder<Context> {
+                router.buildResponder()
+            }
+
+            init() {
+                let router = HBRouterBuilder(context: Context.self)
+                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+                router.get("hello") { _, _ in
                     return "Hello"
                 }
+                self.router = router
             }
         }
-        let lambda = try HBLambdaHandler<HelloLambda>.makeHandler(context: self.initializationContext).wait()
+        let lambda = try await HBLambdaHandler<HelloLambda>(context: self.initializationContext)
         let context = self.newContext()
         let event = try newEvent(uri: "/hello", method: "GET")
-        let response = try lambda.handle(event, context: context).wait()
+        let response = try await lambda.handle(event, context: context)
         XCTAssertEqual(response.body, "Hello")
         XCTAssertEqual(response.statusCode, .ok)
         XCTAssertEqual(response.headers?["content-type"], "text/plain; charset=utf-8")
     }
 
-    func testBase64Encoding() throws {
+    func testBase64Encoding() async throws {
         struct HelloLambda: HBLambda {
             // define input and output
             typealias Event = APIGatewayRequest
             typealias Output = APIGatewayResponse
+            typealias Context = APIGatewayRequestContext
 
-            init(_ app: HBApplication) {
-                app.middleware.add(HBLogRequestsMiddleware(.debug))
-                app.router.post { request in
-                    return request.body.buffer
+            let router: HBRouterBuilder<Context>
+            var responder: some HBResponder<Context> {
+                router.buildResponder()
+            }
+
+            init() {
+                let router = HBRouterBuilder(context: Context.self)
+                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+                router.post { request, _ in
+                    guard case .byteBuffer(let buffer) = request.body else {
+                        throw HBHTTPError(.internalServerError)
+                    }
+                    return HBResponse(status: .ok, body: .init(byteBuffer: buffer))
                 }
+                self.router = router
             }
         }
-        let lambda = try HBLambdaHandler<HelloLambda>.makeHandler(context: self.initializationContext).wait()
+        let lambda = try await HBLambdaHandler<HelloLambda>(context: self.initializationContext)
         let context = self.newContext()
         let data = (0...255).map { _ in UInt8.random(in: 0...255) }
         let event = try newEvent(uri: "/", method: "POST", body: ByteBufferAllocator().buffer(bytes: data))
-        let response = try lambda.handle(event, context: context).wait()
+        let response = try await lambda.handle(event, context: context)
         XCTAssertEqual(response.isBase64Encoded, true)
         XCTAssertEqual(response.body, String(base64Encoding: data))
     }
 
-    func testAPIGatewayV2Decoding() throws {
+    func testAPIGatewayV2Decoding() async throws {
         struct HelloLambda: HBLambda {
             // define input and output
             typealias Event = APIGatewayV2Request
             typealias Output = APIGatewayV2Response
+            typealias Context = APIGatewayV2RequestContext
 
-            init(_ app: HBApplication) {
-                app.middleware.add(HBLogRequestsMiddleware(.debug))
-                app.router.post { _ in
+            let router: HBRouterBuilder<Context>
+            var responder: some HBResponder<Context> {
+                router.buildResponder()
+            }
+
+            init() {
+                let router = HBRouterBuilder(context: Context.self)
+                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+                router.post { _, _ in
                     return "hello"
                 }
+                self.router = router
             }
         }
-        let lambda = try HBLambdaHandler<HelloLambda>.makeHandler(context: self.initializationContext).wait()
+        let lambda = try await HBLambdaHandler<HelloLambda>(context: self.initializationContext)
         let context = self.newContext()
         let event = try newV2Event(uri: "/", method: "POST")
-        let response = try lambda.handle(event, context: context).wait()
+        let response = try await lambda.handle(event, context: context)
         XCTAssertEqual(response.statusCode, .ok)
         XCTAssertEqual(response.body, "hello")
     }
 
-    func testErrorEncoding() throws {
+    func testErrorEncoding() async throws {
         struct HelloLambda: HBLambda {
             // define input and output
             typealias Event = APIGatewayV2Request
             typealias Output = APIGatewayV2Response
+            typealias Context = APIGatewayV2RequestContext
 
-            init(_ app: HBApplication) {
-                app.middleware.add(HBLogRequestsMiddleware(.debug))
-                app.router.post { _ -> String in
+            let router: HBRouterBuilder<Context>
+            var responder: some HBResponder<Context> {
+                router.buildResponder()
+            }
+
+            init() {
+                let router = HBRouterBuilder(context: Context.self)
+                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+                router.post { _, _ -> String in
                     throw HBHTTPError(.badRequest, message: "BadRequest")
                 }
+                self.router = router
             }
         }
-        let lambda = try HBLambdaHandler<HelloLambda>.makeHandler(context: self.initializationContext).wait()
+        
+        let lambda = try await HBLambdaHandler<HelloLambda>(context: self.initializationContext)
         let context = self.newContext()
         let event = try newV2Event(uri: "/", method: "POST")
-        let response = try lambda.handle(event, context: context).wait()
+        let response = try await lambda.handle(event, context: context)
         XCTAssertEqual(response.statusCode, .badRequest)
         XCTAssertEqual(response.body, "BadRequest")
     }

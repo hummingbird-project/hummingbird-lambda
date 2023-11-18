@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2021-2021 the Hummingbird authors
+// Copyright (c) 2023 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -17,6 +17,7 @@ import AWSLambdaRuntime
 import ExtrasBase64
 import Hummingbird
 import NIOHTTP1
+import NIOCore
 
 protocol APIRequest {
     var path: String { get }
@@ -29,13 +30,9 @@ protocol APIRequest {
     var isBase64Encoded: Bool { get }
 }
 
-extension LambdaContext: HBRequestContext {
-    public var remoteAddress: SocketAddress? { return nil }
-}
-
 extension HBRequest {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
-    init<Request: APIRequest>(context: LambdaContext, application: HBApplication, from: Request) throws {
+    init<Request: APIRequest>(context: LambdaContext, from: Request) throws {
         // construct URI with query parameters
         var uri = from.path
         var queryParams: [String] = []
@@ -80,9 +77,7 @@ extension HBRequest {
 
         self.init(
             head: head,
-            body: .byteBuffer(body),
-            application: application,
-            context: context
+            body: body.map(HBRequestBody.byteBuffer) ?? .byteBuffer(.init())
         )
     }
 }

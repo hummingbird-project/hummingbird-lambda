@@ -11,5 +11,16 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+import HummingbirdCore
 
-@_exported import Hummingbird
+internal actor CollateResponseBodyWriter: HBResponseBodyWriter {
+    var buffer: ByteBuffer
+
+    init() {
+        self.buffer = ByteBuffer()
+    }
+
+    func write(_ buffer: ByteBuffer) async throws {
+        self.buffer.writeImmutableBuffer(buffer)
+    }
+}
