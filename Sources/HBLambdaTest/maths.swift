@@ -29,11 +29,11 @@ struct DebugMiddleware: HBMiddleware {
     ) async throws -> HBResponse {
         context.logger.debug("\(request.method) \(request.uri)")
         if let apiGatewayRequest = context.apiGatewayRequest {
-            context.logger.debug("\(apiGatewayRequest)")   
+            context.logger.debug("\(apiGatewayRequest)")
         } else {
             context.logger.debug("No APIGatewayV2Request")
         }
-        
+
         return try await next.respond(to: request, context: context)
     }
 }
@@ -55,7 +55,7 @@ struct MathsHandler: HBLambda {
 
     let router: HBRouterBuilder<Context>
     var responder: some HBResponder<Context> {
-        router.buildResponder()
+        self.router.buildResponder()
     }
 
     init() async throws {

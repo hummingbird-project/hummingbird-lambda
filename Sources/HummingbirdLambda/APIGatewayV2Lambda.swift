@@ -27,7 +27,7 @@ extension HBLambda where Event == APIGatewayV2Request {
 
 extension HBLambda where Output == APIGatewayV2Response {
     /// Specialization of HBLambda.request where `Out` is `APIGateway.Response`
-    public func output(from response: HBResponse) async throws  -> Output {
+    public func output(from response: HBResponse) async throws -> Output {
         return try await response.apiResponse()
     }
 }

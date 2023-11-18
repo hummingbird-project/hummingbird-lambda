@@ -67,7 +67,7 @@ extension HBResponse {
                 break
             }
         }
-        
+
         if body == nil {
             body = String(base64Encoding: buffer.readableBytesView)
             isBase64Encoded = true

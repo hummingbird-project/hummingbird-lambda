@@ -48,17 +48,17 @@ public struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
     public func handle(_ event: Event, context: LambdaContext) async throws -> Output {
         let requestContext = try lambda.requestContext(
             coreContext: HBCoreRequestContext(
-                applicationContext: applicationContext, 
-                eventLoop: NIOSingletons.posixEventLoopGroup.any(), 
+                applicationContext: self.applicationContext,
+                eventLoop: NIOSingletons.posixEventLoopGroup.any(),
                 logger: Logger(label: "hb-lambda")
             ),
-            context: context, 
+            context: context,
             from: event
         )
         let request = try lambda.request(context: context, from: event)
         let response: HBResponse
         do {
-            response = try await responder.respond(to: request, context: requestContext)
+            response = try await self.responder.respond(to: request, context: requestContext)
         } catch {
             if let error = error as? HBHTTPError {
                 response = error.response(allocator: context.allocator)
@@ -66,7 +66,7 @@ public struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
                 throw error
             }
         }
-        
-        return try await lambda.output(from: response)
+
+        return try await self.lambda.output(from: response)
     }
 }

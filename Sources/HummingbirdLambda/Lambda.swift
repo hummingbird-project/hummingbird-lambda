@@ -15,9 +15,9 @@
 import AWSLambdaRuntimeCore
 import Hummingbird
 import HummingbirdFoundation
-import NIOPosix
-import NIOCore
 import Logging
+import NIOCore
+import NIOPosix
 
 /// Protocol for Hummingbird Lambdas. Define the `In` and `Out` types, how you convert from `In` to `HBRequest` and `HBResponse` to `Out`
 public protocol HBLambda {

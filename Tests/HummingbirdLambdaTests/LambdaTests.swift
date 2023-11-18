@@ -16,9 +16,9 @@ import AWSLambdaEvents
 @testable import AWSLambdaRuntimeCore
 import HummingbirdLambda
 import Logging
+import NIOCore
 import NIOPosix
 import XCTest
-import NIOCore
 
 final class LambdaTests: XCTestCase {
     var eventLoopGroup: EventLoopGroup = NIOSingletons.posixEventLoopGroup
@@ -124,7 +124,7 @@ final class LambdaTests: XCTestCase {
 
             let router: HBRouterBuilder<Context>
             var responder: some HBResponder<Context> {
-                router.buildResponder()
+                self.router.buildResponder()
             }
 
             init() {
@@ -154,7 +154,7 @@ final class LambdaTests: XCTestCase {
 
             let router: HBRouterBuilder<Context>
             var responder: some HBResponder<Context> {
-                router.buildResponder()
+                self.router.buildResponder()
             }
 
             init() {
@@ -187,7 +187,7 @@ final class LambdaTests: XCTestCase {
 
             let router: HBRouterBuilder<Context>
             var responder: some HBResponder<Context> {
-                router.buildResponder()
+                self.router.buildResponder()
             }
 
             init() {
@@ -216,7 +216,7 @@ final class LambdaTests: XCTestCase {
 
             let router: HBRouterBuilder<Context>
             var responder: some HBResponder<Context> {
-                router.buildResponder()
+                self.router.buildResponder()
             }
 
             init() {
@@ -228,7 +228,7 @@ final class LambdaTests: XCTestCase {
                 self.router = router
             }
         }
-        
+
         let lambda = try await HBLambdaHandler<HelloLambda>(context: self.initializationContext)
         let context = self.newContext()
         let event = try newV2Event(uri: "/", method: "POST")

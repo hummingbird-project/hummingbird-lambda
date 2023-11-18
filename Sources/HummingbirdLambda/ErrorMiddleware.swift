@@ -29,7 +29,7 @@ extension HBHTTPError {
         } else {
             body = .init()
         }
-        
+
         return .init(status: status, headers: headers, body: body)
     }
 }

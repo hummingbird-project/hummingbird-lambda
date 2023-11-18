@@ -16,8 +16,8 @@ import AWSLambdaEvents
 import AWSLambdaRuntime
 import ExtrasBase64
 import Hummingbird
-import NIOHTTP1
 import NIOCore
+import NIOHTTP1
 
 protocol APIRequest {
     var path: String { get }
@@ -32,7 +32,7 @@ protocol APIRequest {
 
 extension HBRequest {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
-    init<Request: APIRequest>(context: LambdaContext, from: Request) throws {
+    init(context: LambdaContext, from: some APIRequest) throws {
         // construct URI with query parameters
         var uri = from.path
         var queryParams: [String] = []
