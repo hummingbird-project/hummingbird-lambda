@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2023 the Hummingbird authors
+// Copyright (c) 2021-2023 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -32,30 +32,8 @@ extension HBLambda where Output == APIGatewayResponse {
     }
 }
 
-extension HBLambda where Event == APIGatewayRequest, Output == APIGatewayResponse, Context == APIGatewayRequestContext {
-    public func requestContext(
-        coreContext: HBCoreRequestContext,
-        context: LambdaContext,
-        from: Event
-    ) throws -> APIGatewayRequestContext {
-        var context = APIGatewayRequestContext(coreContext: coreContext)
-        context.apiGatewayRequest = from
-        return context
-    }
-}
-
 // conform `APIGatewayRequest` to `APIRequest` so we can use HBRequest.init(context:application:from)
 extension APIGatewayRequest: APIRequest {}
 
 // conform `APIGatewayResponse` to `APIResponse` so we can use HBResponse.apiReponse()
 extension APIGatewayResponse: APIResponse {}
-
-public struct APIGatewayRequestContext: HBRequestContext {
-    public var coreContext: HBCoreRequestContext
-    public var apiGatewayRequest: APIGatewayRequest?
-
-    public init(coreContext: HBCoreRequestContext) {
-        self.coreContext = coreContext
-        self.apiGatewayRequest = nil
-    }
-}

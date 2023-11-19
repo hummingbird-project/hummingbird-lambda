@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2023 the Hummingbird authors
+// Copyright (c) 2021-2023 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -32,18 +32,6 @@ extension HBLambda where Output == APIGatewayV2Response {
     }
 }
 
-extension HBLambda where Event == APIGatewayV2Request, Output == APIGatewayV2Response, Context == APIGatewayV2RequestContext {
-    public func requestContext(
-        coreContext: HBCoreRequestContext,
-        context: LambdaContext,
-        from: Event
-    ) throws -> APIGatewayV2RequestContext {
-        var context = APIGatewayV2RequestContext(coreContext: coreContext)
-        context.apiGatewayV2Request = from
-        return context
-    }
-}
-
 // conform `APIGatewayV2Request` to `APIRequest` so we can use HBRequest.init(context:application:from)
 extension APIGatewayV2Request: APIRequest {
     var path: String {
@@ -66,15 +54,5 @@ extension APIGatewayV2Response: APIResponse {
     ) {
         precondition(multiValueHeaders == nil || multiValueHeaders?.count == 0, "Multi value headers are unavailable in APIGatewayV2")
         self.init(statusCode: statusCode, headers: headers, body: body, isBase64Encoded: isBase64Encoded, cookies: nil)
-    }
-}
-
-public struct APIGatewayV2RequestContext: HBRequestContext {
-    public var coreContext: HBCoreRequestContext
-    public var apiGatewayV2Request: APIGatewayV2Request?
-
-    public init(coreContext: HBCoreRequestContext) {
-        self.coreContext = coreContext
-        self.apiGatewayV2Request = nil
     }
 }

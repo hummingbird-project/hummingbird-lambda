@@ -20,6 +20,21 @@ import NIOCore
 import NIOPosix
 import XCTest
 
+struct TestContext<Event: Sendable>: HBLambdaRequestContext {
+    let event: Event?
+    var coreContext: HBCoreRequestContext
+
+    init(_ event: Event, coreContext: HBCoreRequestContext) {
+        self.event = event
+        self.coreContext = coreContext
+    }
+
+    init(coreContext: HBCoreRequestContext) {
+        self.event = nil
+        self.coreContext = coreContext
+    }
+}
+
 final class LambdaTests: XCTestCase {
     var eventLoopGroup: EventLoopGroup = NIOSingletons.posixEventLoopGroup
     let allocator = ByteBufferAllocator()
@@ -120,7 +135,7 @@ final class LambdaTests: XCTestCase {
             // define input and output
             typealias Event = APIGatewayRequest
             typealias Output = APIGatewayResponse
-            typealias Context = APIGatewayRequestContext
+            typealias Context = TestContext<Event>
 
             let router: HBRouterBuilder<Context>
             var responder: some HBResponder<Context> {
@@ -150,7 +165,7 @@ final class LambdaTests: XCTestCase {
             // define input and output
             typealias Event = APIGatewayRequest
             typealias Output = APIGatewayResponse
-            typealias Context = APIGatewayRequestContext
+            typealias Context = TestContext<Event>
 
             let router: HBRouterBuilder<Context>
             var responder: some HBResponder<Context> {
@@ -183,7 +198,7 @@ final class LambdaTests: XCTestCase {
             // define input and output
             typealias Event = APIGatewayV2Request
             typealias Output = APIGatewayV2Response
-            typealias Context = APIGatewayV2RequestContext
+            typealias Context = TestContext<Event>
 
             let router: HBRouterBuilder<Context>
             var responder: some HBResponder<Context> {
@@ -212,7 +227,7 @@ final class LambdaTests: XCTestCase {
             // define input and output
             typealias Event = APIGatewayV2Request
             typealias Output = APIGatewayV2Response
-            typealias Context = APIGatewayV2RequestContext
+            typealias Context = TestContext<Event>
 
             let router: HBRouterBuilder<Context>
             var responder: some HBResponder<Context> {

@@ -46,21 +46,21 @@ public struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
 
     /// Handle invoke
     public func handle(_ event: Event, context: LambdaContext) async throws -> Output {
-        let requestContext = try lambda.requestContext(
+        let requestContext = L.Context(
+            event,
             coreContext: HBCoreRequestContext(
                 applicationContext: self.applicationContext,
-                eventLoop: NIOSingletons.posixEventLoopGroup.any(),
-                logger: Logger(label: "hb-lambda")
-            ),
-            context: context,
-            from: event
+                eventLoop: context.eventLoop,
+                logger: context.logger,
+                allocator: context.allocator
+            )
         )
         let request = try lambda.request(context: context, from: event)
         let response: HBResponse
         do {
             response = try await self.responder.respond(to: request, context: requestContext)
         } catch {
-            if let error = error as? HBHTTPError {
+            if let error = error as? HBHTTPResponseError {
                 response = error.response(allocator: context.allocator)
             } else {
                 throw error

@@ -14,7 +14,7 @@
 
 import Hummingbird
 
-extension HBHTTPError {
+extension HBHTTPResponseError {
     /// Generate response from error
     /// - Parameter allocator: Byte buffer allocator used to allocate message body
     /// - Returns: Response
@@ -22,10 +22,9 @@ extension HBHTTPError {
         var headers: HTTPHeaders = self.headers
         let body: HBResponseBody
 
-        if let message = self.body {
-            let buffer = allocator.buffer(string: message)
-            body = .init(byteBuffer: buffer)
-            headers.replaceOrAdd(name: "content-length", value: buffer.readableBytes.description)
+        if let message = self.body(allocator: allocator) {
+            body = .init(byteBuffer: message)
+            headers.replaceOrAdd(name: "content-length", value: message.readableBytes.description)
         } else {
             body = .init()
         }

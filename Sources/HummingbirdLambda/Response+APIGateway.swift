@@ -57,7 +57,7 @@ extension HBResponse {
         var isBase64Encoded: Bool?
         let collateWriter = CollateResponseBodyWriter()
         try await self.body.write(collateWriter)
-        let buffer = await collateWriter.buffer
+        let buffer = collateWriter.buffer
         if let contentType = self.headers["content-type"].first {
             let type = contentType[..<(contentType.firstIndex(of: ";") ?? contentType.endIndex)]
             switch type {

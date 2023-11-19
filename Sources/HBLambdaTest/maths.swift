@@ -20,7 +20,7 @@ import HummingbirdLambda
 import NIO
 
 struct DebugMiddleware: HBMiddleware {
-    typealias Context = APIGatewayRequestContext
+    typealias Context = MathsHandler.Context
 
     func apply(
         to request: HBRequest,
@@ -40,7 +40,22 @@ struct DebugMiddleware: HBMiddleware {
 
 @main
 struct MathsHandler: HBLambda {
-    typealias Context = APIGatewayRequestContext
+    struct Context: HBLambdaRequestContext {
+        typealias Event = APIGatewayRequest
+
+        let apiGatewayRequest: APIGatewayRequest?
+        var coreContext: HBCoreRequestContext
+
+        init(_ event: APIGatewayRequest, coreContext: HBCoreRequestContext) {
+            self.apiGatewayRequest = event
+            self.coreContext = coreContext
+        }
+
+        init(coreContext: HBCoreRequestContext) {
+            self.apiGatewayRequest = nil
+            self.coreContext = coreContext
+        }
+    }
     typealias Event = APIGatewayRequest
     typealias Output = APIGatewayResponse
 

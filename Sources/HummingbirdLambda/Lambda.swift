@@ -21,8 +21,8 @@ import NIOPosix
 
 /// Protocol for Hummingbird Lambdas. Define the `In` and `Out` types, how you convert from `In` to `HBRequest` and `HBResponse` to `Out`
 public protocol HBLambda {
-    associatedtype Context: HBRequestContext
     associatedtype Event: Decodable
+    associatedtype Context: HBLambdaRequestContext<Event>
     associatedtype Output: Encodable
     associatedtype Responder: HBResponder<Context>
 
@@ -35,16 +35,6 @@ public protocol HBLambda {
     init() async throws
 
     func shutdown() async throws
-
-    /// Convert from `In` type to the user's `Context`
-    /// - Parameters:
-    ///   - context: Lambda context
-    ///   - from: input type
-    func requestContext(
-        coreContext: HBCoreRequestContext,
-        context: LambdaContext,
-        from: Event
-    ) throws -> Context
 
     /// Convert from `In` type to `HBRequest`
     /// - Parameters:
