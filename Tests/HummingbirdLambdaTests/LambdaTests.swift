@@ -24,15 +24,23 @@ struct TestContext<Event: Sendable>: HBLambdaRequestContext {
     let event: Event?
     var coreContext: HBCoreRequestContext
 
-    init(_ event: Event, coreContext: HBCoreRequestContext) {
-        self.event = event
-        self.coreContext = coreContext
-    }
+        init(applicationContext: HBApplicationContext, source: some RequestContextSource, logger: Logger) {
+            self.event = nil
+            self.coreContext = HBCoreRequestContext(
+                applicationContext: applicationContext,
+                eventLoop: source.eventLoop,
+                logger: logger
+            )
+        }
 
-    init(coreContext: HBCoreRequestContext) {
-        self.event = nil
-        self.coreContext = coreContext
-    }
+        init(_ event: Event, applicationContext: HBApplicationContext, source: some RequestContextSource, logger: Logger) {
+            self.event = event
+            self.coreContext = HBCoreRequestContext(
+                applicationContext: applicationContext,
+                eventLoop: source.eventLoop,
+                logger: logger
+            )
+        }
 }
 
 final class LambdaTests: XCTestCase {

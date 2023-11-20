@@ -48,12 +48,12 @@ public struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
     public func handle(_ event: Event, context: LambdaContext) async throws -> Output {
         let requestContext = L.Context(
             event,
-            coreContext: HBCoreRequestContext(
-                applicationContext: self.applicationContext,
+            applicationContext: self.applicationContext,
+            source: HBLambdaRequestSource(
                 eventLoop: context.eventLoop,
-                logger: context.logger,
                 allocator: context.allocator
-            )
+            ),
+            logger: context.logger
         )
         let request = try lambda.request(context: context, from: event)
         let response: HBResponse

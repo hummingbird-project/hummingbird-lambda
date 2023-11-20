@@ -18,6 +18,7 @@ import Hummingbird
 import HummingbirdFoundation
 import HummingbirdLambda
 import NIO
+import Logging
 
 struct DebugMiddleware: HBMiddleware {
     typealias Context = MathsHandler.Context
@@ -46,14 +47,22 @@ struct MathsHandler: HBLambda {
         let apiGatewayRequest: APIGatewayRequest?
         var coreContext: HBCoreRequestContext
 
-        init(_ event: APIGatewayRequest, coreContext: HBCoreRequestContext) {
-            self.apiGatewayRequest = event
-            self.coreContext = coreContext
+        init(applicationContext: HBApplicationContext, source: some RequestContextSource, logger: Logger) {
+            self.apiGatewayRequest = nil
+            self.coreContext = HBCoreRequestContext(
+                applicationContext: applicationContext,
+                eventLoop: source.eventLoop,
+                logger: logger
+            )
         }
 
-        init(coreContext: HBCoreRequestContext) {
-            self.apiGatewayRequest = nil
-            self.coreContext = coreContext
+        init(_ event: APIGatewayRequest, applicationContext: HBApplicationContext, source: some RequestContextSource, logger: Logger) {
+            self.apiGatewayRequest = event
+            self.coreContext = HBCoreRequestContext(
+                applicationContext: applicationContext,
+                eventLoop: source.eventLoop,
+                logger: logger
+            )
         }
     }
     typealias Event = APIGatewayRequest
