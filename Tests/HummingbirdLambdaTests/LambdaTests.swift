@@ -20,29 +20,6 @@ import NIOCore
 import NIOPosix
 import XCTest
 
-struct TestContext<Event: Sendable>: HBLambdaRequestContext {
-    let event: Event?
-    var coreContext: HBCoreRequestContext
-
-        init(applicationContext: HBApplicationContext, source: some RequestContextSource, logger: Logger) {
-            self.event = nil
-            self.coreContext = HBCoreRequestContext(
-                applicationContext: applicationContext,
-                eventLoop: source.eventLoop,
-                logger: logger
-            )
-        }
-
-        init(_ event: Event, applicationContext: HBApplicationContext, source: some RequestContextSource, logger: Logger) {
-            self.event = event
-            self.coreContext = HBCoreRequestContext(
-                applicationContext: applicationContext,
-                eventLoop: source.eventLoop,
-                logger: logger
-            )
-        }
-}
-
 final class LambdaTests: XCTestCase {
     var eventLoopGroup: EventLoopGroup = NIOSingletons.posixEventLoopGroup
     let allocator = ByteBufferAllocator()
@@ -139,12 +116,7 @@ final class LambdaTests: XCTestCase {
     }
 
     func testSimpleRoute() async throws {
-        struct HelloLambda: HBLambda {
-            // define input and output
-            typealias Event = APIGatewayRequest
-            typealias Output = APIGatewayResponse
-            typealias Context = TestContext<Event>
-
+        struct HelloLambda: HBAPIGatewayLambda {
             let router: HBRouterBuilder<Context>
             var responder: some HBResponder<Context> {
                 self.router.buildResponder()
@@ -169,12 +141,7 @@ final class LambdaTests: XCTestCase {
     }
 
     func testBase64Encoding() async throws {
-        struct HelloLambda: HBLambda {
-            // define input and output
-            typealias Event = APIGatewayRequest
-            typealias Output = APIGatewayResponse
-            typealias Context = TestContext<Event>
-
+        struct HelloLambda: HBAPIGatewayLambda {
             let router: HBRouterBuilder<Context>
             var responder: some HBResponder<Context> {
                 self.router.buildResponder()
@@ -202,11 +169,11 @@ final class LambdaTests: XCTestCase {
     }
 
     func testAPIGatewayV2Decoding() async throws {
-        struct HelloLambda: HBLambda {
+        struct HelloLambda: HBAPIGatewayV2Lambda {
             // define input and output
             typealias Event = APIGatewayV2Request
             typealias Output = APIGatewayV2Response
-            typealias Context = TestContext<Event>
+            typealias Context = HBBasicLambdaRequestContext<Event>
 
             let router: HBRouterBuilder<Context>
             var responder: some HBResponder<Context> {
@@ -231,12 +198,7 @@ final class LambdaTests: XCTestCase {
     }
 
     func testErrorEncoding() async throws {
-        struct HelloLambda: HBLambda {
-            // define input and output
-            typealias Event = APIGatewayV2Request
-            typealias Output = APIGatewayV2Response
-            typealias Context = TestContext<Event>
-
+        struct HelloLambda: HBAPIGatewayV2Lambda {
             let router: HBRouterBuilder<Context>
             var responder: some HBResponder<Context> {
                 self.router.buildResponder()

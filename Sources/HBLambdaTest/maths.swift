@@ -29,11 +29,7 @@ struct DebugMiddleware: HBMiddleware {
         next: any HBResponder<Context>
     ) async throws -> HBResponse {
         context.logger.debug("\(request.method) \(request.uri)")
-        if let apiGatewayRequest = context.apiGatewayRequest {
-            context.logger.debug("\(apiGatewayRequest)")
-        } else {
-            context.logger.debug("No APIGatewayV2Request")
-        }
+        context.logger.debug("\(context.event)")
 
         return try await next.respond(to: request, context: context)
     }
@@ -41,32 +37,9 @@ struct DebugMiddleware: HBMiddleware {
 
 @main
 struct MathsHandler: HBLambda {
-    struct Context: HBLambdaRequestContext {
-        typealias Event = APIGatewayRequest
-
-        let apiGatewayRequest: APIGatewayRequest?
-        var coreContext: HBCoreRequestContext
-
-        init(applicationContext: HBApplicationContext, source: some RequestContextSource, logger: Logger) {
-            self.apiGatewayRequest = nil
-            self.coreContext = HBCoreRequestContext(
-                applicationContext: applicationContext,
-                eventLoop: source.eventLoop,
-                logger: logger
-            )
-        }
-
-        init(_ event: APIGatewayRequest, applicationContext: HBApplicationContext, source: some RequestContextSource, logger: Logger) {
-            self.apiGatewayRequest = event
-            self.coreContext = HBCoreRequestContext(
-                applicationContext: applicationContext,
-                eventLoop: source.eventLoop,
-                logger: logger
-            )
-        }
-    }
     typealias Event = APIGatewayRequest
     typealias Output = APIGatewayResponse
+    typealias Context = HBBasicLambdaRequestContext<Event>
 
     struct Operands: Decodable {
         let lhs: Double

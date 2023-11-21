@@ -18,15 +18,20 @@ import HummingbirdFoundation
 import Logging
 import NIOCore
 import NIOPosix
+import AWSLambdaEvents
 
 /// Protocol for Hummingbird Lambdas. Define the `In` and `Out` types, how you convert from `In` to `HBRequest` and `HBResponse` to `Out`
 public protocol HBLambda {
     associatedtype Event: Decodable
-    associatedtype Context: HBLambdaRequestContext<Event>
+    associatedtype Context: HBLambdaRequestContext<Event> = HBBasicLambdaRequestContext<Event>
     associatedtype Output: Encodable
     associatedtype Responder: HBResponder<Context>
+    associatedtype Encoder: HBResponseEncoder = JSONEncoder
+    associatedtype Decoder: HBRequestDecoder = JSONDecoder
 
     var responder: Responder { get }
+    var encoder: Encoder { get }
+    var decoder: Decoder { get }
     var applicationContext: HBApplicationContext { get }
 
     /// Initialize application.
@@ -47,6 +52,22 @@ public protocol HBLambda {
     func output(from: HBResponse) async throws -> Output
 }
 
+public protocol HBAPIGatewayLambda: HBLambda where Event == APIGatewayRequest, Output == APIGatewayResponse {
+    associatedtype Context = HBBasicLambdaRequestContext<APIGatewayRequest>
+}
+
+public protocol HBAPIGatewayV2Lambda: HBLambda where Event == APIGatewayV2Request, Output == APIGatewayV2Response {
+    associatedtype Context = HBBasicLambdaRequestContext<APIGatewayV2Request>
+}
+
+extension HBLambda where Encoder == JSONEncoder {
+    public var encoder: JSONEncoder { JSONEncoder() }
+}
+
+extension HBLambda where Decoder == JSONDecoder {
+    public var decoder: JSONDecoder { JSONDecoder() }
+}
+
 extension HBLambda {
     /// Initializes and runs the Lambda function.
     ///
@@ -62,8 +83,8 @@ extension HBLambda {
             threadPool: NIOSingletons.posixBlockingThreadPool,
             configuration: HBApplicationConfiguration(),
             logger: Logger(label: "hb-lambda"),
-            encoder: JSONEncoder(),
-            decoder: JSONDecoder()
+            encoder: encoder,
+            decoder: decoder
         )
     }
 

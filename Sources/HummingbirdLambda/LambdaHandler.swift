@@ -49,10 +49,8 @@ public struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
         let requestContext = L.Context(
             event,
             applicationContext: self.applicationContext,
-            source: HBLambdaRequestSource(
-                eventLoop: context.eventLoop,
-                allocator: context.allocator
-            ),
+            eventLoop: context.eventLoop,
+            allocator: context.allocator,
             logger: context.logger
         )
         let request = try lambda.request(context: context, from: event)
