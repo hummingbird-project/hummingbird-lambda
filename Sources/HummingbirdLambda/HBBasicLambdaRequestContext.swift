@@ -1,6 +1,7 @@
 import Hummingbird
 import NIOCore
 import Logging
+import AWSLambdaRuntimeCore
 
 /// The default Lambda request context
 public struct HBBasicLambdaRequestContext<Event: Sendable>: HBLambdaRequestContext {
@@ -12,16 +13,14 @@ public struct HBBasicLambdaRequestContext<Event: Sendable>: HBLambdaRequestConte
     public init(
         _ event: Event,
         applicationContext: HBApplicationContext,
-        eventLoop: EventLoop,
-        allocator: ByteBufferAllocator,
-        logger: Logger
+        lambdaContext: LambdaContext
     ) {
         self.event = event
         self.coreContext = .init(
             applicationContext: applicationContext,
-            eventLoop: eventLoop,
-            allocator: allocator,
-            logger: logger
+            eventLoop: lambdaContext.eventLoop,
+            allocator: lambdaContext.allocator,
+            logger: lambdaContext.logger
         )
     }
 }
