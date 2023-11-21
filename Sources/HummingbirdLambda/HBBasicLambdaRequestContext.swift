@@ -2,8 +2,11 @@ import Hummingbird
 import NIOCore
 import Logging
 
+/// The default Lambda request context
 public struct HBBasicLambdaRequestContext<Event: Sendable>: HBLambdaRequestContext {
+    /// The Event that triggered the Lambda
     public let event: Event
+    
     public var coreContext: HBCoreRequestContext
 
     public init(

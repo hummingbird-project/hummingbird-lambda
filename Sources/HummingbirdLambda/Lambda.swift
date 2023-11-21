@@ -39,6 +39,7 @@ public protocol HBLambda {
     /// This is where you add your routes, and setup middleware
     init() async throws
 
+    /// Called when Lambda is terminating. This is where you can cleanup any resources
     func shutdown() async throws
 
     /// Convert from `In` type to `HBRequest`
@@ -52,18 +53,22 @@ public protocol HBLambda {
     func output(from: HBResponse) async throws -> Output
 }
 
+/// Protocol for Hummingbird Lambdas that use APIGateway
 public protocol HBAPIGatewayLambda: HBLambda where Event == APIGatewayRequest, Output == APIGatewayResponse {
     associatedtype Context = HBBasicLambdaRequestContext<APIGatewayRequest>
 }
 
+/// Protocol for Hummingbird Lambdas that use APIGatewayV2
 public protocol HBAPIGatewayV2Lambda: HBLambda where Event == APIGatewayV2Request, Output == APIGatewayV2Response {
     associatedtype Context = HBBasicLambdaRequestContext<APIGatewayV2Request>
 }
 
+/// Default Lambda's to encode their output as JSON
 extension HBLambda where Encoder == JSONEncoder {
     public var encoder: JSONEncoder { JSONEncoder() }
 }
 
+/// Default Lambda's to decode their input as JSON
 extension HBLambda where Decoder == JSONDecoder {
     public var decoder: JSONDecoder { JSONDecoder() }
 }
