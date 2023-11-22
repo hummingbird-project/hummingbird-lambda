@@ -117,18 +117,13 @@ final class LambdaTests: XCTestCase {
 
     func testSimpleRoute() async throws {
         struct HelloLambda: HBAPIGatewayLambda {
-            let router: HBRouterBuilder<Context>
-            var responder: some HBResponder<Context> {
-                self.router.buildResponder()
-            }
-
-            init() {
+            func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouterBuilder(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
                 router.get("hello") { _, _ in
                     return "Hello"
                 }
-                self.router = router
+                return router.buildResponder()
             }
         }
         let lambda = try await HBLambdaHandler<HelloLambda>(context: self.initializationContext)
@@ -142,12 +137,7 @@ final class LambdaTests: XCTestCase {
 
     func testBase64Encoding() async throws {
         struct HelloLambda: HBAPIGatewayLambda {
-            let router: HBRouterBuilder<Context>
-            var responder: some HBResponder<Context> {
-                self.router.buildResponder()
-            }
-
-            init() {
+            func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouterBuilder(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
                 router.post { request, _ in
@@ -156,7 +146,7 @@ final class LambdaTests: XCTestCase {
                     }
                     return HBResponse(status: .ok, body: .init(byteBuffer: buffer))
                 }
-                self.router = router
+                return router.buildResponder()
             }
         }
         let lambda = try await HBLambdaHandler<HelloLambda>(context: self.initializationContext)
@@ -175,18 +165,13 @@ final class LambdaTests: XCTestCase {
             typealias Output = APIGatewayV2Response
             typealias Context = HBBasicLambdaRequestContext<Event>
 
-            let router: HBRouterBuilder<Context>
-            var responder: some HBResponder<Context> {
-                self.router.buildResponder()
-            }
-
-            init() {
+            func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouterBuilder(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
                 router.post { _, _ in
                     return "hello"
                 }
-                self.router = router
+                return router.buildResponder()
             }
         }
         let lambda = try await HBLambdaHandler<HelloLambda>(context: self.initializationContext)
@@ -199,18 +184,13 @@ final class LambdaTests: XCTestCase {
 
     func testErrorEncoding() async throws {
         struct HelloLambda: HBAPIGatewayV2Lambda {
-            let router: HBRouterBuilder<Context>
-            var responder: some HBResponder<Context> {
-                self.router.buildResponder()
-            }
-
-            init() {
+            func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouterBuilder(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
                 router.post { _, _ -> String in
                     throw HBHTTPError(.badRequest, message: "BadRequest")
                 }
-                self.router = router
+                return router.buildResponder()
             }
         }
 
