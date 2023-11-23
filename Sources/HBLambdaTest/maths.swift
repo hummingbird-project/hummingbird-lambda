@@ -17,7 +17,6 @@ import AWSLambdaRuntime
 import Hummingbird
 import HummingbirdFoundation
 import HummingbirdLambda
-import NIO
 import Logging
 
 struct DebugMiddleware: HBMiddleware {
@@ -50,12 +49,7 @@ struct MathsHandler: HBLambda {
         let result: Double
     }
 
-    let router: HBRouterBuilder<Context>
-    var responder: some HBResponder<Context> {
-        self.router.buildResponder()
-    }
-
-    init() async throws {
+    func buildResponder() -> some HBResponder<Context> {
         let router = HBRouterBuilder(context: Context.self)
         router.middlewares.add(DebugMiddleware())
         router.post("add") { request, context -> Result in
@@ -74,7 +68,7 @@ struct MathsHandler: HBLambda {
             let operands = try request.decode(as: Operands.self, using: context)
             return Result(result: operands.lhs / operands.rhs)
         }
-        self.router = router
+        return router.buildResponder()
     }
 
     func shutdown() async throws {}

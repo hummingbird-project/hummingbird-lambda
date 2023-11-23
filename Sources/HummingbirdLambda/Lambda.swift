@@ -12,13 +12,13 @@
 //
 //===----------------------------------------------------------------------===//
 
+import AWSLambdaEvents
 import AWSLambdaRuntimeCore
 import Hummingbird
 import HummingbirdFoundation
 import Logging
 import NIOCore
 import NIOPosix
-import AWSLambdaEvents
 
 /// Protocol for Hummingbird Lambdas. Define the `In` and `Out` types, how you convert from `In` to `HBRequest` and `HBResponse` to `Out`
 public protocol HBLambda {
@@ -29,10 +29,11 @@ public protocol HBLambda {
     associatedtype Encoder: HBResponseEncoder = JSONEncoder
     associatedtype Decoder: HBRequestDecoder = JSONDecoder
 
-    var responder: Responder { get }
+    func buildResponder() -> Responder
+
     var encoder: Encoder { get }
     var decoder: Decoder { get }
-    var applicationContext: HBApplicationContext { get }
+    var configuration: HBApplicationConfiguration { get }
 
     /// Initialize application.
     ///
@@ -83,15 +84,8 @@ extension HBLambda {
         HBLambdaHandler<Self>.main()
     }
 
-    public var applicationContext: HBApplicationContext {
-        HBApplicationContext(
-            threadPool: NIOSingletons.posixBlockingThreadPool,
-            configuration: HBApplicationConfiguration(),
-            logger: Logger(label: "hb-lambda"),
-            encoder: encoder,
-            decoder: decoder
-        )
-    }
-
     public func shutdown() async throws {}
+
+    /// default configuration
+    public var configuration: HBApplicationConfiguration { .init() }
 }

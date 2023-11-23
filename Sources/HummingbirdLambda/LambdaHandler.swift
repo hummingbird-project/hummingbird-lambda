@@ -16,6 +16,7 @@ import AWSLambdaRuntime
 import Hummingbird
 import Logging
 import NIOCore
+import NIOPosix
 
 /// Specialization of EventLoopLambdaHandler which runs an HBLambda
 public struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
@@ -40,8 +41,14 @@ public struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
         }
 
         self.lambda = lambda
-        self.responder = lambda.responder
-        self.applicationContext = lambda.applicationContext
+        self.responder = lambda.buildResponder()
+        self.applicationContext = HBApplicationContext(
+            threadPool: NIOThreadPool.singleton,
+            configuration: lambda.configuration,
+            logger: context.logger,
+            encoder: lambda.encoder,
+            decoder: lambda.decoder
+        )
     }
 
     /// Handle invoke
