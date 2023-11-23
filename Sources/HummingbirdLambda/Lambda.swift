@@ -26,13 +26,11 @@ public protocol HBLambda {
     associatedtype Context: HBLambdaRequestContext<Event> = HBBasicLambdaRequestContext<Event>
     associatedtype Output: Encodable
     associatedtype Responder: HBResponder<Context>
-    associatedtype Encoder: HBResponseEncoder = JSONEncoder
-    associatedtype Decoder: HBRequestDecoder = JSONDecoder
 
     func buildResponder() -> Responder
 
-    var encoder: Encoder { get }
-    var decoder: Decoder { get }
+    var encoder: any HBResponseEncoder { get }
+    var decoder: any HBRequestDecoder { get }
     var configuration: HBApplicationConfiguration { get }
 
     /// Initialize application.
@@ -65,13 +63,13 @@ public protocol HBAPIGatewayV2Lambda: HBLambda where Event == APIGatewayV2Reques
 }
 
 /// Default Lambda's to encode their output as JSON
-extension HBLambda where Encoder == JSONEncoder {
-    public var encoder: JSONEncoder { JSONEncoder() }
+extension HBLambda {
+    public var encoder: any HBResponseEncoder { JSONEncoder() }
 }
 
 /// Default Lambda's to decode their input as JSON
-extension HBLambda where Decoder == JSONDecoder {
-    public var decoder: JSONDecoder { JSONDecoder() }
+extension HBLambda {
+    public var decoder: any HBRequestDecoder { JSONDecoder() }
 }
 
 extension HBLambda {
