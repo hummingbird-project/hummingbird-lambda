@@ -14,15 +14,23 @@
 
 import AWSLambdaEvents
 import AWSLambdaRuntime
+import Hummingbird
 import HummingbirdFoundation
 import HummingbirdLambda
-import NIO
+import Logging
 
 struct DebugMiddleware: HBMiddleware {
-    func apply(to request: HBRequest, next: HBResponder) -> EventLoopFuture<HBResponse> {
-        request.logger.debug("\(request.method) \(request.uri)")
-        request.logger.debug("\(request.apiGatewayV2Request)")
-        return next.respond(to: request)
+    typealias Context = MathsHandler.Context
+
+    func apply(
+        to request: HBRequest,
+        context: Context,
+        next: any HBResponder<Context>
+    ) async throws -> HBResponse {
+        context.logger.debug("\(request.method) \(request.uri)")
+        context.logger.debug("\(context.event)")
+
+        return try await next.respond(to: request, context: context)
     }
 }
 
@@ -30,6 +38,7 @@ struct DebugMiddleware: HBMiddleware {
 struct MathsHandler: HBLambda {
     typealias Event = APIGatewayRequest
     typealias Output = APIGatewayResponse
+    typealias Context = HBBasicLambdaRequestContext<Event>
 
     struct Operands: Decodable {
         let lhs: Double
@@ -40,25 +49,27 @@ struct MathsHandler: HBLambda {
         let result: Double
     }
 
-    init(_ app: HBApplication) {
-        app.encoder = JSONEncoder()
-        app.decoder = JSONDecoder()
-        app.middleware.add(DebugMiddleware())
-        app.router.post("add") { request -> Result in
-            let operands = try request.decode(as: Operands.self)
+    func buildResponder() -> some HBResponder<Context> {
+        let router = HBRouterBuilder(context: Context.self)
+        router.middlewares.add(DebugMiddleware())
+        router.post("add") { request, context -> Result in
+            let operands = try request.decode(as: Operands.self, using: context)
             return Result(result: operands.lhs + operands.rhs)
         }
-        app.router.post("subtract") { request -> Result in
-            let operands = try request.decode(as: Operands.self)
+        router.post("subtract") { request, context -> Result in
+            let operands = try request.decode(as: Operands.self, using: context)
             return Result(result: operands.lhs - operands.rhs)
         }
-        app.router.post("multiply") { request -> Result in
-            let operands = try request.decode(as: Operands.self)
+        router.post("multiply") { request, context -> Result in
+            let operands = try request.decode(as: Operands.self, using: context)
             return Result(result: operands.lhs * operands.rhs)
         }
-        app.router.post("divide") { request -> Result in
-            let operands = try request.decode(as: Operands.self)
+        router.post("divide") { request, context -> Result in
+            let operands = try request.decode(as: Operands.self, using: context)
             return Result(result: operands.lhs / operands.rhs)
         }
+        return router.buildResponder()
     }
+
+    func shutdown() async throws {}
 }

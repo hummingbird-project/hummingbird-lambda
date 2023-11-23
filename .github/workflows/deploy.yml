@@ -11,11 +11,11 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     container:
-      image: swift:5.8-amazonlinux2
+      image: swift:5.9-amazonlinux2
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Archive
-      run: |
-        swift build
-        swift package archive
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Archive
+        run: |
+          swift build
+          swift package archive

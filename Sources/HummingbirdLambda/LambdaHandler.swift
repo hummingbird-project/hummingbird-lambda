@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2021-2021 the Hummingbird authors
+// Copyright (c) 2023 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -14,57 +14,62 @@
 
 import AWSLambdaRuntime
 import Hummingbird
+import Logging
 import NIOCore
+import NIOPosix
 
 /// Specialization of EventLoopLambdaHandler which runs an HBLambda
-public struct HBLambdaHandler<L: HBLambda>: EventLoopLambdaHandler {
+public struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
     public typealias Event = L.Event
     public typealias Output = L.Output
 
-    /// Create a Lambda handler for the runtime.
-    public static func makeHandler(context: LambdaInitializationContext) -> EventLoopFuture<Self> {
-        return context.eventLoop.makeCompletedFuture {
-            let lambda = try Self(context: context)
-
-            context.terminator.register(name: "Application") { eventLoop in
-                return eventLoop.makeCompletedFuture {
-                    try lambda.application.shutdownApplication()
-                }
-            }
-
-            return lambda
-        }
-    }
+    let lambda: L
+    let responder: L.Responder
+    let applicationContext: HBApplicationContext
 
     /// Initialize `HBLambdaHandler`.
     ///
     /// Create application, set it up and create `HBLambda` from application and create responder
     /// - Parameter context: Lambda initialization context
-    init(context: LambdaInitializationContext) throws {
-        // create application
-        let application = HBApplication(eventLoopGroupProvider: .shared(context.eventLoop))
-        application.logger = context.logger
-        // add error middleware to catch HBHTTPErrors
-        application.middleware.add(LambdaErrorMiddleware())
-        // initialize application
-        self.lambda = try .init(application)
-        // store application and responder
-        self.application = application
-        self.responder = application.constructResponder()
+    public init(context: LambdaInitializationContext) async throws {
+        let lambda = try await L()
+
+        context.terminator.register(name: "Application") { eventLoop in
+            return eventLoop.makeFutureWithTask {
+                try await lambda.shutdown()
+            }
+        }
+
+        self.lambda = lambda
+        self.responder = lambda.buildResponder()
+        self.applicationContext = HBApplicationContext(
+            threadPool: NIOThreadPool.singleton,
+            configuration: lambda.configuration,
+            logger: context.logger,
+            encoder: lambda.encoder,
+            decoder: lambda.decoder
+        )
     }
 
     /// Handle invoke
-    public func handle(_ event: Event, context: LambdaContext) -> EventLoopFuture<Output> {
+    public func handle(_ event: Event, context: LambdaContext) async throws -> Output {
+        let requestContext = L.Context(
+            event,
+            applicationContext: self.applicationContext,
+            lambdaContext: context
+        )
+        let request = try lambda.request(context: context, from: event)
+        let response: HBResponse
         do {
-            let request = try lambda.request(context: context, application: self.application, from: event)
-            return self.responder.respond(to: request)
-                .map { self.lambda.output(from: $0) }
+            response = try await self.responder.respond(to: request, context: requestContext)
         } catch {
-            return context.eventLoop.makeFailedFuture(error)
+            if let error = error as? HBHTTPResponseError {
+                response = error.response(allocator: context.allocator)
+            } else {
+                throw error
+            }
         }
-    }
 
-    let application: HBApplication
-    let responder: HBResponder
-    let lambda: L
+        return try await self.lambda.output(from: response)
+    }
 }

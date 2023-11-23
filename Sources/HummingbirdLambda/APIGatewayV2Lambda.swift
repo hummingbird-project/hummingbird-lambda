@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2021-2021 the Hummingbird authors
+// Copyright (c) 2021-2023 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -20,18 +20,15 @@ import NIOHTTP1
 
 extension HBLambda where Event == APIGatewayV2Request {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
-    public func request(context: LambdaContext, application: HBApplication, from: Event) throws -> HBRequest {
-        var request = try HBRequest(context: context, application: application, from: from)
-        // store api gateway v2 request so it is available in routes
-        request.extensions.set(\.apiGatewayV2Request, value: from)
-        return request
+    public func request(context: LambdaContext, from: Event) throws -> HBRequest {
+        return try HBRequest(context: context, from: from)
     }
 }
 
 extension HBLambda where Output == APIGatewayV2Response {
     /// Specialization of HBLambda.request where `Out` is `APIGateway.Response`
-    public func output(from response: HBResponse) -> Output {
-        return response.apiResponse()
+    public func output(from response: HBResponse) async throws -> Output {
+        return try await response.apiResponse()
     }
 }
 
@@ -57,12 +54,5 @@ extension APIGatewayV2Response: APIResponse {
     ) {
         precondition(multiValueHeaders == nil || multiValueHeaders?.count == 0, "Multi value headers are unavailable in APIGatewayV2")
         self.init(statusCode: statusCode, headers: headers, body: body, isBase64Encoded: isBase64Encoded, cookies: nil)
-    }
-}
-
-extension HBRequest {
-    /// `APIGateway.V2.Request` that generated this `HBRequest`
-    public var apiGatewayV2Request: APIGatewayV2Request {
-        self.extensions.get(\.apiGatewayV2Request)
     }
 }

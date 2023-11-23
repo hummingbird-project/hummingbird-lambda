@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2021-2021 the Hummingbird authors
+// Copyright (c) 2023 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -29,7 +29,7 @@ protocol APIResponse {
 }
 
 extension HBResponse {
-    func apiResponse<Response: APIResponse>() -> Response {
+    func apiResponse<Response: APIResponse>() async throws -> Response {
         let groupedHeaders: [String: [String]] = self.headers.reduce([:]) { result, item in
             var result = result
             if result[item.name] == nil {
@@ -55,20 +55,22 @@ extension HBResponse {
         }
         var body: String?
         var isBase64Encoded: Bool?
-        if case .byteBuffer(let buffer) = self.body {
-            if let contentType = self.headers["content-type"].first {
-                let type = contentType[..<(contentType.firstIndex(of: ";") ?? contentType.endIndex)]
-                switch type {
-                case "text/plain", "application/json", "application/x-www-form-urlencoded":
-                    body = String(buffer: buffer)
-                default:
-                    break
-                }
+        let collateWriter = CollateResponseBodyWriter()
+        try await self.body.write(collateWriter)
+        let buffer = collateWriter.buffer
+        if let contentType = self.headers["content-type"].first {
+            let type = contentType[..<(contentType.firstIndex(of: ";") ?? contentType.endIndex)]
+            switch type {
+            case "text/plain", "application/json", "application/x-www-form-urlencoded":
+                body = String(buffer: buffer)
+            default:
+                break
             }
-            if body == nil {
-                body = String(base64Encoding: buffer.readableBytesView)
-                isBase64Encoded = true
-            }
+        }
+
+        if body == nil {
+            body = String(base64Encoding: buffer.readableBytesView)
+            isBase64Encoded = true
         }
         return .init(
             statusCode: .init(code: self.status.code),
