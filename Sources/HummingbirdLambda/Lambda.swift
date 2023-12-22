@@ -40,7 +40,7 @@ public protocol HBLambda {
 extension HBLambda {
     /// Initializes and runs the Lambda function.
     ///
-    /// If you precede your ``EventLoopLambdaHandler`` conformer's declaration with the
+    /// If you precede your `EventLoopLambdaHandler` conformer's declaration with the
     /// [@main](https://docs.swift.org/swift-book/ReferenceManual/Attributes.html#ID626)
     /// attribute, the system calls the conformer's `main()` method to launch the lambda function.
     public static func main() throws {
