@@ -22,4 +22,4 @@ if [ ! $(which sam) ]; then
 fi
 
 cd "$here"/..
-sam deploy --template scripts/sam.yml $@
+sam deploy --stack-name hb-lambda-test --resolve-s3 --template scripts/sam.yml $@
