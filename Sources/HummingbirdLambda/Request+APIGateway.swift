@@ -15,6 +15,7 @@
 import AWSLambdaEvents
 import AWSLambdaRuntime
 import ExtrasBase64
+import Foundation
 import Hummingbird
 import NIOCore
 import NIOHTTP1
@@ -33,6 +34,9 @@ protocol APIRequest {
 extension HBRequest {
     /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
     init(context: LambdaContext, from: some APIRequest) throws {
+        func urlPercentEncoded(_ string: String) -> String {
+            return string.addingPercentEncoding(withAllowedCharacters: .urlQueryComponentAllowed) ?? string
+        }
         // construct URI with query parameters
         var uri = from.path
         var queryParams: [String] = []
@@ -41,13 +45,14 @@ extension HBRequest {
         // from the single value list if they are found in the multi value list
         from.multiValueQueryStringParameters?.forEach { multiValueQuery in
             queryStringParameters[multiValueQuery.key] = nil
-            queryParams += multiValueQuery.value.map { "\(multiValueQuery.key)=\($0)" }
+            queryParams += multiValueQuery.value.map { "\(urlPercentEncoded(multiValueQuery.key))=\(urlPercentEncoded($0))" }
         }
-        queryParams += queryStringParameters.map { "\($0.key)=\($0.value)" }
+        queryParams += queryStringParameters.map {
+            "\(urlPercentEncoded($0.key))=\(urlPercentEncoded($0.value))"
+        }
         if queryParams.count > 0 {
             uri += "?\(queryParams.joined(separator: "&"))"
         }
-
         // construct headers
         var headers = NIOHTTP1.HTTPHeaders(from.headers.map { ($0.key, $0.value) })
         from.multiValueHeaders.forEach { multiValueHeader in
@@ -80,4 +85,12 @@ extension HBRequest {
             body: body.map(HBRequestBody.byteBuffer) ?? .byteBuffer(.init())
         )
     }
+}
+
+extension CharacterSet {
+    static var urlQueryComponentAllowed: CharacterSet = {
+        var cs = CharacterSet.urlQueryAllowed
+        cs.remove(charactersIn: "&=")
+        return cs
+    }()
 }
