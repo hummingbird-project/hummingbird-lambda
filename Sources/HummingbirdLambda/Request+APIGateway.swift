@@ -56,7 +56,6 @@ extension HBRequest {
         if queryParams.count > 0 {
             uri += "?\(queryParams.joined(separator: "&"))"
         }
-        application.logger.info("Full query: \(uri)")
         // construct headers
         var headers = NIOHTTP1.HTTPHeaders(from.headers.map { ($0.key, $0.value) })
         from.multiValueHeaders.forEach { multiValueHeader in
