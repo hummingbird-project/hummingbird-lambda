@@ -30,14 +30,12 @@ protocol APIResponse {
 
 extension HBResponse {
     func apiResponse<Response: APIResponse>() async throws -> Response {
-        let groupedHeaders: [String: [String]] = self.headers.reduce([:]) { result, item in
-            var result = result
-            if result[item.name] == nil {
-                result[item.name] = [item.value]
+        let groupedHeaders: [String: [String]] = self.headers.reduce(into: [:]) { result, item in
+            if result[item.name.rawName] == nil {
+                result[item.name.rawName] = [item.value]
             } else {
-                result[item.name]?.append(item.value)
+                result[item.name.rawName]?.append(item.value)
             }
-            return result
         }
         let singleHeaders = groupedHeaders.compactMapValues { item -> String? in
             if item.count == 1 {
@@ -56,9 +54,9 @@ extension HBResponse {
         var body: String?
         var isBase64Encoded: Bool?
         let collateWriter = CollateResponseBodyWriter()
-        try await self.body.write(collateWriter)
+        _ = try await self.body.write(collateWriter)
         let buffer = collateWriter.buffer
-        if let contentType = self.headers["content-type"].first {
+        if let contentType = self.headers[.contentType] {
             let type = contentType[..<(contentType.firstIndex(of: ";") ?? contentType.endIndex)]
             switch type {
             case "text/plain", "application/json", "application/x-www-form-urlencoded":
@@ -72,8 +70,9 @@ extension HBResponse {
             body = String(base64Encoding: buffer.readableBytesView)
             isBase64Encoded = true
         }
+        
         return .init(
-            statusCode: .init(code: self.status.code),
+            statusCode: AWSLambdaEvents.HTTPResponseStatus(code: UInt(self.status.code)),
             headers: singleHeaders,
             multiValueHeaders: multiHeaders,
             body: body,

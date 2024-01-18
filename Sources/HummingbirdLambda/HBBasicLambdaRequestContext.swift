@@ -1,3 +1,4 @@
+import Foundation
 import Hummingbird
 import NIOCore
 import Logging
@@ -10,15 +11,11 @@ public struct HBBasicLambdaRequestContext<Event: Sendable>: HBLambdaRequestConte
     
     public var coreContext: HBCoreRequestContext
 
-    public init(
-        _ event: Event,
-        applicationContext: HBApplicationContext,
-        lambdaContext: LambdaContext
-    ) {
+    public init(_ event: Event, lambdaContext: LambdaContext) {
         self.event = event
         self.coreContext = .init(
-            applicationContext: applicationContext,
-            eventLoop: lambdaContext.eventLoop,
+            requestDecoder: JSONDecoder(),
+            responseEncoder: JSONEncoder(), 
             allocator: lambdaContext.allocator,
             logger: lambdaContext.logger
         )

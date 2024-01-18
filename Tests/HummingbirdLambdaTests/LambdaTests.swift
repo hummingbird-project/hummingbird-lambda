@@ -118,7 +118,7 @@ final class LambdaTests: XCTestCase {
     func testSimpleRoute() async throws {
         struct HelloLambda: HBAPIGatewayLambda {
             func buildResponder() -> some HBResponder<Context> {
-                let router = HBRouterBuilder(context: Context.self)
+                let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
                 router.get("hello") { _, _ in
                     return "Hello"
@@ -138,7 +138,7 @@ final class LambdaTests: XCTestCase {
     func testBase64Encoding() async throws {
         struct HelloLambda: HBAPIGatewayLambda {
             func buildResponder() -> some HBResponder<Context> {
-                let router = HBRouterBuilder(context: Context.self)
+                let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
                 router.post { request, _ in
                     guard case .byteBuffer(let buffer) = request.body else {
@@ -166,7 +166,7 @@ final class LambdaTests: XCTestCase {
             typealias Context = HBBasicLambdaRequestContext<Event>
 
             func buildResponder() -> some HBResponder<Context> {
-                let router = HBRouterBuilder(context: Context.self)
+                let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
                 router.post { _, _ in
                     return "hello"
@@ -185,7 +185,7 @@ final class LambdaTests: XCTestCase {
     func testErrorEncoding() async throws {
         struct HelloLambda: HBAPIGatewayV2Lambda {
             func buildResponder() -> some HBResponder<Context> {
-                let router = HBRouterBuilder(context: Context.self)
+                let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
                 router.post { _, _ -> String in
                     throw HBHTTPError(.badRequest, message: "BadRequest")

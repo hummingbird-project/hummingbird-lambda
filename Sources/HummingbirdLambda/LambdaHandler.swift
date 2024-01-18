@@ -25,7 +25,6 @@ public struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
 
     let lambda: L
     let responder: L.Responder
-    let applicationContext: HBApplicationContext
 
     /// Initialize `HBLambdaHandler`.
     ///
@@ -42,20 +41,12 @@ public struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
 
         self.lambda = lambda
         self.responder = lambda.buildResponder()
-        self.applicationContext = HBApplicationContext(
-            threadPool: NIOThreadPool.singleton,
-            configuration: lambda.configuration,
-            logger: context.logger,
-            encoder: lambda.encoder,
-            decoder: lambda.decoder
-        )
     }
 
     /// Handle invoke
     public func handle(_ event: Event, context: LambdaContext) async throws -> Output {
         let requestContext = L.Context(
             event,
-            applicationContext: self.applicationContext,
             lambdaContext: context
         )
         let request = try lambda.request(context: context, from: event)

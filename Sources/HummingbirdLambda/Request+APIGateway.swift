@@ -37,6 +37,11 @@ extension HBRequest {
         func urlPercentEncoded(_ string: String) -> String {
             return string.addingPercentEncoding(withAllowedCharacters: .urlQueryComponentAllowed) ?? string
         }
+
+        guard let method = HTTPRequest.Method(from.httpMethod.rawValue) else {
+            throw HBHTTPError(.badRequest)
+        }
+
         // construct URI with query parameters
         var uri = from.path
         var queryParams: [String] = []
@@ -61,12 +66,6 @@ extension HBRequest {
                 headers.add(name: multiValueHeader.key, value: header)
             }
         }
-        let head = HTTPRequestHead(
-            version: .init(major: 2, minor: 0),
-            method: .init(rawValue: from.httpMethod.rawValue),
-            uri: uri,
-            headers: headers
-        )
         // get body
         let body: ByteBuffer?
         if let apiGatewayBody = from.body {
@@ -81,7 +80,12 @@ extension HBRequest {
         }
 
         self.init(
-            head: head,
+            head: .init(
+                method: method,
+                scheme: nil, 
+                authority: nil,
+                path: uri
+            ),
             body: body.map(HBRequestBody.byteBuffer) ?? .byteBuffer(.init())
         )
     }

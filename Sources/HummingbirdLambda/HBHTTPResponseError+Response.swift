@@ -19,12 +19,12 @@ extension HBHTTPResponseError {
     /// - Parameter allocator: Byte buffer allocator used to allocate message body
     /// - Returns: Response
     public func response(allocator: ByteBufferAllocator) -> HBResponse {
-        var headers: HTTPHeaders = self.headers
+        var headers = self.headers
         let body: HBResponseBody
 
         if let message = self.body(allocator: allocator) {
             body = .init(byteBuffer: message)
-            headers.replaceOrAdd(name: "content-length", value: message.readableBytes.description)
+            headers[.contentLength] = message.readableBytes.description
         } else {
             body = .init()
         }
