@@ -132,7 +132,7 @@ final class LambdaTests: XCTestCase {
         let response = try await lambda.handle(event, context: context)
         XCTAssertEqual(response.body, "Hello")
         XCTAssertEqual(response.statusCode, .ok)
-        XCTAssertEqual(response.headers?["content-type"], "text/plain; charset=utf-8")
+        XCTAssertEqual(response.headers?["Content-Type"], "text/plain; charset=utf-8")
     }
 
     func testBase64Encoding() async throws {
@@ -184,11 +184,13 @@ final class LambdaTests: XCTestCase {
 
     func testErrorEncoding() async throws {
         struct HelloLambda: HBAPIGatewayV2Lambda {
+            static let body = "BadRequest"
+
             func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
                 router.post { _, _ -> String in
-                    throw HBHTTPError(.badRequest, message: "BadRequest")
+                    throw HBHTTPError(.badRequest, message: Self.body)
                 }
                 return router.buildResponder()
             }
@@ -199,6 +201,7 @@ final class LambdaTests: XCTestCase {
         let event = try newV2Event(uri: "/", method: "POST")
         let response = try await lambda.handle(event, context: context)
         XCTAssertEqual(response.statusCode, .badRequest)
-        XCTAssertEqual(response.body, "BadRequest")
+        XCTAssertEqual(response.body, HelloLambda.body)
+        XCTAssertEqual(response.headers?["Content-Length"], HelloLambda.body.utf8.count.description)
     }
 }
