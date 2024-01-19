@@ -1,3 +1,4 @@
+import AWSLambdaRuntimeCore
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the Hummingbird server framework project
@@ -13,7 +14,6 @@
 //===----------------------------------------------------------------------===//
 import Logging
 import NIOCore
-import AWSLambdaRuntimeCore
 
 /// A Request Context that contains the Event that triggered the Lambda
 public protocol HBLambdaRequestContext<Event>: HBBaseRequestContext {

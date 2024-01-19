@@ -20,7 +20,7 @@ import Logging
 import NIOCore
 
 /// The default Lambda request context.
-/// 
+///
 /// This context contains the ``HBBasicLambdaRequestContext/Event`` that triggered the lambda.
 public struct HBBasicLambdaRequestContext<Event: Sendable>: HBLambdaRequestContext {
     /// The Event that triggered the Lambda

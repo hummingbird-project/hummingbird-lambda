@@ -70,7 +70,7 @@ extension HBResponse {
             body = String(base64Encoding: buffer.readableBytesView)
             isBase64Encoded = true
         }
-        
+
         return .init(
             statusCode: AWSLambdaEvents.HTTPResponseStatus(code: UInt(self.status.code)),
             headers: singleHeaders,

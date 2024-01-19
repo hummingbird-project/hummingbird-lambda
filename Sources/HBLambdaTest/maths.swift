@@ -21,7 +21,7 @@ import Logging
 
 struct DebugMiddleware: HBMiddlewareProtocol {
     typealias Context = MathsHandler.Context
-    
+
     func handle(
         _ request: HBRequest,
         context: Context,

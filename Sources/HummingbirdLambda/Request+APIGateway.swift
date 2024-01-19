@@ -82,7 +82,7 @@ extension HBRequest {
         self.init(
             head: .init(
                 method: method,
-                scheme: nil, 
+                scheme: nil,
                 authority: nil,
                 path: uri
             ),
