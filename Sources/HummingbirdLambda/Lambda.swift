@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2023 the Hummingbird authors
+// Copyright (c) 2023-2024 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -21,6 +21,8 @@ import NIOCore
 import NIOPosix
 
 /// Protocol for Hummingbird Lambdas. Define the `In` and `Out` types, how you convert from `In` to `HBRequest` and `HBResponse` to `Out`
+///
+/// - SeeAlso: ``HBAPIGatewayLambda`` and ``HBAPIGatewayV2Lambda`` for specializations of this protocol.
 public protocol HBLambda {
     associatedtype Event: Decodable
     associatedtype Context: HBLambdaRequestContext<Event> = HBBasicLambdaRequestContext<Event>
