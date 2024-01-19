@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2023 the Hummingbird authors
+// Copyright (c) 2023-2024 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -18,14 +18,13 @@ import Logging
 import NIOCore
 import NIOPosix
 
-/// Specialization of EventLoopLambdaHandler which runs an HBLambda
+/// Specialization of LambdaHandler which runs an HBLambda
 public struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
     public typealias Event = L.Event
     public typealias Output = L.Output
 
     let lambda: L
     let responder: L.Responder
-    let applicationContext: HBApplicationContext
 
     /// Initialize `HBLambdaHandler`.
     ///
@@ -42,20 +41,14 @@ public struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
 
         self.lambda = lambda
         self.responder = lambda.buildResponder()
-        self.applicationContext = HBApplicationContext(
-            threadPool: NIOThreadPool.singleton,
-            configuration: lambda.configuration,
-            logger: context.logger,
-            encoder: lambda.encoder,
-            decoder: lambda.decoder
-        )
     }
 
-    /// Handle invoke
+    /// Handle an invocation of this Lambda
+    /// - Parameter event: The event that triggered the Lambda
+    /// - Parameter context: The context for this invocation.
     public func handle(_ event: Event, context: LambdaContext) async throws -> Output {
         let requestContext = L.Context(
             event,
-            applicationContext: self.applicationContext,
             lambdaContext: context
         )
         let request = try lambda.request(context: context, from: event)

@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2021-2023 the Hummingbird authors
+// Copyright (c) 2021-2024 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -19,14 +19,14 @@ import NIOCore
 import NIOHTTP1
 
 extension HBLambda where Event == APIGatewayRequest {
-    /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
+    /// Specialization of HBLambda.request where `In` is `APIGatewayRequest`
     public func request(context: LambdaContext, from: Event) throws -> HBRequest {
         return try HBRequest(context: context, from: from)
     }
 }
 
 extension HBLambda where Output == APIGatewayResponse {
-    /// Specialization of HBLambda.request where `Out` is `APIGateway.Response`
+    /// Specialization of HBLambda.request where `Out` is `APIGatewayResponse`
     public func output(from response: HBResponse) async throws -> Output {
         return try await response.apiResponse()
     }

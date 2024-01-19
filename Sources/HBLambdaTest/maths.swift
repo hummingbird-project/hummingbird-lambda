@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2021-2021 the Hummingbird authors
+// Copyright (c) 2021-2024 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -19,18 +19,18 @@ import HummingbirdFoundation
 import HummingbirdLambda
 import Logging
 
-struct DebugMiddleware: HBMiddleware {
+struct DebugMiddleware: HBMiddlewareProtocol {
     typealias Context = MathsHandler.Context
 
-    func apply(
-        to request: HBRequest,
+    func handle(
+        _ request: HBRequest,
         context: Context,
-        next: any HBResponder<Context>
-    ) async throws -> HBResponse {
+        next: (HBRequest, Context) async throws -> Output
+    ) async throws -> Output {
         context.logger.debug("\(request.method) \(request.uri)")
         context.logger.debug("\(context.event)")
 
-        return try await next.respond(to: request, context: context)
+        return try await next(request, context)
     }
 }
 
@@ -50,22 +50,22 @@ struct MathsHandler: HBLambda {
     }
 
     func buildResponder() -> some HBResponder<Context> {
-        let router = HBRouterBuilder(context: Context.self)
+        let router = HBRouter(context: Context.self)
         router.middlewares.add(DebugMiddleware())
         router.post("add") { request, context -> Result in
-            let operands = try request.decode(as: Operands.self, using: context)
+            let operands = try await request.decode(as: Operands.self, context: context)
             return Result(result: operands.lhs + operands.rhs)
         }
         router.post("subtract") { request, context -> Result in
-            let operands = try request.decode(as: Operands.self, using: context)
+            let operands = try await request.decode(as: Operands.self, context: context)
             return Result(result: operands.lhs - operands.rhs)
         }
         router.post("multiply") { request, context -> Result in
-            let operands = try request.decode(as: Operands.self, using: context)
+            let operands = try await request.decode(as: Operands.self, context: context)
             return Result(result: operands.lhs * operands.rhs)
         }
         router.post("divide") { request, context -> Result in
-            let operands = try request.decode(as: Operands.self, using: context)
+            let operands = try await request.decode(as: Operands.self, context: context)
             return Result(result: operands.lhs / operands.rhs)
         }
         return router.buildResponder()
