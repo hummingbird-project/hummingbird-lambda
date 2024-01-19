@@ -1,21 +1,22 @@
+import AWSLambdaRuntimeCore
 import Foundation
 import Hummingbird
-import NIOCore
+import HummingbirdFoundation
 import Logging
-import AWSLambdaRuntimeCore
+import NIOCore
 
 /// The default Lambda request context
 public struct HBBasicLambdaRequestContext<Event: Sendable>: HBLambdaRequestContext {
     /// The Event that triggered the Lambda
     public let event: Event
-    
+
     public var coreContext: HBCoreRequestContext
+    public var requestDecoder: JSONDecoder { .init() }
+    public var responseEncoder: JSONEncoder { .init() }
 
     public init(_ event: Event, lambdaContext: LambdaContext) {
         self.event = event
         self.coreContext = .init(
-            requestDecoder: JSONDecoder(),
-            responseEncoder: JSONEncoder(), 
             allocator: lambdaContext.allocator,
             logger: lambdaContext.logger
         )
