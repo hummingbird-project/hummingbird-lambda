@@ -35,11 +35,7 @@ struct DebugMiddleware: HBMiddlewareProtocol {
 }
 
 @main
-struct MathsHandler: HBLambda {
-    typealias Event = APIGatewayRequest
-    typealias Output = APIGatewayResponse
-    typealias Context = HBBasicLambdaRequestContext<Event>
-
+struct MathsHandler: HBAPIGatewayLambda {
     struct Operands: Decodable {
         let lhs: Double
         let rhs: Double

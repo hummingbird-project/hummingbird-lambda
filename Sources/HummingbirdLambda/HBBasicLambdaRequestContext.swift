@@ -15,7 +15,6 @@
 import AWSLambdaRuntimeCore
 import Foundation
 import Hummingbird
-import HummingbirdFoundation
 import Logging
 import NIOCore
 
@@ -27,8 +26,6 @@ public struct HBBasicLambdaRequestContext<Event: Sendable>: HBLambdaRequestConte
     public let event: Event
 
     public var coreContext: HBCoreRequestContext
-    public var requestDecoder: JSONDecoder { .init() }
-    public var responseEncoder: JSONEncoder { .init() }
 
     /// Initialize Lambda request context
     public init(_ event: Event, lambdaContext: LambdaContext) {
