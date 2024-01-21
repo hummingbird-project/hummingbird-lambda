@@ -15,7 +15,6 @@
 import AWSLambdaEvents
 import AWSLambdaRuntime
 import Hummingbird
-import HummingbirdFoundation
 import HummingbirdLambda
 import Logging
 
