@@ -24,11 +24,9 @@ let package = Package(
             .product(name: "AWSLambdaEvents", package: "swift-aws-lambda-events"),
             .product(name: "ExtrasBase64", package: "swift-extras-base64"),
             .product(name: "Hummingbird", package: "hummingbird"),
-            .product(name: "HummingbirdFoundation", package: "hummingbird"),
         ]),
         .executableTarget(name: "HBLambdaTest", dependencies: [
             .byName(name: "HummingbirdLambda"),
-            .product(name: "HummingbirdFoundation", package: "hummingbird"),
         ]),
         .testTarget(name: "HummingbirdLambdaTests", dependencies: [
             .byName(name: "HummingbirdLambda"),
