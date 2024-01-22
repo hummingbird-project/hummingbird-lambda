@@ -12,4 +12,4 @@
 //
 //===----------------------------------------------------------------------===//
 
-@_exported import Hummingbird
+@_exported @_documentation(visibility: internal) import Hummingbird
