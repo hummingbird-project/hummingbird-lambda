@@ -15,7 +15,7 @@ let package = Package(
         .package(url: "https://github.com/swift-server/swift-aws-lambda-runtime.git", from: "1.0.0-alpha.1"),
         .package(url: "https://github.com/swift-server/swift-aws-lambda-events.git", from: "0.1.0"),
         .package(url: "https://github.com/swift-extras/swift-extras-base64.git", from: "0.5.0"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird.git", branch: "2.x.x"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.0.0-alpha.1"),
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.32.0"),
     ],
     targets: [
