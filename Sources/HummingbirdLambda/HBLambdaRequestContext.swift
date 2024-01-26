@@ -15,7 +15,12 @@ import AWSLambdaRuntimeCore
 import Logging
 import NIOCore
 
-/// A Request Context that contains the Event that triggered the Lambda
+/// A Request Context that is initialized with the Event that triggered the Lambda
+///
+/// All Hummingbird Lambdas require that your request context conforms to
+/// `HBLambdaRequestContext`. By default ``HBLambda`` will use ``HBBasicLambdaRequestContext``
+/// for a request context. To get ``HBLambda`` to use a custom context you need to set the
+/// `Context` associatedtype.
 public protocol HBLambdaRequestContext<Event>: HBBaseRequestContext {
     /// The type of event that can trigger the Lambda
     associatedtype Event

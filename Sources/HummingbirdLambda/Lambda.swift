@@ -19,13 +19,35 @@ import Logging
 import NIOCore
 import NIOPosix
 
-/// Protocol for Hummingbird Lambdas. Define the `In` and `Out` types, how you convert from `In` to `HBRequest` and `HBResponse` to `Out`
+/// Protocol for Hummingbird Lambdas.
 ///
+/// Defines the `Event` and `Output` types, how you convert from `Event` to ``HBRequest``
+/// and ``HBResponse`` to `Output`. Create a type conforming to this protocol and tag it
+/// with `@main`.
+/// ```swift
+/// struct MyLambda: HBLambda {
+///     typealias Event = APIGatewayRequest
+///     typealias Output = APIGatewayResponse
+///     typealias Context = MyLambdaRequestContext // must conform to `HBLambdaRequestContext`
+///     /// build responder that will create a response from a request
+///     func buildResponder() -> some HBResponder<Context> {
+///         let router = HBRouter(context: Context.self)
+///         router.get("hello") { _,_ in
+///             "Hello"
+///         }
+///         return router.buildResponder()
+///     }
+/// }
+/// ```
 /// - SeeAlso: ``HBAPIGatewayLambda`` and ``HBAPIGatewayV2Lambda`` for specializations of this protocol.
 public protocol HBLambda {
+    /// Event that triggers the lambda
     associatedtype Event: Decodable
+    /// Request context
     associatedtype Context: HBLambdaRequestContext<Event> = HBBasicLambdaRequestContext<Event>
+    /// Output of lambda
     associatedtype Output: Encodable
+    /// HTTP Responder
     associatedtype Responder: HBResponder<Context>
 
     func buildResponder() -> Responder
@@ -47,16 +69,6 @@ public protocol HBLambda {
     /// Convert from `HBResponse` to `Out` type
     /// - Parameter from: response from Hummingbird
     func output(from: HBResponse) async throws -> Output
-}
-
-/// Protocol for Hummingbird Lambdas that use APIGateway
-public protocol HBAPIGatewayLambda: HBLambda where Event == APIGatewayRequest, Output == APIGatewayResponse {
-    associatedtype Context = HBBasicLambdaRequestContext<APIGatewayRequest>
-}
-
-/// Protocol for Hummingbird Lambdas that use APIGatewayV2
-public protocol HBAPIGatewayV2Lambda: HBLambda where Event == APIGatewayV2Request, Output == APIGatewayV2Response {
-    associatedtype Context = HBBasicLambdaRequestContext<APIGatewayV2Request>
 }
 
 extension HBLambda {

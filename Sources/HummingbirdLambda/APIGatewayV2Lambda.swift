@@ -18,15 +18,36 @@ import Hummingbird
 import NIOCore
 import NIOHTTP1
 
+/// Protocol for Hummingbird Lambdas that use APIGatewayV2
+///
+/// With this protocol you no longer need to set the `Event` and `Output`
+/// associated values.
+/// ```swift
+/// struct MyLambda: HBAPIGatewayLambda {
+///     typealias Context = MyLambdaRequestContext
+///     /// build responder that will create a response from a request
+///     func buildResponder() -> some HBResponder<Context> {
+///         let router = HBRouter(context: Context.self)
+///         router.get("hello") { _,_ in
+///             "Hello"
+///         }
+///         return router.buildResponder()
+///     }
+/// }
+/// ```
+public protocol HBAPIGatewayV2Lambda: HBLambda where Event == APIGatewayV2Request, Output == APIGatewayV2Response {
+    associatedtype Context = HBBasicLambdaRequestContext<APIGatewayV2Request>
+}
+
 extension HBLambda where Event == APIGatewayV2Request {
-    /// Specialization of HBLambda.request where `In` is `APIGatewayV2Request`
+    /// Specialization of HBLambda.request where `Event` is `APIGatewayV2Request`
     public func request(context: LambdaContext, from: Event) throws -> HBRequest {
         return try HBRequest(context: context, from: from)
     }
 }
 
 extension HBLambda where Output == APIGatewayV2Response {
-    /// Specialization of HBLambda.request where `Out` is `APIGatewayV2Response`
+    /// Specialization of HBLambda.request where `Output` is `APIGatewayV2Response`
     public func output(from response: HBResponse) async throws -> Output {
         return try await response.apiResponse()
     }
