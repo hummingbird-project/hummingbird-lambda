@@ -19,7 +19,7 @@ import NIOCore
 import NIOPosix
 
 /// Specialization of LambdaHandler which runs an HBLambda
-public struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
+struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
     public typealias Event = L.Event
     public typealias Output = L.Output
 

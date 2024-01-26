@@ -14,7 +14,7 @@
 
 import AWSLambdaEvents
 @testable import AWSLambdaRuntimeCore
-import HummingbirdLambda
+@testable import HummingbirdLambda
 import Logging
 import NIOCore
 import NIOPosix
