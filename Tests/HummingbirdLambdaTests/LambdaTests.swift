@@ -117,6 +117,8 @@ final class LambdaTests: XCTestCase {
 
     func testSimpleRoute() async throws {
         struct HelloLambda: HBAPIGatewayLambda {
+            init(context: LambdaInitializationContext) {}
+
             func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
@@ -137,6 +139,7 @@ final class LambdaTests: XCTestCase {
 
     func testBase64Encoding() async throws {
         struct HelloLambda: HBAPIGatewayLambda {
+            init(context: LambdaInitializationContext) {}
             func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
@@ -165,6 +168,8 @@ final class LambdaTests: XCTestCase {
             typealias Output = APIGatewayV2Response
             typealias Context = HBBasicLambdaRequestContext<Event>
 
+            init(context: LambdaInitializationContext) {}
+
             func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
@@ -185,6 +190,7 @@ final class LambdaTests: XCTestCase {
     func testErrorEncoding() async throws {
         struct HelloLambda: HBAPIGatewayV2Lambda {
             static let body = "BadRequest"
+            init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouter(context: Context.self)

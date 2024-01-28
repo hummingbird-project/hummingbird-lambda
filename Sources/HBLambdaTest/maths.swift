@@ -44,6 +44,8 @@ struct MathsHandler: HBAPIGatewayLambda {
         let result: Double
     }
 
+    init(context: LambdaInitializationContext) {}
+
     func buildResponder() -> some HBResponder<Context> {
         let router = HBRouter(context: Context.self)
         router.middlewares.add(DebugMiddleware())

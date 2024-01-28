@@ -31,7 +31,7 @@ struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
     /// Create application, set it up and create `HBLambda` from application and create responder
     /// - Parameter context: Lambda initialization context
     public init(context: LambdaInitializationContext) async throws {
-        let lambda = try await L()
+        let lambda = try await L(context: context)
 
         context.terminator.register(name: "Application") { eventLoop in
             return eventLoop.makeFutureWithTask {
