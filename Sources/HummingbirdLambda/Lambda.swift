@@ -53,9 +53,7 @@ public protocol HBLambda {
     func buildResponder() -> Responder
 
     /// Initialize application.
-    ///
-    /// This is where you add your routes, and setup middleware
-    init() async throws
+    init(context: LambdaInitializationContext) async throws
 
     /// Called when Lambda is terminating. This is where you can cleanup any resources
     func shutdown() async throws
