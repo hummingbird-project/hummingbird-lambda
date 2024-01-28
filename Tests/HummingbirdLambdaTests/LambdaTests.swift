@@ -51,7 +51,72 @@ final class LambdaTests: XCTestCase {
     func newEvent(uri: String, method: String, body: ByteBuffer? = nil) throws -> APIGatewayRequest {
         let base64Body = body.map { "\"\(String(base64Encoding: $0.readableBytesView))\"" } ?? "null"
         let request = """
-          {"httpMethod": "\(method)", "body": \(base64Body), "resource": "\(uri)", "requestContext": {"resourceId": "123456", "apiId": "1234567890", "resourcePath": "\(uri)", "httpMethod": "\(method)", "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef", "accountId": "123456789012", "stage": "Prod", "identity": {"apiKey": null, "userArn": null, "cognitoAuthenticationType": null, "caller": null, "userAgent": "Custom User Agent String", "user": null, "cognitoIdentityPoolId": null, "cognitoAuthenticationProvider": null, "sourceIp": "127.0.0.1", "accountId": null}, "extendedRequestId": null, "path": "\(uri)"}, "queryStringParameters": null, "multiValueQueryStringParameters": null, "headers": {"Host": "127.0.0.1:3000", "Connection": "keep-alive", "Cache-Control": "max-age=0", "Dnt": "1", "Upgrade-Insecure-Requests": "1", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36 Edg/78.0.276.24", "Sec-Fetch-User": "?1", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3", "Sec-Fetch-Site": "none", "Sec-Fetch-Mode": "navigate", "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "en-US,en;q=0.9", "X-Forwarded-Proto": "http", "X-Forwarded-Port": "3000"}, "multiValueHeaders": {"Host": ["127.0.0.1:3000"], "Connection": ["keep-alive"], "Cache-Control": ["max-age=0"], "Dnt": ["1"], "Upgrade-Insecure-Requests": ["1"], "User-Agent": ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36 Edg/78.0.276.24"], "Sec-Fetch-User": ["?1"], "Accept": ["text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3"], "Sec-Fetch-Site": ["none"], "Sec-Fetch-Mode": ["navigate"], "Accept-Encoding": ["gzip, deflate, br"], "Accept-Language": ["en-US,en;q=0.9"], "X-Forwarded-Proto": ["http"], "X-Forwarded-Port": ["3000"]}, "pathParameters": null, "stageVariables": null, "path": "\(uri)", "isBase64Encoded": \(body != nil)}
+        {
+            "httpMethod": "\(method)", 
+            "body": \(base64Body), 
+            "resource": "\(uri)", 
+            "requestContext": {
+                "resourceId": "123456", 
+                "apiId": "1234567890", 
+                "resourcePath": "\(uri)", 
+                "httpMethod": "\(method)", 
+                "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef", 
+                "accountId": "123456789012", 
+                "stage": "Prod", 
+                "identity": {
+                    "apiKey": null, 
+                    "userArn": null, 
+                    "cognitoAuthenticationType": null, 
+                    "caller": null, 
+                    "userAgent": "Custom User Agent String", 
+                    "user": null, 
+                    "cognitoIdentityPoolId": null, 
+                    "cognitoAuthenticationProvider": null, 
+                    "sourceIp": "127.0.0.1", 
+                    "accountId": null
+                }, 
+                "extendedRequestId": null, 
+                "path": "\(uri)"
+            }, 
+            "queryStringParameters": null, 
+            "multiValueQueryStringParameters": null, 
+            "headers": {
+                "Host": "127.0.0.1:3000", 
+                "Connection": "keep-alive", 
+                "Cache-Control": "max-age=0", 
+                "Dnt": "1", 
+                "Upgrade-Insecure-Requests": "1", 
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36 Edg/78.0.276.24", 
+                "Sec-Fetch-User": "?1", 
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3", 
+                "Sec-Fetch-Site": "none", 
+                "Sec-Fetch-Mode": "navigate", 
+                "Accept-Encoding": "gzip, deflate, br", 
+                "Accept-Language": "en-US,en;q=0.9", 
+                "X-Forwarded-Proto": "http", 
+                "X-Forwarded-Port": "3000"
+            }, 
+            "multiValueHeaders": {
+                "Host": ["127.0.0.1:3000"], 
+                "Connection": ["keep-alive"], 
+                "Cache-Control": ["max-age=0"], 
+                "Dnt": ["1"], 
+                "Upgrade-Insecure-Requests": ["1"], 
+                "User-Agent": ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36 Edg/78.0.276.24"], 
+                "Sec-Fetch-User": ["?1"], 
+                "Accept": ["text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3"], 
+                "Sec-Fetch-Site": ["none"], 
+                "Sec-Fetch-Mode": ["navigate"], 
+                "Accept-Encoding": ["gzip, deflate, br"], 
+                "Accept-Language": ["en-US,en;q=0.9"], 
+                "X-Forwarded-Proto": ["http"], 
+                "X-Forwarded-Port": ["3000"]
+            }, 
+            "pathParameters": null, 
+            "stageVariables": null, 
+            "path": "\(uri)", 
+            "isBase64Encoded": \(body != nil)
+        }
         """
         return try JSONDecoder().decode(APIGatewayRequest.self, from: Data(request.utf8))
     }
@@ -122,7 +187,9 @@ final class LambdaTests: XCTestCase {
             func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
-                router.get("hello") { _, _ in
+                router.get("hello") { request, _ in
+                    XCTAssertEqual(request.head.authority, "127.0.0.1:3000")
+                    XCTAssertEqual(request.headers[.userAgent], "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36 Edg/78.0.276.24")
                     return "Hello"
                 }
                 return router.buildResponder()
@@ -173,7 +240,9 @@ final class LambdaTests: XCTestCase {
             func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
-                router.post { _, _ in
+                router.post { request, _ in
+                    XCTAssertEqual(request.headers[.authorization], "Bearer abc123")
+                    XCTAssertEqual(request.head.authority, "hello.test.com")
                     return "hello"
                 }
                 return router.buildResponder()
