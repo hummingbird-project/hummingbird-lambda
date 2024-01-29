@@ -25,6 +25,9 @@ import NIOHTTP1
 /// ```swift
 /// struct MyLambda: HBAPIGatewayLambda {
 ///     typealias Context = MyLambdaRequestContext
+/// 
+///     init(context: LambdaInitializationContext) {}
+/// 
 ///     /// build responder that will create a response from a request
 ///     func buildResponder() -> some HBResponder<Context> {
 ///         let router = HBRouter(context: Context.self)
