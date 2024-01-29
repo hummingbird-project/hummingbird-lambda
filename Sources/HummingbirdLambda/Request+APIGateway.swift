@@ -16,9 +16,9 @@ import AWSLambdaEvents
 import AWSLambdaRuntime
 import ExtrasBase64
 import Foundation
+import HTTPTypes
 import Hummingbird
 import NIOCore
-import NIOHTTP1
 
 protocol APIRequest {
     var path: String { get }
@@ -59,13 +59,9 @@ extension HBRequest {
             uri += "?\(queryParams.joined(separator: "&"))"
         }
         // construct headers
-        var headers = NIOHTTP1.HTTPHeaders(from.headers.map { ($0.key, $0.value) })
-        from.multiValueHeaders.forEach { multiValueHeader in
-            headers.remove(name: multiValueHeader.key)
-            for header in multiValueHeader.value {
-                headers.add(name: multiValueHeader.key, value: header)
-            }
-        }
+        var authority: String?
+        let headers = HTTPFields(headers: from.headers, multiValueHeaders: from.multiValueHeaders, authority: &authority)
+
         // get body
         let body: ByteBuffer?
         if let apiGatewayBody = from.body {
@@ -82,12 +78,51 @@ extension HBRequest {
         self.init(
             head: .init(
                 method: method,
-                scheme: nil,
-                authority: nil,
-                path: uri
+                scheme: "https",
+                authority: authority,
+                path: uri,
+                headerFields: headers
             ),
             body: body.map(HBRequestBody.byteBuffer) ?? .byteBuffer(.init())
         )
+    }
+}
+
+extension HTTPFields {
+    /// Initialize HTTPFields from HTTP headers and multivalue headers in an APIGateway request
+    /// - Parameters:
+    ///   - headers: headers
+    ///   - multiValueHeaders: multi-value headers
+    ///   - authority: reference to authority string
+    init(headers: AWSLambdaEvents.HTTPHeaders, multiValueHeaders: HTTPMultiValueHeaders, authority: inout String?) {
+        self.init()
+        self.reserveCapacity(headers.count)
+        var firstHost = true
+        for (name, values) in multiValueHeaders {
+            if firstHost, name.lowercased() == "host" {
+                if let value = values.first {
+                    firstHost = false
+                    authority = value
+                    continue
+                }
+            }
+            if let fieldName = HTTPField.Name(name) {
+                for value in values {
+                    self.append(HTTPField(name: fieldName, value: value))
+                }
+            }
+        }
+        for (name, value) in headers {
+            if firstHost, name.lowercased() == "host" {
+                firstHost = false
+                authority = value
+                continue
+            }
+            if let fieldName = HTTPField.Name(name) {
+                if self[fieldName] != nil { continue }
+                self.append(HTTPField(name: fieldName, value: value))
+            }
+        }
     }
 }
 
