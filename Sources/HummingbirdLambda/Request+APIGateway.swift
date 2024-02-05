@@ -83,7 +83,7 @@ extension HBRequest {
                 path: uri,
                 headerFields: headers
             ),
-            body: body.map(HBRequestBody.byteBuffer) ?? .byteBuffer(.init())
+            body: body.map{.init(buffer: $0)} ?? .init(buffer: .init())
         )
     }
 }
