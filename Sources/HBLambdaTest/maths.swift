@@ -27,14 +27,24 @@ struct DebugMiddleware: HBMiddlewareProtocol {
         next: (HBRequest, Context) async throws -> Output
     ) async throws -> Output {
         context.logger.debug("\(request.method) \(request.uri)")
-        context.logger.debug("\(context.event)")
+
+        switch context {
+        case .lambda(let context):
+            context.logger.debug("\(context.event)")
+        case .http(let context):
+            context.logger.debug("HTTP Event \(context.id)")
+        }
 
         return try await next(request, context)
     }
 }
 
 @main
-struct MathsHandler: HBAPIGatewayLambda {
+struct MathsHandler: HBMixedLambdaApplication {
+    typealias Event = APIGatewayRequest
+    typealias Output = APIGatewayResponse
+    typealias Context = HBBasicMixedLambdaContext<Event>
+
     struct Operands: Decodable {
         let lhs: Double
         let rhs: Double
@@ -44,7 +54,18 @@ struct MathsHandler: HBAPIGatewayLambda {
         let result: Double
     }
 
+    static var hostingMode: HostingMode {
+        get throws {
+            if try HBEnvironment.dotEnv().get("SERVE_HTTP", as: Bool.self) == true {
+                return .server
+            } else {
+                return .lambda
+            }
+        }
+    }
+
     init(context: LambdaInitializationContext) {}
+    init() {}
 
     func buildResponder() -> some HBResponder<Context> {
         let router = HBRouter(context: Context.self)
