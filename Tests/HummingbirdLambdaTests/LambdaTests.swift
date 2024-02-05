@@ -210,7 +210,7 @@ final class LambdaTests: XCTestCase {
             func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
-                router.post { request, context in
+                router.post { request, _ in
                     let buffer = try await request.body.collect(upTo: .max)
                     return HBResponse(status: .ok, body: .init(byteBuffer: buffer))
                 }

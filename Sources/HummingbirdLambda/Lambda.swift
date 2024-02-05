@@ -29,9 +29,9 @@ import NIOPosix
 ///     typealias Event = APIGatewayRequest
 ///     typealias Output = APIGatewayResponse
 ///     typealias Context = MyLambdaRequestContext // must conform to `HBLambdaRequestContext`
-/// 
+///
 ///     init(context: LambdaInitializationContext) {}
-/// 
+///
 ///     /// build responder that will create a response from a request
 ///     func buildResponder() -> some HBResponder<Context> {
 ///         let router = HBRouter(context: Context.self)
