@@ -21,8 +21,8 @@ import NIOPosix
 
 /// Protocol for Hummingbird Lambdas.
 ///
-/// Defines the `Event` and `Output` types, how you convert from `Event` to ``HBRequest``
-/// and ``HBResponse`` to `Output`. Create a type conforming to this protocol and tag it
+/// Defines the `Event` and `Output` types, how you convert from `Event` to ``HummingbirdCore/HBRequest``
+/// and ``HummingbirdCore/HBResponse`` to `Output`. Create a type conforming to this protocol and tag it
 /// with `@main`.
 /// ```swift
 /// struct MyLambda: HBLambda {
