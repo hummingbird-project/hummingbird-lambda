@@ -15,6 +15,7 @@
 import AWSLambdaEvents
 @testable import AWSLambdaRuntimeCore
 @testable import HummingbirdLambda
+import HummingbirdLambdaXCT
 import Logging
 import NIOCore
 import NIOPosix
@@ -276,5 +277,28 @@ final class LambdaTests: XCTestCase {
         XCTAssertEqual(response.statusCode, .badRequest)
         XCTAssertEqual(response.body, HelloLambda.body)
         XCTAssertEqual(response.headers?["Content-Length"], HelloLambda.body.utf8.count.description)
+    }
+
+    func testXCT() async throws {
+        struct HelloLambda: HBAPIGatewayLambda {
+            // define input and output
+            init(context: LambdaInitializationContext) {}
+
+            func buildResponder() -> some HBResponder<Context> {
+                let router = HBRouter(context: Context.self)
+                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+                router.post { request, _ in
+                    XCTAssertEqual(request.headers[.authorization], "Bearer abc123")
+                    return "hello"
+                }
+                return router.buildResponder()
+            }
+        }
+        try await HelloLambda.test { client in
+            try await client.XCTExecute(uri: "/", method: .post, headers: [.authorization: "Bearer abc123"]) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+                XCTAssertEqual(response.body, "hello")
+            }
+        }
     }
 }

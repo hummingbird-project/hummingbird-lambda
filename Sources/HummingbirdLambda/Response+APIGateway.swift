@@ -57,9 +57,9 @@ extension HBResponse {
         _ = try await self.body.write(collateWriter)
         let buffer = collateWriter.buffer
         if let contentType = self.headers[.contentType] {
-            let type = contentType[..<(contentType.firstIndex(of: ";") ?? contentType.endIndex)]
-            switch type {
-            case "text/plain", "application/json", "application/x-www-form-urlencoded":
+            let mediaType = HBMediaType(from: contentType)
+            switch mediaType {
+            case .some(.text), .some(.applicationJson), .some(.applicationUrlEncoded):
                 body = String(buffer: buffer)
             default:
                 break
