@@ -42,8 +42,10 @@ extension APIGatewayV2Request: APIRequest {
     }
 
     var httpMethod: AWSLambdaEvents.HTTPMethod { context.http.method }
-    var multiValueQueryStringParameters: [String: [String]]? { nil }
-    var multiValueHeaders: HTTPMultiValueHeaders { [:] }
+    var queryString: String { self.rawQueryString }
+    var httpHeaders: HTTPHeaders {
+        return HTTPHeaders(self.headers.map { ($0.key, $0.value) })
+    }
 }
 
 // conform `APIGatewayV2Response` to `APIResponse` so we can use HBResponse.apiReponse()

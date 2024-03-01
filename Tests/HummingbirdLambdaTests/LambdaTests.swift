@@ -55,15 +55,23 @@ final class LambdaTests: XCTestCase {
         )
     }
 
-    func newEvent(uri: String, method: String, body: ByteBuffer? = nil) throws -> APIGatewayRequest {
+    func newEvent(
+        uri: String,
+        method: String,
+        queryValues: [String: String]? = nil,
+        multiQueryValues: [String: [String]]? = nil,
+        body: ByteBuffer? = nil
+    ) throws -> APIGatewayRequest {
         let base64Body = body.map { "\"\(String(base64Encoding: $0.readableBytesView))\"" } ?? "null"
+        let queryValuesString = try queryValues.map { try String(decoding: JSONEncoder().encode($0), as: UTF8.self) } ?? "null"
+        let multiQueryValuesString = try multiQueryValues.map { try String(decoding: JSONEncoder().encode($0), as: UTF8.self) } ?? "null"
         let request = """
-          {"httpMethod": "\(method)", "body": \(base64Body), "resource": "\(uri)", "requestContext": {"resourceId": "123456", "apiId": "1234567890", "resourcePath": "\(uri)", "httpMethod": "\(method)", "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef", "accountId": "123456789012", "stage": "Prod", "identity": {"apiKey": null, "userArn": null, "cognitoAuthenticationType": null, "caller": null, "userAgent": "Custom User Agent String", "user": null, "cognitoIdentityPoolId": null, "cognitoAuthenticationProvider": null, "sourceIp": "127.0.0.1", "accountId": null}, "extendedRequestId": null, "path": "\(uri)"}, "queryStringParameters": null, "multiValueQueryStringParameters": null, "headers": {"Host": "127.0.0.1:3000", "Connection": "keep-alive", "Cache-Control": "max-age=0", "Dnt": "1", "Upgrade-Insecure-Requests": "1", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36 Edg/78.0.276.24", "Sec-Fetch-User": "?1", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3", "Sec-Fetch-Site": "none", "Sec-Fetch-Mode": "navigate", "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "en-US,en;q=0.9", "X-Forwarded-Proto": "http", "X-Forwarded-Port": "3000"}, "multiValueHeaders": {"Host": ["127.0.0.1:3000"], "Connection": ["keep-alive"], "Cache-Control": ["max-age=0"], "Dnt": ["1"], "Upgrade-Insecure-Requests": ["1"], "User-Agent": ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36 Edg/78.0.276.24"], "Sec-Fetch-User": ["?1"], "Accept": ["text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3"], "Sec-Fetch-Site": ["none"], "Sec-Fetch-Mode": ["navigate"], "Accept-Encoding": ["gzip, deflate, br"], "Accept-Language": ["en-US,en;q=0.9"], "X-Forwarded-Proto": ["http"], "X-Forwarded-Port": ["3000"]}, "pathParameters": null, "stageVariables": null, "path": "\(uri)", "isBase64Encoded": \(body != nil)}
+          {"httpMethod": "\(method)", "body": \(base64Body), "resource": "\(uri)", "requestContext": {"resourceId": "123456", "apiId": "1234567890", "resourcePath": "\(uri)", "httpMethod": "\(method)", "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef", "accountId": "123456789012", "stage": "Prod", "identity": {"apiKey": null, "userArn": null, "cognitoAuthenticationType": null, "caller": null, "userAgent": "Custom User Agent String", "user": null, "cognitoIdentityPoolId": null, "cognitoAuthenticationProvider": null, "sourceIp": "127.0.0.1", "accountId": null}, "extendedRequestId": null, "path": "\(uri)"}, "queryStringParameters": \(queryValuesString), "multiValueQueryStringParameters": \(multiQueryValuesString), "headers": {"Host": "127.0.0.1:3000", "Connection": "keep-alive", "Cache-Control": "max-age=0", "Dnt": "1", "Upgrade-Insecure-Requests": "1", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36 Edg/78.0.276.24", "Sec-Fetch-User": "?1", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3", "Sec-Fetch-Site": "none", "Sec-Fetch-Mode": "navigate", "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "en-US,en;q=0.9", "X-Forwarded-Proto": "http", "X-Forwarded-Port": "3000"}, "multiValueHeaders": {"Host": ["127.0.0.1:3000"], "Connection": ["keep-alive"], "Cache-Control": ["max-age=0"], "Dnt": ["1"], "Upgrade-Insecure-Requests": ["1"], "User-Agent": ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36 Edg/78.0.276.24"], "Sec-Fetch-User": ["?1"], "Accept": ["text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3"], "Sec-Fetch-Site": ["none"], "Sec-Fetch-Mode": ["navigate"], "Accept-Encoding": ["gzip, deflate, br"], "Accept-Language": ["en-US,en;q=0.9"], "X-Forwarded-Proto": ["http"], "X-Forwarded-Port": ["3000"]}, "pathParameters": null, "stageVariables": null, "path": "\(uri)", "isBase64Encoded": \(body != nil)}
         """
         return try JSONDecoder().decode(APIGatewayRequest.self, from: Data(request.utf8))
     }
 
-    func newV2Event(uri: String, method: String) throws -> APIGatewayV2Request {
+    func newV2Event(uri: String, method: String, rawQueryString: String = "") throws -> APIGatewayV2Request {
         let request = """
         {
             "routeKey":"\(method) \(uri)",
@@ -103,7 +111,7 @@ final class LambdaTests: XCTestCase {
                 "time":"24/Apr/2020:17:47:41 +0000"
             },
             "isBase64Encoded":false,
-            "rawQueryString":"foo=bar",
+            "rawQueryString":"\(rawQueryString)",
             "queryStringParameters":{
                 "foo":"bar"
             },
@@ -174,14 +182,17 @@ final class LambdaTests: XCTestCase {
 
             init(_ app: HBApplication) {
                 app.middleware.add(HBLogRequestsMiddleware(.debug))
-                app.router.post { _ in
+                app.router.post { request in
+                    XCTAssertEqual(request.method, .POST)
+                    XCTAssertEqual(request.uri.path, "/test")
+                    XCTAssertNil(request.uri.query)
                     return "hello"
                 }
             }
         }
         let lambda = try HBLambdaHandler<HelloLambda>.makeHandler(context: self.initializationContext).wait()
         let context = self.newContext()
-        let event = try newV2Event(uri: "/", method: "POST")
+        let event = try newV2Event(uri: "/test", method: "POST")
         let response = try lambda.handle(event, context: context).wait()
         XCTAssertEqual(response.statusCode, .ok)
         XCTAssertEqual(response.body, "hello")
@@ -206,5 +217,65 @@ final class LambdaTests: XCTestCase {
         let response = try lambda.handle(event, context: context).wait()
         XCTAssertEqual(response.statusCode, .badRequest)
         XCTAssertEqual(response.body, "BadRequest")
+    }
+
+    func testAPIGatewayQueryValues() throws {
+        struct HelloLambda: HBLambda {
+            // define input and output
+            typealias Event = APIGatewayRequest
+            typealias Output = APIGatewayResponse
+
+            init(_ app: HBApplication) {
+                app.middleware.add(HBLogRequestsMiddleware(.debug))
+                app.router.post { request -> HTTPResponseStatus in
+                    XCTAssertEqual(request.uri.queryParameters["foo"], "bar")
+                    return .ok
+                }
+            }
+        }
+        let lambda = try HBLambdaHandler<HelloLambda>.makeHandler(context: self.initializationContext).wait()
+        let context = self.newContext()
+        let event = try newEvent(uri: "/", method: "POST", queryValues: ["foo": "bar"])
+        _ = try lambda.handle(event, context: context).wait()
+    }
+
+    func testAPIGatewayMultiQueryValues() throws {
+        struct HelloLambda: HBLambda {
+            // define input and output
+            typealias Event = APIGatewayRequest
+            typealias Output = APIGatewayResponse
+
+            init(_ app: HBApplication) {
+                app.middleware.add(HBLogRequestsMiddleware(.debug))
+                app.router.post { request -> HTTPResponseStatus in
+                    XCTAssertEqual(request.uri.queryParameters.getAll("foo"), ["bar1", "bar2"])
+                    return .ok
+                }
+            }
+        }
+        let lambda = try HBLambdaHandler<HelloLambda>.makeHandler(context: self.initializationContext).wait()
+        let context = self.newContext()
+        let event = try newEvent(uri: "/", method: "POST", queryValues: ["foo": "bar"], multiQueryValues: ["foo": ["bar1", "bar2"]])
+        _ = try lambda.handle(event, context: context).wait()
+    }
+
+    func testAPIGateway2QueryValues() throws {
+        struct HelloLambda: HBLambda {
+            // define input and output
+            typealias Event = APIGatewayV2Request
+            typealias Output = APIGatewayV2Response
+
+            init(_ app: HBApplication) {
+                app.middleware.add(HBLogRequestsMiddleware(.debug))
+                app.router.post { request -> HTTPResponseStatus in
+                    XCTAssertEqual(request.uri.queryParameters["foo"], "bar")
+                    return .ok
+                }
+            }
+        }
+        let lambda = try HBLambdaHandler<HelloLambda>.makeHandler(context: self.initializationContext).wait()
+        let context = self.newContext()
+        let event = try newV2Event(uri: "/", method: "POST", rawQueryString: "foo=bar")
+        _ = try lambda.handle(event, context: context).wait()
     }
 }

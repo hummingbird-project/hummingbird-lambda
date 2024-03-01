@@ -36,7 +36,36 @@ extension HBLambda where Output == APIGatewayResponse {
 }
 
 // conform `APIGatewayRequest` to `APIRequest` so we can use HBRequest.init(context:application:from)
-extension APIGatewayRequest: APIRequest {}
+extension APIGatewayRequest: APIRequest {
+    var queryString: String {
+        func urlPercentEncoded(_ string: String) -> String {
+            return string.addingPercentEncoding(withAllowedCharacters: .urlQueryComponentAllowed) ?? string
+        }
+        var queryParams: [String] = []
+        var queryStringParameters = self.queryStringParameters ?? [:]
+        // go through list of multi value query string params first, removing any
+        // from the single value list if they are found in the multi value list
+        self.multiValueQueryStringParameters?.forEach { multiValueQuery in
+            queryStringParameters[multiValueQuery.key] = nil
+            queryParams += multiValueQuery.value.map { "\(urlPercentEncoded(multiValueQuery.key))=\(urlPercentEncoded($0))" }
+        }
+        queryParams += queryStringParameters.map {
+            "\(urlPercentEncoded($0.key))=\(urlPercentEncoded($0.value))"
+        }
+        return queryParams.joined(separator: "&")
+    }
+
+    var httpHeaders: HTTPHeaders {
+        var headers = HTTPHeaders(self.headers.map { ($0.key, $0.value) })
+        self.multiValueHeaders.forEach { multiValueHeader in
+            headers.remove(name: multiValueHeader.key)
+            for header in multiValueHeader.value {
+                headers.add(name: multiValueHeader.key, value: header)
+            }
+        }
+        return headers
+    }
+}
 
 // conform `APIGatewayResponse` to `APIResponse` so we can use HBResponse.apiReponse()
 extension APIGatewayResponse: APIResponse {}
