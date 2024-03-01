@@ -23,8 +23,7 @@ import NIOCore
 protocol APIRequest {
     var path: String { get }
     var httpMethod: AWSLambdaEvents.HTTPMethod { get }
-    var queryStringParameters: [String: String]? { get }
-    var multiValueQueryStringParameters: [String: [String]]? { get }
+    var queryString: String { get }
     var headers: AWSLambdaEvents.HTTPHeaders { get }
     var multiValueHeaders: HTTPMultiValueHeaders { get }
     var body: String? { get }
@@ -44,19 +43,8 @@ extension HBRequest {
 
         // construct URI with query parameters
         var uri = from.path
-        var queryParams: [String] = []
-        var queryStringParameters = from.queryStringParameters ?? [:]
-        // go through list of multi value query string params first, removing any
-        // from the single value list if they are found in the multi value list
-        from.multiValueQueryStringParameters?.forEach { multiValueQuery in
-            queryStringParameters[multiValueQuery.key] = nil
-            queryParams += multiValueQuery.value.map { "\(urlPercentEncoded(multiValueQuery.key))=\(urlPercentEncoded($0))" }
-        }
-        queryParams += queryStringParameters.map {
-            "\(urlPercentEncoded($0.key))=\(urlPercentEncoded($0.value))"
-        }
-        if queryParams.count > 0 {
-            uri += "?\(queryParams.joined(separator: "&"))"
+        if from.queryString.count > 0 {
+            uri += "?\(from.queryString)"
         }
         // construct headers
         var authority: String?
