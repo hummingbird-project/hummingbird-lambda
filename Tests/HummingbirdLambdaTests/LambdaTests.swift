@@ -182,7 +182,7 @@ final class LambdaTests: XCTestCase {
 
             init(_ app: HBApplication) {
                 app.middleware.add(HBLogRequestsMiddleware(.debug))
-                app.router.post { request in
+                app.router.post("test") { request in
                     XCTAssertEqual(request.method, .POST)
                     XCTAssertEqual(request.uri.path, "/test")
                     XCTAssertNil(request.uri.query)
