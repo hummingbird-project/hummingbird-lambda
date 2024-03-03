@@ -13,13 +13,14 @@
 //===----------------------------------------------------------------------===//
 
 import HummingbirdLambda
-import HummingbirdXCT
+import Logging
 
 extension HBLambda where Event: XCTLambdaEvent {
     public static func test<Value>(
+        logLevel: Logger.Level = .debug,
         _ test: @escaping @Sendable (HBXCTLambdaClient<Self>) async throws -> Value
     ) async throws -> Value {
-        let lambda = HBXCTLambda<Self>()
+        let lambda = HBXCTLambda<Self>(logLevel: logLevel)
         return try await lambda.run(test)
     }
 }

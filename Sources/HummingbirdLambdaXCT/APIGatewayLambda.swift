@@ -33,7 +33,7 @@ extension APIGatewayRequest: XCTLambdaEvent {
         let singleQueryValues = queryValues.compactMapValues { $0.count == 1 ? $0.first : nil }
         let queryValuesString = try String(decoding: JSONEncoder().encode(singleQueryValues), as: UTF8.self)
         let multiQueryValuesString = try String(decoding: JSONEncoder().encode(queryValues), as: UTF8.self)
-        let headerValues: [String: [String]] = headers.reduce([:]) { result, value in
+        let headerValues: [String: [String]] = headers.reduce(["host": ["127.0.0.1:8080"]]) { result, value in
             var result = result
             let key = String(value.name)
             var values = result[key] ?? []
@@ -48,11 +48,11 @@ extension APIGatewayRequest: XCTLambdaEvent {
         {
             "httpMethod": "\(method)", 
             "body": \(base64Body), 
-            "resource": "\(uri)", 
+            "resource": "\(url.path)", 
             "requestContext": {
                 "resourceId": "123456", 
                 "apiId": "1234567890", 
-                "resourcePath": "\(uri)", 
+                "resourcePath": "\(url.path)", 
                 "httpMethod": "\(method)", 
                 "requestId": "\(UUID().uuidString)", 
                 "accountId": "123456789012", 
@@ -78,7 +78,7 @@ extension APIGatewayRequest: XCTLambdaEvent {
             "multiValueHeaders": \(multiHeaderValuesString), 
             "pathParameters": null, 
             "stageVariables": null, 
-            "path": "\(uri)", 
+            "path": "\(url.path)", 
             "isBase64Encoded": \(body != nil)
         }
         """

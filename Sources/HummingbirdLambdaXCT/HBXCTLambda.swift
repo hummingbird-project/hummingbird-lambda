@@ -17,7 +17,6 @@ import AWSLambdaEvents
 import Foundation
 import HTTPTypes
 @testable import HummingbirdLambda
-import HummingbirdXCT
 import Logging
 import NIOCore
 import NIOPosix
@@ -26,7 +25,9 @@ class HBXCTLambda<Lambda: HBLambda> where Lambda.Event: XCTLambdaEvent {
     let context: LambdaContext
     var terminator: LambdaTerminator
 
-    init() {
+    init(logLevel: Logger.Level) {
+        var logger = Logger(label: "HBXCTLambda")
+        logger.logLevel = logLevel
         self.context = .init(
             requestID: UUID().uuidString,
             traceID: "abc123",
@@ -34,7 +35,7 @@ class HBXCTLambda<Lambda: HBLambda> where Lambda.Event: XCTLambdaEvent {
             deadline: .now() + .seconds(15),
             cognitoIdentity: nil,
             clientContext: nil,
-            logger: Logger(label: "HBXCTLambda"),
+            logger: logger,
             eventLoop: MultiThreadedEventLoopGroup.singleton.any(),
             allocator: ByteBufferAllocator()
         )

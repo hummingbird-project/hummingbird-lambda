@@ -27,7 +27,6 @@ let package = Package(
         ]),
         .target(name: "HummingbirdLambdaXCT", dependencies: [
             .byName(name: "HummingbirdLambda"),
-            .product(name: "HummingbirdXCT", package: "hummingbird"),
         ]),
         .executableTarget(name: "HBLambdaTest", dependencies: [
             .byName(name: "HummingbirdLambda"),
@@ -35,7 +34,6 @@ let package = Package(
         .testTarget(name: "HummingbirdLambdaTests", dependencies: [
             .byName(name: "HummingbirdLambda"),
             .byName(name: "HummingbirdLambdaXCT"),
-            .product(name: "HummingbirdXCT", package: "hummingbird"),
             .product(name: "NIOPosix", package: "swift-nio"),
         ]),
     ]

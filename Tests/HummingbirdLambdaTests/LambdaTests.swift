@@ -189,20 +189,19 @@ final class LambdaTests: XCTestCase {
                 let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
                 router.get("hello") { request, _ in
-                    XCTAssertEqual(request.head.authority, "127.0.0.1:3000")
-                    XCTAssertEqual(request.headers[.userAgent], "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36 Edg/78.0.276.24")
+                    XCTAssertEqual(request.head.authority, "127.0.0.1:8080")
                     return "Hello"
                 }
                 return router.buildResponder()
             }
         }
-        let lambda = try await HBLambdaHandler<HelloLambda>(context: self.initializationContext)
-        let context = self.newContext()
-        let event = try newEvent(uri: "/hello", method: "GET")
-        let response = try await lambda.handle(event, context: context)
-        XCTAssertEqual(response.body, "Hello")
-        XCTAssertEqual(response.statusCode, .ok)
-        XCTAssertEqual(response.headers?["Content-Type"], "text/plain; charset=utf-8")
+        try await HelloLambda.test { client in
+            try await client.XCTExecute(uri: "/hello", method: .get) { response in
+                XCTAssertEqual(response.body, "Hello")
+                XCTAssertEqual(response.statusCode, .ok)
+                XCTAssertEqual(response.headers?["Content-Type"], "text/plain; charset=utf-8")
+            }
+        }
     }
 
     func testBase64Encoding() async throws {
@@ -218,45 +217,77 @@ final class LambdaTests: XCTestCase {
                 return router.buildResponder()
             }
         }
-        let lambda = try await HBLambdaHandler<HelloLambda>(context: self.initializationContext)
-        let context = self.newContext()
-        let data = (0...255).map { _ in UInt8.random(in: 0...255) }
-        let event = try newEvent(uri: "/", method: "POST", body: ByteBufferAllocator().buffer(bytes: data))
-        let response = try await lambda.handle(event, context: context)
-        XCTAssertEqual(response.isBase64Encoded, true)
-        XCTAssertEqual(response.body, String(base64Encoding: data))
+        try await HelloLambda.test { client in
+            let body = ByteBuffer(bytes: (0...255).map { _ in UInt8.random(in: 0...255) })
+            try await client.XCTExecute(uri: "/", method: .post, body: body) { response in
+                XCTAssertEqual(response.isBase64Encoded, true)
+                XCTAssertEqual(response.body, String(base64Encoding: body.readableBytesView))
+            }
+        }
     }
 
-    func testAPIGatewayV2Decoding() async throws {
-        struct HelloLambda: HBAPIGatewayV2Lambda {
-            // define input and output
-            typealias Event = APIGatewayV2Request
-            typealias Output = APIGatewayV2Response
-            typealias Context = HBBasicLambdaRequestContext<Event>
-
+    func testHeaderValues() async throws {
+        struct HelloLambda: HBAPIGatewayLambda {
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
-                router.post { request, _ in
-                    XCTAssertEqual(request.headers[.authorization], "Bearer abc123")
-                    XCTAssertEqual(request.head.authority, "hello.test.com")
-                    return "hello"
+                router.post { request, _ -> HTTPResponse.Status in
+                    XCTAssertEqual(request.headers[.userAgent], "HBXCT/2.0")
+                    XCTAssertEqual(request.headers[.acceptLanguage], "en")
+                    return .ok
+                }
+                router.post("/multi") { request, _ -> HTTPResponse.Status in
+                    XCTAssertEqual(request.headers[.userAgent], "HBXCT/2.0")
+                    XCTAssertEqual(request.headers[values: .acceptLanguage], ["en", "fr"])
+                    return .ok
                 }
                 return router.buildResponder()
             }
         }
-        let lambda = try await HBLambdaHandler<HelloLambda>(context: self.initializationContext)
-        let context = self.newContext()
-        let event = try newV2Event(uri: "/", method: "POST")
-        let response = try await lambda.handle(event, context: context)
-        XCTAssertEqual(response.statusCode, .ok)
-        XCTAssertEqual(response.body, "hello")
+        try await HelloLambda.test { client in
+            try await client.XCTExecute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+            }
+            var headers: HTTPFields = [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]
+            headers[values: .acceptLanguage].append("fr")
+            try await client.XCTExecute(uri: "/multi", method: .post, headers: headers) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+            }
+        }
+    }
+
+    func testQueryValues() async throws {
+        struct HelloLambda: HBAPIGatewayLambda {
+            init(context: LambdaInitializationContext) {}
+
+            func buildResponder() -> some HBResponder<Context> {
+                let router = HBRouter(context: Context.self)
+                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+                router.post { request, _ -> HTTPResponse.Status in
+                    XCTAssertEqual(request.uri.queryParameters["foo"], "bar")
+                    return .ok
+                }
+                router.post("/multi") { request, _ -> HTTPResponse.Status in
+                    XCTAssertEqual(request.uri.queryParameters.getAll("foo"), ["bar1", "bar2"])
+                    return .ok
+                }
+                return router.buildResponder()
+            }
+        }
+        try await HelloLambda.test { client in
+            try await client.XCTExecute(uri: "/?foo=bar", method: .post) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+            }
+            try await client.XCTExecute(uri: "/multi?foo=bar1&foo=bar2", method: .post) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+            }
+        }
     }
 
     func testErrorEncoding() async throws {
-        struct HelloLambda: HBAPIGatewayV2Lambda {
+        struct HelloLambda: HBAPIGatewayLambda {
             static let body = "BadRequest"
             init(context: LambdaInitializationContext) {}
 
@@ -269,35 +300,121 @@ final class LambdaTests: XCTestCase {
                 return router.buildResponder()
             }
         }
-
-        let lambda = try await HBLambdaHandler<HelloLambda>(context: self.initializationContext)
-        let context = self.newContext()
-        let event = try newV2Event(uri: "/", method: "POST")
-        let response = try await lambda.handle(event, context: context)
-        XCTAssertEqual(response.statusCode, .badRequest)
-        XCTAssertEqual(response.body, HelloLambda.body)
-        XCTAssertEqual(response.headers?["Content-Length"], HelloLambda.body.utf8.count.description)
+        try await HelloLambda.test { client in
+            try await client.XCTExecute(uri: "/", method: .post) { response in
+                XCTAssertEqual(response.statusCode, .badRequest)
+                XCTAssertEqual(response.body, HelloLambda.body)
+                XCTAssertEqual(response.headers?["Content-Length"], HelloLambda.body.utf8.count.description)
+            }
+        }
     }
 
-    func testXCT() async throws {
-        struct HelloLambda: HBAPIGatewayLambda {
+    func testSimpleRouteV2() async throws {
+        struct HelloLambda: HBAPIGatewayV2Lambda {
             // define input and output
+            typealias Event = APIGatewayV2Request
+            typealias Output = APIGatewayV2Response
+            typealias Context = HBBasicLambdaRequestContext<Event>
+
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouter(context: Context.self)
                 router.middlewares.add(HBLogRequestsMiddleware(.debug))
                 router.post { request, _ in
-                    XCTAssertEqual(request.headers[.authorization], "Bearer abc123")
-                    return "hello"
+                    XCTAssertEqual(request.head.authority, "127.0.0.1:8080")
+                    return ["response": "hello"]
                 }
                 return router.buildResponder()
             }
         }
         try await HelloLambda.test { client in
-            try await client.XCTExecute(uri: "/", method: .post, headers: [.authorization: "Bearer abc123"]) { response in
+            try await client.XCTExecute(uri: "/", method: .post) { response in
                 XCTAssertEqual(response.statusCode, .ok)
-                XCTAssertEqual(response.body, "hello")
+                XCTAssertEqual(response.headers?["Content-Type"], "application/json; charset=utf-8")
+                XCTAssertEqual(response.body, #"{"response":"hello"}"#)
+            }
+        }
+    }
+
+    func testBase64EncodingV2() async throws {
+        struct HelloLambda: HBAPIGatewayV2Lambda {
+            init(context: LambdaInitializationContext) {}
+            func buildResponder() -> some HBResponder<Context> {
+                let router = HBRouter(context: Context.self)
+                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+                router.post { request, _ in
+                    let buffer = try await request.body.collect(upTo: .max)
+                    return HBResponse(status: .ok, body: .init(byteBuffer: buffer))
+                }
+                return router.buildResponder()
+            }
+        }
+        try await HelloLambda.test { client in
+            let body = ByteBuffer(bytes: (0...255).map { _ in UInt8.random(in: 0...255) })
+            try await client.XCTExecute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0"], body: body) { response in
+                XCTAssertEqual(response.isBase64Encoded, true)
+                XCTAssertEqual(response.body, String(base64Encoding: body.readableBytesView))
+            }
+        }
+    }
+
+    func testHeaderValuesV2() async throws {
+        struct HelloLambda: HBAPIGatewayV2Lambda {
+            init(context: LambdaInitializationContext) {}
+
+            func buildResponder() -> some HBResponder<Context> {
+                let router = HBRouter(context: Context.self)
+                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+                router.post { request, _ -> HTTPResponse.Status in
+                    XCTAssertEqual(request.headers[.userAgent], "HBXCT/2.0")
+                    XCTAssertEqual(request.headers[.acceptLanguage], "en")
+                    return .ok
+                }
+                router.post("/multi") { request, _ -> HTTPResponse.Status in
+                    XCTAssertEqual(request.headers[.userAgent], "HBXCT/2.0")
+                    XCTAssertEqual(request.headers[values: .acceptLanguage], ["en", "fr"])
+                    return .ok
+                }
+                return router.buildResponder()
+            }
+        }
+        try await HelloLambda.test { client in
+            try await client.XCTExecute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+            }
+            var headers: HTTPFields = [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]
+            headers[values: .acceptLanguage].append("fr")
+            try await client.XCTExecute(uri: "/multi", method: .post, headers: headers) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+            }
+        }
+    }
+
+    func testQueryValuesV2() async throws {
+        struct HelloLambda: HBAPIGatewayV2Lambda {
+            init(context: LambdaInitializationContext) {}
+
+            func buildResponder() -> some HBResponder<Context> {
+                let router = HBRouter(context: Context.self)
+                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+                router.post { request, _ -> HTTPResponse.Status in
+                    XCTAssertEqual(request.uri.queryParameters["foo"], "bar")
+                    return .ok
+                }
+                router.post("/multi") { request, _ -> HTTPResponse.Status in
+                    XCTAssertEqual(request.uri.queryParameters.getAll("foo"), ["bar1", "bar2"])
+                    return .ok
+                }
+                return router.buildResponder()
+            }
+        }
+        try await HelloLambda.test { client in
+            try await client.XCTExecute(uri: "/?foo=bar", method: .post) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+            }
+            try await client.XCTExecute(uri: "/multi?foo=bar1&foo=bar2", method: .post) { response in
+                XCTAssertEqual(response.statusCode, .ok)
             }
         }
     }
