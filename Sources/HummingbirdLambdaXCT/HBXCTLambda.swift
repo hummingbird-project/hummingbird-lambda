@@ -60,6 +60,7 @@ class HBXCTLambda<Lambda: HBLambda> where Lambda.Event: XCTLambdaEvent {
     }
 }
 
+/// Client used to send requests to lambda test framework
 public struct HBXCTLambdaClient<Lambda: HBLambda> where Lambda.Event: XCTLambdaEvent {
     let handler: HBLambdaHandler<Lambda>
     let context: LambdaContext
@@ -69,7 +70,7 @@ public struct HBXCTLambdaClient<Lambda: HBLambda> where Lambda.Event: XCTLambdaE
         return try await self.handler.handle(event, context: self.context)
     }
 
-    /// Send request to associated test framework and call test callback on the response returned
+    /// Send request to lambda test framework and call `testCallback`` on the response returned
     ///
     /// - Parameters:
     ///   - uri: Path of request
