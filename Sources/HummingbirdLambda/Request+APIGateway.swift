@@ -24,8 +24,7 @@ protocol APIRequest {
     var path: String { get }
     var httpMethod: AWSLambdaEvents.HTTPMethod { get }
     var queryString: String { get }
-    var headers: AWSLambdaEvents.HTTPHeaders { get }
-    var multiValueHeaders: HTTPMultiValueHeaders { get }
+    var httpHeaders: [(name: String, value: String)] { get }
     var body: String? { get }
     var isBase64Encoded: Bool { get }
 }
@@ -48,7 +47,7 @@ extension HBRequest {
         }
         // construct headers
         var authority: String?
-        let headers = HTTPFields(headers: from.headers, multiValueHeaders: from.multiValueHeaders, authority: &authority)
+        let headers = HTTPFields(headers: from.httpHeaders, authority: &authority)
 
         // get body
         let body: ByteBuffer?
@@ -82,24 +81,10 @@ extension HTTPFields {
     ///   - headers: headers
     ///   - multiValueHeaders: multi-value headers
     ///   - authority: reference to authority string
-    init(headers: AWSLambdaEvents.HTTPHeaders, multiValueHeaders: HTTPMultiValueHeaders, authority: inout String?) {
+    init(headers: [(name: String, value: String)], authority: inout String?) {
         self.init()
         self.reserveCapacity(headers.count)
         var firstHost = true
-        for (name, values) in multiValueHeaders {
-            if firstHost, name.lowercased() == "host" {
-                if let value = values.first {
-                    firstHost = false
-                    authority = value
-                    continue
-                }
-            }
-            if let fieldName = HTTPField.Name(name) {
-                for value in values {
-                    self.append(HTTPField(name: fieldName, value: value))
-                }
-            }
-        }
         for (name, value) in headers {
             if firstHost, name.lowercased() == "host" {
                 firstHost = false
@@ -107,7 +92,6 @@ extension HTTPFields {
                 continue
             }
             if let fieldName = HTTPField.Name(name) {
-                if self[fieldName] != nil { continue }
                 self.append(HTTPField(name: fieldName, value: value))
             }
         }

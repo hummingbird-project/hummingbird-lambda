@@ -75,6 +75,20 @@ extension APIGatewayRequest: APIRequest {
         }
         return queryParams.joined(separator: "&")
     }
+
+    var httpHeaders: [(name: String, value: String)] {
+        var headerValues = [(name: String, value: String)].init()
+        var originalHeaders = self.headers
+        headerValues.reserveCapacity(headers.count)
+        for header in self.multiValueHeaders {
+            originalHeaders[header.key] = nil
+            for value in header.value {
+                headerValues.append((name: header.key, value: value))
+            }
+        }
+        headerValues.append(contentsOf: originalHeaders.map { (name: $0.key, value: $0.value) })
+        return headerValues
+    }
 }
 
 // conform `APIGatewayResponse` to `APIResponse` so we can use HBResponse.apiReponse()
