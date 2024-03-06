@@ -21,12 +21,12 @@ import Logging
 import NIOCore
 import NIOPosix
 
-class HBXCTLambda<Lambda: HBLambda> where Lambda.Event: XCTLambdaEvent {
+class HBLambdaTestFramework<Lambda: HBLambda> where Lambda.Event: LambdaTestableEvent {
     let context: LambdaContext
     var terminator: LambdaTerminator
 
     init(logLevel: Logger.Level) {
-        var logger = Logger(label: "HBXCTLambda")
+        var logger = Logger(label: "HBTestLambda")
         logger.logLevel = logLevel
         self.context = .init(
             requestID: UUID().uuidString,
@@ -51,9 +51,9 @@ class HBXCTLambda<Lambda: HBLambda> where Lambda.Event: XCTLambdaEvent {
         )
     }
 
-    func run<Value>(_ test: @escaping @Sendable (HBXCTLambdaClient<Lambda>) async throws -> Value) async throws -> Value {
+    func run<Value>(_ test: @escaping @Sendable (HBLambdaTestClient<Lambda>) async throws -> Value) async throws -> Value {
         let handler = try await HBLambdaHandler<Lambda>(context: self.initializationContext)
-        let value = try await test(HBXCTLambdaClient(handler: handler, context: context))
+        let value = try await test(HBLambdaTestClient(handler: handler, context: context))
         try await self.terminator.terminate(eventLoop: self.context.eventLoop).get()
         self.terminator = .init()
         return value
@@ -61,7 +61,7 @@ class HBXCTLambda<Lambda: HBLambda> where Lambda.Event: XCTLambdaEvent {
 }
 
 /// Client used to send requests to lambda test framework
-public struct HBXCTLambdaClient<Lambda: HBLambda> where Lambda.Event: XCTLambdaEvent {
+public struct HBLambdaTestClient<Lambda: HBLambda> where Lambda.Event: LambdaTestableEvent {
     let handler: HBLambdaHandler<Lambda>
     let context: LambdaContext
 
@@ -79,7 +79,7 @@ public struct HBXCTLambdaClient<Lambda: HBLambda> where Lambda.Event: XCTLambdaE
     ///   - body: Request body
     ///   - testCallback: closure to call on response returned by test framework
     /// - Returns: Return value of test closure
-    @discardableResult public func XCTExecute<Return>(
+    @discardableResult public func execute<Return>(
         uri: String,
         method: HTTPRequest.Method,
         headers: HTTPFields = [:],

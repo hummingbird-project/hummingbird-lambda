@@ -18,7 +18,7 @@ import HTTPTypes
 import HummingbirdCore
 import NIOCore
 
-extension APIGatewayV2Request: XCTLambdaEvent {
+extension APIGatewayV2Request: LambdaTestableEvent {
     /// Construct APIGatewayV2 Event from uri, method, headers and body
     public init(uri: String, method: HTTPRequest.Method, headers: HTTPFields, body: ByteBuffer?) throws {
         let base64Body = body.map { "\"\(String(base64Encoding: $0.readableBytesView))\"" } ?? "null"

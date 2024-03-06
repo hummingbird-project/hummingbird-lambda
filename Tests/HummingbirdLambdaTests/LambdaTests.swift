@@ -15,7 +15,7 @@
 import AWSLambdaEvents
 @testable import AWSLambdaRuntimeCore
 @testable import HummingbirdLambda
-import HummingbirdLambdaXCT
+import HummingbirdLambdaTesting
 import Logging
 import NIOCore
 import NIOPosix
@@ -37,7 +37,7 @@ final class LambdaTests: XCTestCase {
             }
         }
         try await HelloLambda.test { client in
-            try await client.XCTExecute(uri: "/hello", method: .get) { response in
+            try await client.execute(uri: "/hello", method: .get) { response in
                 XCTAssertEqual(response.body, "Hello")
                 XCTAssertEqual(response.statusCode, .ok)
                 XCTAssertEqual(response.headers?["Content-Type"], "text/plain; charset=utf-8")
@@ -60,7 +60,7 @@ final class LambdaTests: XCTestCase {
         }
         try await HelloLambda.test { client in
             let body = ByteBuffer(bytes: (0...255).map { _ in UInt8.random(in: 0...255) })
-            try await client.XCTExecute(uri: "/", method: .post, body: body) { response in
+            try await client.execute(uri: "/", method: .post, body: body) { response in
                 XCTAssertEqual(response.isBase64Encoded, true)
                 XCTAssertEqual(response.body, String(base64Encoding: body.readableBytesView))
             }
@@ -88,12 +88,12 @@ final class LambdaTests: XCTestCase {
             }
         }
         try await HelloLambda.test { client in
-            try await client.XCTExecute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]) { response in
+            try await client.execute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]) { response in
                 XCTAssertEqual(response.statusCode, .ok)
             }
             var headers: HTTPFields = [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]
             headers[values: .acceptLanguage].append("fr")
-            try await client.XCTExecute(uri: "/multi", method: .post, headers: headers) { response in
+            try await client.execute(uri: "/multi", method: .post, headers: headers) { response in
                 XCTAssertEqual(response.statusCode, .ok)
             }
         }
@@ -118,10 +118,10 @@ final class LambdaTests: XCTestCase {
             }
         }
         try await HelloLambda.test { client in
-            try await client.XCTExecute(uri: "/?foo=bar", method: .post) { response in
+            try await client.execute(uri: "/?foo=bar", method: .post) { response in
                 XCTAssertEqual(response.statusCode, .ok)
             }
-            try await client.XCTExecute(uri: "/multi?foo=bar1&foo=bar2", method: .post) { response in
+            try await client.execute(uri: "/multi?foo=bar1&foo=bar2", method: .post) { response in
                 XCTAssertEqual(response.statusCode, .ok)
             }
         }
@@ -142,7 +142,7 @@ final class LambdaTests: XCTestCase {
             }
         }
         try await HelloLambda.test { client in
-            try await client.XCTExecute(uri: "/", method: .post) { response in
+            try await client.execute(uri: "/", method: .post) { response in
                 XCTAssertEqual(response.statusCode, .badRequest)
                 XCTAssertEqual(response.body, HelloLambda.body)
                 XCTAssertEqual(response.headers?["Content-Length"], HelloLambda.body.utf8.count.description)
@@ -170,7 +170,7 @@ final class LambdaTests: XCTestCase {
             }
         }
         try await HelloLambda.test { client in
-            try await client.XCTExecute(uri: "/", method: .post) { response in
+            try await client.execute(uri: "/", method: .post) { response in
                 XCTAssertEqual(response.statusCode, .ok)
                 XCTAssertEqual(response.headers?["Content-Type"], "application/json; charset=utf-8")
                 XCTAssertEqual(response.body, #"{"response":"hello"}"#)
@@ -193,7 +193,7 @@ final class LambdaTests: XCTestCase {
         }
         try await HelloLambda.test { client in
             let body = ByteBuffer(bytes: (0...255).map { _ in UInt8.random(in: 0...255) })
-            try await client.XCTExecute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0"], body: body) { response in
+            try await client.execute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0"], body: body) { response in
                 XCTAssertEqual(response.isBase64Encoded, true)
                 XCTAssertEqual(response.body, String(base64Encoding: body.readableBytesView))
             }
@@ -221,12 +221,12 @@ final class LambdaTests: XCTestCase {
             }
         }
         try await HelloLambda.test { client in
-            try await client.XCTExecute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]) { response in
+            try await client.execute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]) { response in
                 XCTAssertEqual(response.statusCode, .ok)
             }
             var headers: HTTPFields = [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]
             headers[values: .acceptLanguage].append("fr")
-            try await client.XCTExecute(uri: "/multi", method: .post, headers: headers) { response in
+            try await client.execute(uri: "/multi", method: .post, headers: headers) { response in
                 XCTAssertEqual(response.statusCode, .ok)
             }
         }
@@ -251,10 +251,10 @@ final class LambdaTests: XCTestCase {
             }
         }
         try await HelloLambda.test { client in
-            try await client.XCTExecute(uri: "/?foo=bar", method: .post) { response in
+            try await client.execute(uri: "/?foo=bar", method: .post) { response in
                 XCTAssertEqual(response.statusCode, .ok)
             }
-            try await client.XCTExecute(uri: "/multi?foo=bar1&foo=bar2", method: .post) { response in
+            try await client.execute(uri: "/multi?foo=bar1&foo=bar2", method: .post) { response in
                 XCTAssertEqual(response.statusCode, .ok)
             }
         }

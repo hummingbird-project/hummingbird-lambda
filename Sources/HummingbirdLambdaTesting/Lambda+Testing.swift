@@ -15,11 +15,11 @@
 import HummingbirdLambda
 import Logging
 
-extension HBLambda where Event: XCTLambdaEvent {
+extension HBLambda where Event: LambdaTestableEvent {
     /// Test `HBLambda`
     ///
     /// The `test` closure uses the provided test client to make calls to the
-    /// lambda via `XCTExecute`. You can verify the contents of the output
+    /// lambda via `execute`. You can verify the contents of the output
     /// event returned.
     ///
     /// The example below is using the `.router` framework to test
@@ -36,16 +36,16 @@ extension HBLambda where Event: XCTLambdaEvent {
     ///     }
     /// }
     /// try await HelloLambda.test { client in
-    ///     try await client.XCTExecute(uri: "/hello", method: .get) { response in
+    ///     try await client.execute(uri: "/hello", method: .get) { response in
     ///         XCTAssertEqual(response.body, "Hello")
     ///     }
     /// }
     /// ```
     public static func test<Value>(
         logLevel: Logger.Level = .debug,
-        _ test: @escaping @Sendable (HBXCTLambdaClient<Self>) async throws -> Value
+        _ test: @escaping @Sendable (HBLambdaTestClient<Self>) async throws -> Value
     ) async throws -> Value {
-        let lambda = HBXCTLambda<Self>(logLevel: logLevel)
+        let lambda = HBLambdaTestFramework<Self>(logLevel: logLevel)
         return try await lambda.run(test)
     }
 }

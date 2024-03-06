@@ -16,6 +16,6 @@ import Foundation
 import HTTPTypes
 import NIOCore
 
-public protocol XCTLambdaEvent {
+public protocol LambdaTestableEvent {
     init(uri: String, method: HTTPRequest.Method, headers: HTTPFields, body: ByteBuffer?) throws
 }
