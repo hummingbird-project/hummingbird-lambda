@@ -23,10 +23,8 @@ import NIOCore
 protocol APIRequest {
     var path: String { get }
     var httpMethod: AWSLambdaEvents.HTTPMethod { get }
-    var queryStringParameters: [String: String]? { get }
-    var multiValueQueryStringParameters: [String: [String]]? { get }
-    var headers: AWSLambdaEvents.HTTPHeaders { get }
-    var multiValueHeaders: HTTPMultiValueHeaders { get }
+    var queryString: String { get }
+    var httpHeaders: [(name: String, value: String)] { get }
     var body: String? { get }
     var isBase64Encoded: Bool { get }
 }
@@ -44,23 +42,12 @@ extension HBRequest {
 
         // construct URI with query parameters
         var uri = from.path
-        var queryParams: [String] = []
-        var queryStringParameters = from.queryStringParameters ?? [:]
-        // go through list of multi value query string params first, removing any
-        // from the single value list if they are found in the multi value list
-        from.multiValueQueryStringParameters?.forEach { multiValueQuery in
-            queryStringParameters[multiValueQuery.key] = nil
-            queryParams += multiValueQuery.value.map { "\(urlPercentEncoded(multiValueQuery.key))=\(urlPercentEncoded($0))" }
-        }
-        queryParams += queryStringParameters.map {
-            "\(urlPercentEncoded($0.key))=\(urlPercentEncoded($0.value))"
-        }
-        if queryParams.count > 0 {
-            uri += "?\(queryParams.joined(separator: "&"))"
+        if from.queryString.count > 0 {
+            uri += "?\(from.queryString)"
         }
         // construct headers
         var authority: String?
-        let headers = HTTPFields(headers: from.headers, multiValueHeaders: from.multiValueHeaders, authority: &authority)
+        let headers = HTTPFields(headers: from.httpHeaders, authority: &authority)
 
         // get body
         let body: ByteBuffer?
@@ -94,24 +81,10 @@ extension HTTPFields {
     ///   - headers: headers
     ///   - multiValueHeaders: multi-value headers
     ///   - authority: reference to authority string
-    init(headers: AWSLambdaEvents.HTTPHeaders, multiValueHeaders: HTTPMultiValueHeaders, authority: inout String?) {
+    init(headers: [(name: String, value: String)], authority: inout String?) {
         self.init()
         self.reserveCapacity(headers.count)
         var firstHost = true
-        for (name, values) in multiValueHeaders {
-            if firstHost, name.lowercased() == "host" {
-                if let value = values.first {
-                    firstHost = false
-                    authority = value
-                    continue
-                }
-            }
-            if let fieldName = HTTPField.Name(name) {
-                for value in values {
-                    self.append(HTTPField(name: fieldName, value: value))
-                }
-            }
-        }
         for (name, value) in headers {
             if firstHost, name.lowercased() == "host" {
                 firstHost = false
@@ -119,7 +92,6 @@ extension HTTPFields {
                 continue
             }
             if let fieldName = HTTPField.Name(name) {
-                if self[fieldName] != nil { continue }
                 self.append(HTTPField(name: fieldName, value: value))
             }
         }
