@@ -83,7 +83,4 @@ extension HBLambda {
     }
 
     public func shutdown() async throws {}
-
-    /// default configuration
-    public var configuration: HBApplicationConfiguration { .init() }
 }

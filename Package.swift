@@ -25,12 +25,15 @@ let package = Package(
             .product(name: "ExtrasBase64", package: "swift-extras-base64"),
             .product(name: "Hummingbird", package: "hummingbird"),
         ]),
+        .target(name: "HummingbirdLambdaTesting", dependencies: [
+            .byName(name: "HummingbirdLambda"),
+        ]),
         .executableTarget(name: "HBLambdaTest", dependencies: [
             .byName(name: "HummingbirdLambda"),
         ]),
         .testTarget(name: "HummingbirdLambdaTests", dependencies: [
             .byName(name: "HummingbirdLambda"),
-            .product(name: "HummingbirdXCT", package: "hummingbird"),
+            .byName(name: "HummingbirdLambdaTesting"),
             .product(name: "NIOPosix", package: "swift-nio"),
         ]),
     ]
