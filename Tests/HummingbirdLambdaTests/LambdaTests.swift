@@ -24,6 +24,8 @@ import XCTest
 final class LambdaTests: XCTestCase {
     func testSimpleRoute() async throws {
         struct HelloLambda: HBAPIGatewayLambda {
+            typealias Context = HBBasicLambdaRequestContext<APIGatewayRequest>
+
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HBResponder<Context> {
@@ -47,6 +49,7 @@ final class LambdaTests: XCTestCase {
 
     func testBase64Encoding() async throws {
         struct HelloLambda: HBAPIGatewayLambda {
+            typealias Context = HBBasicLambdaRequestContext<APIGatewayRequest>
             init(context: LambdaInitializationContext) {}
             func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouter(context: Context.self)
@@ -69,6 +72,7 @@ final class LambdaTests: XCTestCase {
 
     func testHeaderValues() async throws {
         struct HelloLambda: HBAPIGatewayLambda {
+            typealias Context = HBBasicLambdaRequestContext<APIGatewayRequest>
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HBResponder<Context> {
@@ -101,6 +105,7 @@ final class LambdaTests: XCTestCase {
 
     func testQueryValues() async throws {
         struct HelloLambda: HBAPIGatewayLambda {
+            typealias Context = HBBasicLambdaRequestContext<APIGatewayRequest>
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HBResponder<Context> {
@@ -129,6 +134,8 @@ final class LambdaTests: XCTestCase {
 
     func testErrorEncoding() async throws {
         struct HelloLambda: HBAPIGatewayLambda {
+            typealias Context = HBBasicLambdaRequestContext<APIGatewayRequest>
+
             static let body = "BadRequest"
             init(context: LambdaInitializationContext) {}
 
@@ -152,10 +159,7 @@ final class LambdaTests: XCTestCase {
 
     func testSimpleRouteV2() async throws {
         struct HelloLambda: HBAPIGatewayV2Lambda {
-            // define input and output
-            typealias Event = APIGatewayV2Request
-            typealias Output = APIGatewayV2Response
-            typealias Context = HBBasicLambdaRequestContext<Event>
+            typealias Context = HBBasicLambdaRequestContext<APIGatewayV2Request>
 
             init(context: LambdaInitializationContext) {}
 
@@ -180,6 +184,7 @@ final class LambdaTests: XCTestCase {
 
     func testBase64EncodingV2() async throws {
         struct HelloLambda: HBAPIGatewayV2Lambda {
+            typealias Context = HBBasicLambdaRequestContext<APIGatewayV2Request>
             init(context: LambdaInitializationContext) {}
             func buildResponder() -> some HBResponder<Context> {
                 let router = HBRouter(context: Context.self)
@@ -202,6 +207,7 @@ final class LambdaTests: XCTestCase {
 
     func testHeaderValuesV2() async throws {
         struct HelloLambda: HBAPIGatewayV2Lambda {
+            typealias Context = HBBasicLambdaRequestContext<APIGatewayV2Request>
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HBResponder<Context> {
@@ -234,6 +240,7 @@ final class LambdaTests: XCTestCase {
 
     func testQueryValuesV2() async throws {
         struct HelloLambda: HBAPIGatewayV2Lambda {
+            typealias Context = HBBasicLambdaRequestContext<APIGatewayV2Request>
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HBResponder<Context> {

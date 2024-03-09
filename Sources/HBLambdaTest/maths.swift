@@ -20,7 +20,6 @@ import Logging
 
 struct DebugMiddleware: HBMiddlewareProtocol {
     typealias Context = MathsHandler.Context
-
     func handle(
         _ request: HBRequest,
         context: Context,
@@ -35,6 +34,8 @@ struct DebugMiddleware: HBMiddlewareProtocol {
 
 @main
 struct MathsHandler: HBAPIGatewayLambda {
+    typealias Context = HBBasicLambdaRequestContext<APIGatewayRequest>
+
     struct Operands: Decodable {
         let lhs: Double
         let rhs: Double
