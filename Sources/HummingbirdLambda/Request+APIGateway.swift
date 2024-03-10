@@ -29,15 +29,15 @@ protocol APIRequest {
     var isBase64Encoded: Bool { get }
 }
 
-extension HBRequest {
-    /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
+extension Request {
+    /// Specialization of Lambda.request where `In` is `APIGateway.Request`
     init(context: LambdaContext, from: some APIRequest) throws {
         func urlPercentEncoded(_ string: String) -> String {
             return string.addingPercentEncoding(withAllowedCharacters: .urlQueryComponentAllowed) ?? string
         }
 
         guard let method = HTTPRequest.Method(from.httpMethod.rawValue) else {
-            throw HBHTTPError(.badRequest)
+            throw HTTPError(.badRequest)
         }
 
         // construct URI with query parameters
@@ -70,7 +70,7 @@ extension HBRequest {
                 path: uri,
                 headerFields: headers
             ),
-            body: body.map { .init(buffer: $0) } ?? .init(buffer: .init())
+            body: body.map(RequestBody.init) ?? RequestBody(buffer: .init())
         )
     }
 }

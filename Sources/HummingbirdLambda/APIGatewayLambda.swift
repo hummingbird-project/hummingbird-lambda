@@ -23,14 +23,14 @@ import NIOHTTP1
 /// With this protocol you no longer need to set the `Event` and `Output`
 /// associated values.
 /// ```swift
-/// struct MyLambda: HBAPIGatewayLambda {
+/// struct MyLambda: APIGatewayLambda {
 ///     typealias Context = MyLambdaRequestContext
 ///
 ///     init(context: LambdaInitializationContext) {}
 ///
 ///     /// build responder that will create a response from a request
-///     func buildResponder() -> some HBResponder<Context> {
-///         let router = HBRouter(context: Context.self)
+///     func buildResponder() -> some Responder<Context> {
+///         let router = Router(context: Context.self)
 ///         router.get("hello") { _,_ in
 ///             "Hello"
 ///         }
@@ -38,25 +38,25 @@ import NIOHTTP1
 ///     }
 /// }
 /// ```
-public protocol HBAPIGatewayLambda: HBLambda where Event == APIGatewayRequest, Output == APIGatewayResponse {
-    associatedtype Context = HBBasicLambdaRequestContext<APIGatewayRequest>
+public protocol APIGatewayLambda: Lambda where Event == APIGatewayRequest, Output == APIGatewayResponse {
+    associatedtype Context = BasicLambdaRequestContext<APIGatewayRequest>
 }
 
-extension HBLambda where Event == APIGatewayRequest {
-    /// Specialization of HBLambda.request where `Event` is `APIGatewayRequest`
-    public func request(context: LambdaContext, from: Event) throws -> HBRequest {
-        return try HBRequest(context: context, from: from)
+extension Lambda where Event == APIGatewayRequest {
+    /// Specialization of Lambda.request where `Event` is `APIGatewayRequest`
+    public func request(context: LambdaContext, from: Event) throws -> Request {
+        return try Request(context: context, from: from)
     }
 }
 
-extension HBLambda where Output == APIGatewayResponse {
-    /// Specialization of HBLambda.request where `Output` is `APIGatewayResponse`
-    public func output(from response: HBResponse) async throws -> Output {
+extension Lambda where Output == APIGatewayResponse {
+    /// Specialization of Lambda.request where `Output` is `APIGatewayResponse`
+    public func output(from response: Response) async throws -> Output {
         return try await response.apiResponse()
     }
 }
 
-// conform `APIGatewayRequest` to `APIRequest` so we can use HBRequest.init(context:application:from)
+// conform `APIGatewayRequest` to `APIRequest` so we can use Request.init(context:application:from)
 extension APIGatewayRequest: APIRequest {
     var queryString: String {
         func urlPercentEncoded(_ string: String) -> String {
@@ -91,5 +91,5 @@ extension APIGatewayRequest: APIRequest {
     }
 }
 
-// conform `APIGatewayResponse` to `APIResponse` so we can use HBResponse.apiReponse()
+// conform `APIGatewayResponse` to `APIResponse` so we can use Response.apiReponse()
 extension APIGatewayResponse: APIResponse {}

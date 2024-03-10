@@ -22,7 +22,7 @@ extension APIGatewayV2Request: LambdaTestableEvent {
     /// Construct APIGatewayV2 Event from uri, method, headers and body
     public init(uri: String, method: HTTPRequest.Method, headers: HTTPFields, body: ByteBuffer?) throws {
         let base64Body = body.map { "\"\(String(base64Encoding: $0.readableBytesView))\"" } ?? "null"
-        let url = HBURL(uri)
+        let url = URI(uri)
         let queryValues: [String: [String]] = url.queryParameters.reduce([:]) { result, value in
             var result = result
             let key = String(value.key)
