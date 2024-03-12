@@ -19,16 +19,16 @@ import NIOCore
 import NIOPosix
 
 /// Specialization of LambdaHandler which runs an Lambda
-struct HBLambdaHandler<L: LambdaFunction>: LambdaHandler {
+struct LambdaFunctionHandler<L: LambdaFunction>: LambdaHandler {
     public typealias Event = L.Event
     public typealias Output = L.Output
 
     let lambda: L
     let responder: L.Responder
 
-    /// Initialize `HBLambdaHandler`.
+    /// Initialize `LambdaHandler`.
     ///
-    /// Create application, set it up and create `HBLambda` from application and create responder
+    /// Create `LambdaFunction` from context and create responder
     /// - Parameter context: Lambda initialization context
     public init(context: LambdaInitializationContext) async throws {
         let lambda = try await L(context: context)

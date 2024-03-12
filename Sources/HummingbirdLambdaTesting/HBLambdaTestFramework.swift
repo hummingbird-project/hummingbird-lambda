@@ -21,12 +21,12 @@ import Logging
 import NIOCore
 import NIOPosix
 
-class HBLambdaTestFramework<Lambda: LambdaFunction> where Lambda.Event: LambdaTestableEvent {
+class LambdaTestFramework<Lambda: LambdaFunction> where Lambda.Event: LambdaTestableEvent {
     let context: LambdaContext
     var terminator: LambdaTerminator
 
     init(logLevel: Logger.Level) {
-        var logger = Logger(label: "HBTestLambda")
+        var logger = Logger(label: "TestLambda")
         logger.logLevel = logLevel
         self.context = .init(
             requestID: UUID().uuidString,
@@ -52,7 +52,7 @@ class HBLambdaTestFramework<Lambda: LambdaFunction> where Lambda.Event: LambdaTe
     }
 
     func run<Value>(_ test: @escaping @Sendable (LambdaTestClient<Lambda>) async throws -> Value) async throws -> Value {
-        let handler = try await HBLambdaHandler<Lambda>(context: self.initializationContext)
+        let handler = try await LambdaFunctionHandler<Lambda>(context: self.initializationContext)
         let value = try await test(LambdaTestClient(handler: handler, context: context))
         try await self.terminator.terminate(eventLoop: self.context.eventLoop).get()
         self.terminator = .init()
@@ -62,7 +62,7 @@ class HBLambdaTestFramework<Lambda: LambdaFunction> where Lambda.Event: LambdaTe
 
 /// Client used to send requests to lambda test framework
 public struct LambdaTestClient<Lambda: LambdaFunction> where Lambda.Event: LambdaTestableEvent {
-    let handler: HBLambdaHandler<Lambda>
+    let handler: LambdaFunctionHandler<Lambda>
     let context: LambdaContext
 
     func execute(uri: String, method: HTTPRequest.Method, headers: HTTPFields, body: ByteBuffer?) async throws -> Lambda.Output {
