@@ -49,6 +49,7 @@ final class LambdaTests: XCTestCase {
 
     func testBase64Encoding() async throws {
         struct HelloLambda: APIGatewayLambdaFunction {
+            typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
             init(context: LambdaInitializationContext) {}
             func buildResponder() -> some HTTPResponder<Context> {
                 let router = Router(context: Context.self)
