@@ -4,18 +4,18 @@ Run Hummingbird inside an AWS Lambda
 
 ## Usage
 
-Create struct conforming to `HBLambda`. Setup your application in the `init` function: add your middleware, add route handlers etc
+Create struct conforming to `Lambda`. Setup your application in the `init` function: add your middleware, add route handlers etc
 
 ```swift
 @main
-struct MyHandler: HBLambda {
+struct MyHandler: Lambda {
     // define input and output
     typealias Event = APIGatewayRequest
     typealias Output = APIGatewayResponse
     
-    init(_ app: HBApplication) {
+    init(_ app: Application) {
         app.middleware.add(HBLogRequestsMiddleware(.debug))
-        app.router.get("hello") { _ in
+        app.router.get("hello") { _, _ in
             return "Hello"
         }
     }

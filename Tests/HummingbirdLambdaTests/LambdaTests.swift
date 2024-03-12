@@ -23,14 +23,14 @@ import XCTest
 
 final class LambdaTests: XCTestCase {
     func testSimpleRoute() async throws {
-        struct HelloLambda: HBAPIGatewayLambda {
-            typealias Context = HBBasicLambdaRequestContext<APIGatewayRequest>
+        struct HelloLambda: APIGatewayLambdaFunction {
+            typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
 
             init(context: LambdaInitializationContext) {}
 
-            func buildResponder() -> some HBResponder<Context> {
-                let router = HBRouter(context: Context.self)
-                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+            func buildResponder() -> some HTTPResponder<Context> {
+                let router = Router(context: Context.self)
+                router.middlewares.add(LogRequestsMiddleware(.debug))
                 router.get("hello") { request, _ in
                     XCTAssertEqual(request.head.authority, "127.0.0.1:8080")
                     return "Hello"
@@ -48,15 +48,15 @@ final class LambdaTests: XCTestCase {
     }
 
     func testBase64Encoding() async throws {
-        struct HelloLambda: HBAPIGatewayLambda {
-            typealias Context = HBBasicLambdaRequestContext<APIGatewayRequest>
+        struct HelloLambda: APIGatewayLambdaFunction {
+            typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
             init(context: LambdaInitializationContext) {}
-            func buildResponder() -> some HBResponder<Context> {
-                let router = HBRouter(context: Context.self)
-                router.middlewares.add(HBLogRequestsMiddleware(.debug))
-                router.post { request, _ in
-                    let buffer = try await request.body.collect(upTo: .max)
-                    return HBResponse(status: .ok, body: .init(byteBuffer: buffer))
+            func buildResponder() -> some HTTPResponder<Context> {
+                let router = Router(context: Context.self)
+                router.middlewares.add(LogRequestsMiddleware(.debug))
+                router.post { request, context in
+                    let buffer = try await request.body.collect(upTo: context.maxUploadSize)
+                    return Response(status: .ok, body: .init(byteBuffer: buffer))
                 }
                 return router.buildResponder()
             }
@@ -71,13 +71,13 @@ final class LambdaTests: XCTestCase {
     }
 
     func testHeaderValues() async throws {
-        struct HelloLambda: HBAPIGatewayLambda {
-            typealias Context = HBBasicLambdaRequestContext<APIGatewayRequest>
+        struct HelloLambda: APIGatewayLambdaFunction {
+            typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
             init(context: LambdaInitializationContext) {}
 
-            func buildResponder() -> some HBResponder<Context> {
-                let router = HBRouter(context: Context.self)
-                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+            func buildResponder() -> some HTTPResponder<Context> {
+                let router = Router(context: Context.self)
+                router.middlewares.add(LogRequestsMiddleware(.debug))
                 router.post { request, _ -> HTTPResponse.Status in
                     XCTAssertEqual(request.headers[.userAgent], "HBXCT/2.0")
                     XCTAssertEqual(request.headers[.acceptLanguage], "en")
@@ -104,13 +104,13 @@ final class LambdaTests: XCTestCase {
     }
 
     func testQueryValues() async throws {
-        struct HelloLambda: HBAPIGatewayLambda {
-            typealias Context = HBBasicLambdaRequestContext<APIGatewayRequest>
+        struct HelloLambda: APIGatewayLambdaFunction {
+            typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
             init(context: LambdaInitializationContext) {}
 
-            func buildResponder() -> some HBResponder<Context> {
-                let router = HBRouter(context: Context.self)
-                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+            func buildResponder() -> some HTTPResponder<Context> {
+                let router = Router(context: Context.self)
+                router.middlewares.add(LogRequestsMiddleware(.debug))
                 router.post { request, _ -> HTTPResponse.Status in
                     XCTAssertEqual(request.uri.queryParameters["foo"], "bar")
                     return .ok
@@ -133,17 +133,17 @@ final class LambdaTests: XCTestCase {
     }
 
     func testErrorEncoding() async throws {
-        struct HelloLambda: HBAPIGatewayLambda {
-            typealias Context = HBBasicLambdaRequestContext<APIGatewayRequest>
+        struct HelloLambda: APIGatewayLambdaFunction {
+            typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
 
             static let body = "BadRequest"
             init(context: LambdaInitializationContext) {}
 
-            func buildResponder() -> some HBResponder<Context> {
-                let router = HBRouter(context: Context.self)
-                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+            func buildResponder() -> some HTTPResponder<Context> {
+                let router = Router(context: Context.self)
+                router.middlewares.add(LogRequestsMiddleware(.debug))
                 router.post { _, _ -> String in
-                    throw HBHTTPError(.badRequest, message: Self.body)
+                    throw HTTPError(.badRequest, message: Self.body)
                 }
                 return router.buildResponder()
             }
@@ -158,14 +158,14 @@ final class LambdaTests: XCTestCase {
     }
 
     func testSimpleRouteV2() async throws {
-        struct HelloLambda: HBAPIGatewayV2Lambda {
-            typealias Context = HBBasicLambdaRequestContext<APIGatewayV2Request>
+        struct HelloLambda: APIGatewayV2LambdaFunction {
+            typealias Context = BasicLambdaRequestContext<APIGatewayV2Request>
 
             init(context: LambdaInitializationContext) {}
 
-            func buildResponder() -> some HBResponder<Context> {
-                let router = HBRouter(context: Context.self)
-                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+            func buildResponder() -> some HTTPResponder<Context> {
+                let router = Router(context: Context.self)
+                router.middlewares.add(LogRequestsMiddleware(.debug))
                 router.post { request, _ in
                     XCTAssertEqual(request.head.authority, "127.0.0.1:8080")
                     return ["response": "hello"]
@@ -183,15 +183,15 @@ final class LambdaTests: XCTestCase {
     }
 
     func testBase64EncodingV2() async throws {
-        struct HelloLambda: HBAPIGatewayV2Lambda {
-            typealias Context = HBBasicLambdaRequestContext<APIGatewayV2Request>
+        struct HelloLambda: APIGatewayV2LambdaFunction {
+            typealias Context = BasicLambdaRequestContext<APIGatewayV2Request>
             init(context: LambdaInitializationContext) {}
-            func buildResponder() -> some HBResponder<Context> {
-                let router = HBRouter(context: Context.self)
-                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+            func buildResponder() -> some HTTPResponder<Context> {
+                let router = Router(context: Context.self)
+                router.middlewares.add(LogRequestsMiddleware(.debug))
                 router.post { request, _ in
                     let buffer = try await request.body.collect(upTo: .max)
-                    return HBResponse(status: .ok, body: .init(byteBuffer: buffer))
+                    return Response(status: .ok, body: .init(byteBuffer: buffer))
                 }
                 return router.buildResponder()
             }
@@ -206,13 +206,13 @@ final class LambdaTests: XCTestCase {
     }
 
     func testHeaderValuesV2() async throws {
-        struct HelloLambda: HBAPIGatewayV2Lambda {
-            typealias Context = HBBasicLambdaRequestContext<APIGatewayV2Request>
+        struct HelloLambda: APIGatewayV2LambdaFunction {
+            typealias Context = BasicLambdaRequestContext<APIGatewayV2Request>
             init(context: LambdaInitializationContext) {}
 
-            func buildResponder() -> some HBResponder<Context> {
-                let router = HBRouter(context: Context.self)
-                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+            func buildResponder() -> some HTTPResponder<Context> {
+                let router = Router(context: Context.self)
+                router.middlewares.add(LogRequestsMiddleware(.debug))
                 router.post { request, _ -> HTTPResponse.Status in
                     XCTAssertEqual(request.headers[.userAgent], "HBXCT/2.0")
                     XCTAssertEqual(request.headers[.acceptLanguage], "en")
@@ -239,13 +239,13 @@ final class LambdaTests: XCTestCase {
     }
 
     func testQueryValuesV2() async throws {
-        struct HelloLambda: HBAPIGatewayV2Lambda {
-            typealias Context = HBBasicLambdaRequestContext<APIGatewayV2Request>
+        struct HelloLambda: APIGatewayV2LambdaFunction {
+            typealias Context = BasicLambdaRequestContext<APIGatewayV2Request>
             init(context: LambdaInitializationContext) {}
 
-            func buildResponder() -> some HBResponder<Context> {
-                let router = HBRouter(context: Context.self)
-                router.middlewares.add(HBLogRequestsMiddleware(.debug))
+            func buildResponder() -> some HTTPResponder<Context> {
+                let router = Router(context: Context.self)
+                router.middlewares.add(LogRequestsMiddleware(.debug))
                 router.post { request, _ -> HTTPResponse.Status in
                     XCTAssertEqual(request.uri.queryParameters["foo"], "bar")
                     return .ok

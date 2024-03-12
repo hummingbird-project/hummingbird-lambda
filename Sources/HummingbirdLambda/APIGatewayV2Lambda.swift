@@ -23,14 +23,14 @@ import NIOHTTP1
 /// With this protocol you no longer need to set the `Event` and `Output`
 /// associated values.
 /// ```swift
-/// struct MyLambda: HBAPIGatewayLambda {
+/// struct MyLambda: APIGatewayLambda {
 ///     typealias Context = MyLambdaRequestContext
 ///
 ///     init(context: LambdaInitializationContext) {}
 ///
 ///     /// build responder that will create a response from a request
-///     func buildResponder() -> some HBResponder<Context> {
-///         let router = HBRouter(context: Context.self)
+///     func buildResponder() -> some Responder<Context> {
+///         let router = Router(context: Context.self)
 ///         router.get("hello") { _,_ in
 ///             "Hello"
 ///         }
@@ -38,25 +38,25 @@ import NIOHTTP1
 ///     }
 /// }
 /// ```
-public protocol HBAPIGatewayV2Lambda: HBLambda where Event == APIGatewayV2Request, Output == APIGatewayV2Response {
-    associatedtype Context = HBBasicLambdaRequestContext<APIGatewayV2Request>
+public protocol APIGatewayV2LambdaFunction: LambdaFunction where Event == APIGatewayV2Request, Output == APIGatewayV2Response {
+    associatedtype Context = BasicLambdaRequestContext<APIGatewayV2Request>
 }
 
-extension HBLambda where Event == APIGatewayV2Request {
-    /// Specialization of HBLambda.request where `Event` is `APIGatewayV2Request`
-    public func request(context: LambdaContext, from: Event) throws -> HBRequest {
-        return try HBRequest(context: context, from: from)
+extension LambdaFunction where Event == APIGatewayV2Request {
+    /// Specialization of Lambda.request where `Event` is `APIGatewayV2Request`
+    public func request(context: LambdaContext, from: Event) throws -> Request {
+        return try Request(context: context, from: from)
     }
 }
 
-extension HBLambda where Output == APIGatewayV2Response {
-    /// Specialization of HBLambda.request where `Output` is `APIGatewayV2Response`
-    public func output(from response: HBResponse) async throws -> Output {
+extension LambdaFunction where Output == APIGatewayV2Response {
+    /// Specialization of Lambda.request where `Output` is `APIGatewayV2Response`
+    public func output(from response: Response) async throws -> Output {
         return try await response.apiResponse()
     }
 }
 
-// conform `APIGatewayV2Request` to `APIRequest` so we can use HBRequest.init(context:application:from)
+// conform `APIGatewayV2Request` to `APIRequest` so we can use Request.init(context:application:from)
 extension APIGatewayV2Request: APIRequest {
     var path: String {
         return context.http.path
@@ -74,9 +74,9 @@ extension APIGatewayV2Request: APIRequest {
     }
 }
 
-// conform `APIGatewayV2Response` to `APIResponse` so we can use HBResponse.apiReponse()
+// conform `APIGatewayV2Response` to `APIResponse` so we can use Response.apiReponse()
 extension APIGatewayV2Response: APIResponse {
-    init(
+    package init(
         statusCode: AWSLambdaEvents.HTTPResponseStatus,
         headers: AWSLambdaEvents.HTTPHeaders?,
         multiValueHeaders: HTTPMultiValueHeaders?,

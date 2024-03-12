@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 import HummingbirdCore
 
-internal final class CollateResponseBodyWriter: HBResponseBodyWriter {
+internal final class CollateResponseBodyWriter: ResponseBodyWriter {
     var buffer: ByteBuffer
 
     init() {

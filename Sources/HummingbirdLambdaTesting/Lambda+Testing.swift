@@ -15,7 +15,7 @@
 import HummingbirdLambda
 import Logging
 
-extension HBLambda where Event: LambdaTestableEvent {
+extension LambdaFunction where Event: LambdaTestableEvent {
     /// Test `HBLambda`
     ///
     /// The `test` closure uses the provided test client to make calls to the
@@ -27,7 +27,7 @@ extension HBLambda where Event: LambdaTestableEvent {
     /// struct HelloLambda: HBAPIGatewayLambda {
     ///     init(context: LambdaInitializationContext) {}
     ///
-    ///     func buildResponder() -> some HBResponder<Context> {
+    ///     func buildResponder() -> some  HTTPResponder<Context> {
     ///         let router = HBRouter(context: Context.self)
     ///         router.get("hello") { request, _ in
     ///             return "Hello"
@@ -43,7 +43,7 @@ extension HBLambda where Event: LambdaTestableEvent {
     /// ```
     public static func test<Value>(
         logLevel: Logger.Level = .debug,
-        _ test: @escaping @Sendable (HBLambdaTestClient<Self>) async throws -> Value
+        _ test: @escaping @Sendable (LambdaTestClient<Self>) async throws -> Value
     ) async throws -> Value {
         let lambda = HBLambdaTestFramework<Self>(logLevel: logLevel)
         return try await lambda.run(test)

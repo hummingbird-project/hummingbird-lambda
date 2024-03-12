@@ -18,8 +18,8 @@ import Logging
 import NIOCore
 import NIOPosix
 
-/// Specialization of LambdaHandler which runs an HBLambda
-struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
+/// Specialization of LambdaHandler which runs an Lambda
+struct HBLambdaHandler<L: LambdaFunction>: LambdaHandler {
     public typealias Event = L.Event
     public typealias Output = L.Output
 
@@ -52,11 +52,11 @@ struct HBLambdaHandler<L: HBLambda>: LambdaHandler {
             lambdaContext: context
         )
         let request = try lambda.request(context: context, from: event)
-        let response: HBResponse
+        let response: Response
         do {
             response = try await self.responder.respond(to: request, context: requestContext)
         } catch {
-            if let error = error as? HBHTTPResponseError {
+            if let error = error as? HTTPResponseError {
                 response = error.response(allocator: context.allocator)
             } else {
                 throw error

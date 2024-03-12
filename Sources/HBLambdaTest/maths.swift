@@ -18,12 +18,12 @@ import Hummingbird
 import HummingbirdLambda
 import Logging
 
-struct DebugMiddleware: HBMiddlewareProtocol {
+struct DebugMiddleware: RouterMiddleware {
     typealias Context = MathsHandler.Context
     func handle(
-        _ request: HBRequest,
+        _ request: Request,
         context: Context,
-        next: (HBRequest, Context) async throws -> Output
+        next: (Request, Context) async throws -> Output
     ) async throws -> Output {
         context.logger.debug("\(request.method) \(request.uri)")
         context.logger.debug("\(context.event)")
@@ -33,22 +33,22 @@ struct DebugMiddleware: HBMiddlewareProtocol {
 }
 
 @main
-struct MathsHandler: HBAPIGatewayLambda {
-    typealias Context = HBBasicLambdaRequestContext<APIGatewayRequest>
+struct MathsHandler: APIGatewayLambdaFunction {
+    typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
 
     struct Operands: Decodable {
         let lhs: Double
         let rhs: Double
     }
 
-    struct Result: HBResponseEncodable {
+    struct Result: ResponseEncodable {
         let result: Double
     }
 
     init(context: LambdaInitializationContext) {}
 
-    func buildResponder() -> some HBResponder<Context> {
-        let router = HBRouter(context: Context.self)
+    func buildResponder() -> some HTTPResponder<Context> {
+        let router = Router(context: Context.self)
         router.middlewares.add(DebugMiddleware())
         router.post("add") { request, context -> Result in
             let operands = try await request.decode(as: Operands.self, context: context)

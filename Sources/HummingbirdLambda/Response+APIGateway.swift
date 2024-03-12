@@ -18,7 +18,7 @@ import ExtrasBase64
 import Hummingbird
 import NIOHTTP1
 
-protocol APIResponse {
+package protocol APIResponse {
     init(
         statusCode: AWSLambdaEvents.HTTPResponseStatus,
         headers: AWSLambdaEvents.HTTPHeaders?,
@@ -28,8 +28,8 @@ protocol APIResponse {
     )
 }
 
-extension HBResponse {
-    func apiResponse<Response: APIResponse>() async throws -> Response {
+extension Response {
+    package func apiResponse<Response: APIResponse>() async throws -> Response {
         let groupedHeaders: [String: [String]] = self.headers.reduce(into: [:]) { result, item in
             if result[item.name.rawName] == nil {
                 result[item.name.rawName] = [item.value]
@@ -57,7 +57,7 @@ extension HBResponse {
         _ = try await self.body.write(collateWriter)
         let buffer = collateWriter.buffer
         if let contentType = self.headers[.contentType] {
-            let mediaType = HBMediaType(from: contentType)
+            let mediaType = MediaType(from: contentType)
             switch mediaType {
             case .some(.text), .some(.applicationJson), .some(.applicationUrlEncoded):
                 body = String(buffer: buffer)

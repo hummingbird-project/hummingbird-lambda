@@ -25,7 +25,7 @@ import NIOPosix
 /// and ``HummingbirdCore/HBResponse`` to `Output`. Create a type conforming to this protocol and tag it
 /// with `@main`.
 /// ```swift
-/// struct MyLambda: HBLambda {
+/// struct MyLambda: LambdaFunction {
 ///     typealias Event = APIGatewayRequest
 ///     typealias Output = APIGatewayResponse
 ///     typealias Context = MyLambdaRequestContext // must conform to `HBLambdaRequestContext`
@@ -33,8 +33,8 @@ import NIOPosix
 ///     init(context: LambdaInitializationContext) {}
 ///
 ///     /// build responder that will create a response from a request
-///     func buildResponder() -> some HBResponder<Context> {
-///         let router = HBRouter(context: Context.self)
+///     func buildResponder() -> some Responder<Context> {
+///         let router = Router(context: Context.self)
 ///         router.get("hello") { _,_ in
 ///             "Hello"
 ///         }
@@ -43,15 +43,15 @@ import NIOPosix
 /// }
 /// ```
 /// - SeeAlso: ``HBAPIGatewayLambda`` and ``HBAPIGatewayV2Lambda`` for specializations of this protocol.
-public protocol HBLambda {
+public protocol LambdaFunction: Sendable {
     /// Event that triggers the lambda
     associatedtype Event: Decodable
     /// Request context
-    associatedtype Context: HBLambdaRequestContext<Event> = HBBasicLambdaRequestContext<Event>
+    associatedtype Context: LambdaRequestContext<Event> = BasicLambdaRequestContext<Event>
     /// Output of lambda
     associatedtype Output: Encodable
     /// HTTP Responder
-    associatedtype Responder: HBResponder<Context>
+    associatedtype Responder: HTTPResponder<Context>
 
     func buildResponder() -> Responder
 
@@ -65,14 +65,14 @@ public protocol HBLambda {
     /// - Parameters:
     ///   - context: Lambda context
     ///   - from: input type
-    func request(context: LambdaContext, from: Event) throws -> HBRequest
+    func request(context: LambdaContext, from: Event) throws -> Request
 
     /// Convert from `HBResponse` to `Out` type
     /// - Parameter from: response from Hummingbird
-    func output(from: HBResponse) async throws -> Output
+    func output(from: Response) async throws -> Output
 }
 
-extension HBLambda {
+extension LambdaFunction {
     /// Initializes and runs the Lambda function.
     ///
     /// If you precede your `EventLoopLambdaHandler` conformer's declaration with the

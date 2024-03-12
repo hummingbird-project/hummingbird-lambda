@@ -21,7 +21,7 @@ import NIOCore
 /// `HBLambdaRequestContext`. By default ``HBLambda`` will use ``HBBasicLambdaRequestContext``
 /// for a request context. To get ``HBLambda`` to use a custom context you need to set the
 /// `Context` associatedtype.
-public protocol HBLambdaRequestContext<Event>: HBBaseRequestContext {
+public protocol LambdaRequestContext<Event>: BaseRequestContext {
     /// The type of event that can trigger the Lambda
     associatedtype Event
 

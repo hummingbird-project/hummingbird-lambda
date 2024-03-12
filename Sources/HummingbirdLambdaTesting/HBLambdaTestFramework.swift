@@ -21,7 +21,7 @@ import Logging
 import NIOCore
 import NIOPosix
 
-class HBLambdaTestFramework<Lambda: HBLambda> where Lambda.Event: LambdaTestableEvent {
+class HBLambdaTestFramework<Lambda: LambdaFunction> where Lambda.Event: LambdaTestableEvent {
     let context: LambdaContext
     var terminator: LambdaTerminator
 
@@ -51,9 +51,9 @@ class HBLambdaTestFramework<Lambda: HBLambda> where Lambda.Event: LambdaTestable
         )
     }
 
-    func run<Value>(_ test: @escaping @Sendable (HBLambdaTestClient<Lambda>) async throws -> Value) async throws -> Value {
+    func run<Value>(_ test: @escaping @Sendable (LambdaTestClient<Lambda>) async throws -> Value) async throws -> Value {
         let handler = try await HBLambdaHandler<Lambda>(context: self.initializationContext)
-        let value = try await test(HBLambdaTestClient(handler: handler, context: context))
+        let value = try await test(LambdaTestClient(handler: handler, context: context))
         try await self.terminator.terminate(eventLoop: self.context.eventLoop).get()
         self.terminator = .init()
         return value
@@ -61,7 +61,7 @@ class HBLambdaTestFramework<Lambda: HBLambda> where Lambda.Event: LambdaTestable
 }
 
 /// Client used to send requests to lambda test framework
-public struct HBLambdaTestClient<Lambda: HBLambda> where Lambda.Event: LambdaTestableEvent {
+public struct LambdaTestClient<Lambda: LambdaFunction> where Lambda.Event: LambdaTestableEvent {
     let handler: HBLambdaHandler<Lambda>
     let context: LambdaContext
 
