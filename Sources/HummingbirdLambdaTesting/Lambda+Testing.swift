@@ -15,7 +15,7 @@
 import HummingbirdLambda
 import Logging
 
-extension Lambda where Event: LambdaTestableEvent {
+extension LambdaFunction where Event: LambdaTestableEvent {
     /// Test `HBLambda`
     ///
     /// The `test` closure uses the provided test client to make calls to the

@@ -25,7 +25,7 @@ import NIOPosix
 /// and ``HummingbirdCore/HBResponse`` to `Output`. Create a type conforming to this protocol and tag it
 /// with `@main`.
 /// ```swift
-/// struct MyLambda: Lambda {
+/// struct MyLambda: LambdaFunction {
 ///     typealias Event = APIGatewayRequest
 ///     typealias Output = APIGatewayResponse
 ///     typealias Context = MyLambdaRequestContext // must conform to `HBLambdaRequestContext`
@@ -43,7 +43,7 @@ import NIOPosix
 /// }
 /// ```
 /// - SeeAlso: ``HBAPIGatewayLambda`` and ``HBAPIGatewayV2Lambda`` for specializations of this protocol.
-public protocol Lambda: Sendable {
+public protocol LambdaFunction: Sendable {
     /// Event that triggers the lambda
     associatedtype Event: Decodable
     /// Request context
@@ -72,7 +72,7 @@ public protocol Lambda: Sendable {
     func output(from: Response) async throws -> Output
 }
 
-extension Lambda {
+extension LambdaFunction {
     /// Initializes and runs the Lambda function.
     ///
     /// If you precede your `EventLoopLambdaHandler` conformer's declaration with the

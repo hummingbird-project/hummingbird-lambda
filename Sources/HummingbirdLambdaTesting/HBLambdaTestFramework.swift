@@ -21,7 +21,7 @@ import Logging
 import NIOCore
 import NIOPosix
 
-class HBLambdaTestFramework<Lambda: HummingbirdLambda.Lambda> where Lambda.Event: LambdaTestableEvent {
+class HBLambdaTestFramework<Lambda: LambdaFunction> where Lambda.Event: LambdaTestableEvent {
     let context: LambdaContext
     var terminator: LambdaTerminator
 
@@ -61,7 +61,7 @@ class HBLambdaTestFramework<Lambda: HummingbirdLambda.Lambda> where Lambda.Event
 }
 
 /// Client used to send requests to lambda test framework
-public struct LambdaTestClient<Lambda: HummingbirdLambda.Lambda> where Lambda.Event: LambdaTestableEvent {
+public struct LambdaTestClient<Lambda: LambdaFunction> where Lambda.Event: LambdaTestableEvent {
     let handler: HBLambdaHandler<Lambda>
     let context: LambdaContext
 

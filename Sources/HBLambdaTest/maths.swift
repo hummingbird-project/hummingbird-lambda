@@ -33,7 +33,7 @@ struct DebugMiddleware: RouterMiddleware {
 }
 
 @main
-struct MathsHandler: APIGatewayLambda {
+struct MathsHandler: APIGatewayLambdaFunction {
     typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
 
     struct Operands: Decodable {

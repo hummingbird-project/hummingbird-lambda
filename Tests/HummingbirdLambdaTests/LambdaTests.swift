@@ -23,7 +23,7 @@ import XCTest
 
 final class LambdaTests: XCTestCase {
     func testSimpleRoute() async throws {
-        struct HelloLambda: APIGatewayLambda {
+        struct HelloLambda: APIGatewayLambdaFunction {
             typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
 
             init(context: LambdaInitializationContext) {}
@@ -48,7 +48,7 @@ final class LambdaTests: XCTestCase {
     }
 
     func testBase64Encoding() async throws {
-        struct HelloLambda: APIGatewayLambda {
+        struct HelloLambda: APIGatewayLambdaFunction {
             init(context: LambdaInitializationContext) {}
             func buildResponder() -> some HTTPResponder<Context> {
                 let router = Router(context: Context.self)
@@ -70,7 +70,7 @@ final class LambdaTests: XCTestCase {
     }
 
     func testHeaderValues() async throws {
-        struct HelloLambda: APIGatewayLambda {
+        struct HelloLambda: APIGatewayLambdaFunction {
             typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
             init(context: LambdaInitializationContext) {}
 
@@ -103,11 +103,11 @@ final class LambdaTests: XCTestCase {
     }
 
     func testQueryValues() async throws {
-        struct HelloLambda: APIGatewayLambda {
+        struct HelloLambda: APIGatewayLambdaFunction {
             typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
             init(context: LambdaInitializationContext) {}
 
-            func buildResponder() -> some  HTTPResponder<Context> {
+            func buildResponder() -> some HTTPResponder<Context> {
                 let router = Router(context: Context.self)
                 router.middlewares.add(LogRequestsMiddleware(.debug))
                 router.post { request, _ -> HTTPResponse.Status in
@@ -132,7 +132,7 @@ final class LambdaTests: XCTestCase {
     }
 
     func testErrorEncoding() async throws {
-        struct HelloLambda: APIGatewayLambda {
+        struct HelloLambda: APIGatewayLambdaFunction {
             typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
 
             static let body = "BadRequest"
@@ -157,12 +157,12 @@ final class LambdaTests: XCTestCase {
     }
 
     func testSimpleRouteV2() async throws {
-        struct HelloLambda: APIGatewayV2Lambda {
+        struct HelloLambda: APIGatewayV2LambdaFunction {
             typealias Context = BasicLambdaRequestContext<APIGatewayV2Request>
 
             init(context: LambdaInitializationContext) {}
 
-            func buildResponder() -> some  HTTPResponder<Context> {
+            func buildResponder() -> some HTTPResponder<Context> {
                 let router = Router(context: Context.self)
                 router.middlewares.add(LogRequestsMiddleware(.debug))
                 router.post { request, _ in
@@ -182,10 +182,10 @@ final class LambdaTests: XCTestCase {
     }
 
     func testBase64EncodingV2() async throws {
-        struct HelloLambda: APIGatewayV2Lambda {
+        struct HelloLambda: APIGatewayV2LambdaFunction {
             typealias Context = BasicLambdaRequestContext<APIGatewayV2Request>
             init(context: LambdaInitializationContext) {}
-            func buildResponder() -> some  HTTPResponder<Context> {
+            func buildResponder() -> some HTTPResponder<Context> {
                 let router = Router(context: Context.self)
                 router.middlewares.add(LogRequestsMiddleware(.debug))
                 router.post { request, _ in
@@ -205,11 +205,11 @@ final class LambdaTests: XCTestCase {
     }
 
     func testHeaderValuesV2() async throws {
-        struct HelloLambda: APIGatewayV2Lambda {
+        struct HelloLambda: APIGatewayV2LambdaFunction {
             typealias Context = BasicLambdaRequestContext<APIGatewayV2Request>
             init(context: LambdaInitializationContext) {}
 
-            func buildResponder() -> some  HTTPResponder<Context> {
+            func buildResponder() -> some HTTPResponder<Context> {
                 let router = Router(context: Context.self)
                 router.middlewares.add(LogRequestsMiddleware(.debug))
                 router.post { request, _ -> HTTPResponse.Status in
@@ -238,11 +238,11 @@ final class LambdaTests: XCTestCase {
     }
 
     func testQueryValuesV2() async throws {
-        struct HelloLambda: APIGatewayV2Lambda {
+        struct HelloLambda: APIGatewayV2LambdaFunction {
             typealias Context = BasicLambdaRequestContext<APIGatewayV2Request>
             init(context: LambdaInitializationContext) {}
 
-            func buildResponder() -> some  HTTPResponder<Context> {
+            func buildResponder() -> some HTTPResponder<Context> {
                 let router = Router(context: Context.self)
                 router.middlewares.add(LogRequestsMiddleware(.debug))
                 router.post { request, _ -> HTTPResponse.Status in

@@ -38,18 +38,18 @@ import NIOHTTP1
 ///     }
 /// }
 /// ```
-public protocol APIGatewayLambda: Lambda where Event == APIGatewayRequest, Output == APIGatewayResponse {
+public protocol APIGatewayLambdaFunction: LambdaFunction where Event == APIGatewayRequest, Output == APIGatewayResponse {
     associatedtype Context = BasicLambdaRequestContext<APIGatewayRequest>
 }
 
-extension Lambda where Event == APIGatewayRequest {
+extension LambdaFunction where Event == APIGatewayRequest {
     /// Specialization of Lambda.request where `Event` is `APIGatewayRequest`
     public func request(context: LambdaContext, from: Event) throws -> Request {
         return try Request(context: context, from: from)
     }
 }
 
-extension Lambda where Output == APIGatewayResponse {
+extension LambdaFunction where Output == APIGatewayResponse {
     /// Specialization of Lambda.request where `Output` is `APIGatewayResponse`
     public func output(from response: Response) async throws -> Output {
         return try await response.apiResponse()
