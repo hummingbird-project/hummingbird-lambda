@@ -12,7 +12,8 @@ struct MyHandler: LambdaFunction {
     // define input and output
     typealias Event = APIGatewayRequest
     typealias Output = APIGatewayResponse
-    
+    typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
+ 
     init(_ app: Application) {
         app.middleware.add(LogRequestsMiddleware(.debug))
         app.router.get("hello") { _, _ in
