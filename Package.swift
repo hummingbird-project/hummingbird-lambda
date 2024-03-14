@@ -9,6 +9,7 @@ let package = Package(
     ],
     products: [
         .library(name: "HummingbirdLambda", targets: ["HummingbirdLambda"]),
+        .library(name: "HummingbirdLambdaTesting", targets: ["HummingbirdLambdaTesting"]),
         .executable(name: "HBLambdaTest", targets: ["HBLambdaTest"]),
     ],
     dependencies: [
