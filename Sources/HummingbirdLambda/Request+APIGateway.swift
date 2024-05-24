@@ -22,7 +22,7 @@ import NIOCore
 
 protocol APIRequest {
     var path: String { get }
-    var httpMethod: AWSLambdaEvents.HTTPMethod { get }
+    var httpMethod: HTTPRequest.Method { get }
     var queryString: String { get }
     var httpHeaders: [(name: String, value: String)] { get }
     var body: String? { get }
@@ -34,10 +34,6 @@ extension Request {
     init(context: LambdaContext, from: some APIRequest) throws {
         func urlPercentEncoded(_ string: String) -> String {
             return string.addingPercentEncoding(withAllowedCharacters: .urlQueryComponentAllowed) ?? string
-        }
-
-        guard let method = HTTPRequest.Method(from.httpMethod.rawValue) else {
-            throw HTTPError(.badRequest)
         }
 
         // construct URI with query parameters
@@ -64,7 +60,7 @@ extension Request {
 
         self.init(
             head: .init(
-                method: method,
+                method: from.httpMethod,
                 scheme: "https",
                 authority: authority,
                 path: uri,

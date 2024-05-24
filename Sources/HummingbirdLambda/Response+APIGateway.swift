@@ -20,7 +20,7 @@ import NIOHTTP1
 
 package protocol APIResponse {
     init(
-        statusCode: AWSLambdaEvents.HTTPResponseStatus,
+        statusCode: HTTPResponse.Status,
         headers: AWSLambdaEvents.HTTPHeaders?,
         multiValueHeaders: HTTPMultiValueHeaders?,
         body: String?,
@@ -72,7 +72,7 @@ extension Response {
         }
 
         return .init(
-            statusCode: AWSLambdaEvents.HTTPResponseStatus(code: UInt(self.status.code)),
+            statusCode: self.status,
             headers: singleHeaders,
             multiValueHeaders: multiHeaders,
             body: body,

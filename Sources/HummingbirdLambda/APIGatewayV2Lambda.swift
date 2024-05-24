@@ -62,7 +62,7 @@ extension APIGatewayV2Request: APIRequest {
         return context.http.path
     }
 
-    var httpMethod: AWSLambdaEvents.HTTPMethod { context.http.method }
+    var httpMethod: HTTPRequest.Method { context.http.method }
     var queryString: String { self.rawQueryString }
     var httpHeaders: [(name: String, value: String)] {
         self.headers.flatMap { header in
@@ -77,7 +77,7 @@ extension APIGatewayV2Request: APIRequest {
 // conform `APIGatewayV2Response` to `APIResponse` so we can use Response.apiReponse()
 extension APIGatewayV2Response: APIResponse {
     package init(
-        statusCode: AWSLambdaEvents.HTTPResponseStatus,
+        statusCode: HTTPResponse.Status,
         headers: AWSLambdaEvents.HTTPHeaders?,
         multiValueHeaders: HTTPMultiValueHeaders?,
         body: String?,
