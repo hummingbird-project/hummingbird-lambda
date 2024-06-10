@@ -12,8 +12,23 @@ import AWSLambdaRuntimeCore
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+
+import Hummingbird
 import Logging
 import NIOCore
+
+public struct LambdaRequestContextSource<Event>: RequestContextSource {
+    public init(event: Event, lambdaContext: LambdaContext) {
+        self.event = event
+        self.lambdaContext = lambdaContext
+    }
+
+    public let event: Event
+    public let lambdaContext: LambdaContext
+
+    public var allocator: ByteBufferAllocator { lambdaContext.allocator }
+    public var logger: Logger { lambdaContext.logger }
+}
 
 /// A Request Context that is initialized with the Event that triggered the Lambda
 ///
@@ -21,9 +36,6 @@ import NIOCore
 /// LambdaRequestContext`. By default ``LambdaFunction`` will use ``BasicLambdaRequestContext``
 /// for a request context. To get ``LambdaFunction`` to use a custom context you need to set the
 /// `Context` associatedtype.
-public protocol LambdaRequestContext<Event>: BaseRequestContext {
-    /// The type of event that can trigger the Lambda
+public protocol LambdaRequestContext<Event>: BaseRequestContext where Source == LambdaRequestContextSource<Event> {
     associatedtype Event
-
-    init(_ event: Event, lambdaContext: LambdaContext)
 }
