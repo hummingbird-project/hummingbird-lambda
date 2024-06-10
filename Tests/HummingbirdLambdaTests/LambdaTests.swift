@@ -24,8 +24,6 @@ import XCTest
 final class LambdaTests: XCTestCase {
     func testSimpleRoute() async throws {
         struct HelloLambda: APIGatewayLambdaFunction {
-            //typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
-
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HTTPResponder<Context> {
@@ -49,7 +47,6 @@ final class LambdaTests: XCTestCase {
 
     func testBase64Encoding() async throws {
         struct HelloLambda: APIGatewayLambdaFunction {
-            //typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
             init(context: LambdaInitializationContext) {}
             func buildResponder() -> some HTTPResponder<Context> {
                 let router = Router(context: Context.self)
@@ -72,7 +69,6 @@ final class LambdaTests: XCTestCase {
 
     func testHeaderValues() async throws {
         struct HelloLambda: APIGatewayLambdaFunction {
-            //typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HTTPResponder<Context> {
@@ -105,7 +101,6 @@ final class LambdaTests: XCTestCase {
 
     func testQueryValues() async throws {
         struct HelloLambda: APIGatewayLambdaFunction {
-            //typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HTTPResponder<Context> {
@@ -134,8 +129,6 @@ final class LambdaTests: XCTestCase {
 
     func testErrorEncoding() async throws {
         struct HelloLambda: APIGatewayLambdaFunction {
-            //typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
-
             static let body = "BadRequest"
             init(context: LambdaInitializationContext) {}
 
@@ -160,8 +153,6 @@ final class LambdaTests: XCTestCase {
 
     func testSimpleRouteV2() async throws {
         struct HelloLambda: APIGatewayV2LambdaFunction {
-            //typealias Context = BasicLambdaRequestContext<APIGatewayV2Request>
-
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HTTPResponder<Context> {
@@ -185,7 +176,6 @@ final class LambdaTests: XCTestCase {
 
     func testBase64EncodingV2() async throws {
         struct HelloLambda: APIGatewayV2LambdaFunction {
-            //typealias Context = BasicLambdaRequestContext<APIGatewayV2Request>
             init(context: LambdaInitializationContext) {}
             func buildResponder() -> some HTTPResponder<Context> {
                 let router = Router(context: Context.self)
@@ -208,7 +198,6 @@ final class LambdaTests: XCTestCase {
 
     func testHeaderValuesV2() async throws {
         struct HelloLambda: APIGatewayV2LambdaFunction {
-            //typealias Context = BasicLambdaRequestContext<APIGatewayV2Request>
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HTTPResponder<Context> {
@@ -241,7 +230,6 @@ final class LambdaTests: XCTestCase {
 
     func testQueryValuesV2() async throws {
         struct HelloLambda: APIGatewayV2LambdaFunction {
-            //typealias Context = BasicLambdaRequestContext<APIGatewayV2Request>
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HTTPResponder<Context> {
