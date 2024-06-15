@@ -43,11 +43,11 @@ import NIOPosix
 /// }
 /// ```
 /// - SeeAlso: ``APIGatewayLambdaFunction`` and ``APIGatewayV2LambdaFunction`` for specializations of this protocol.
-public protocol LambdaFunction: Sendable {
+public protocol LambdaFunction: Sendable where Context.Source == LambdaRequestContextSource<Event> {
     /// Event that triggers the lambda
     associatedtype Event: Decodable
     /// Request context
-    associatedtype Context: LambdaRequestContext<Event> = BasicLambdaRequestContext<Event>
+    associatedtype Context: InstantiableRequestContext = BasicLambdaRequestContext<Event>
     /// Output of lambda
     associatedtype Output: Encodable
     /// HTTP Responder

@@ -25,7 +25,7 @@ public struct BasicLambdaRequestContext<Event: Sendable>: LambdaRequestContext {
     /// The Event that triggered the Lambda
     public let event: Event
 
-    public var coreContext: CoreRequestContext
+    public var coreContext: CoreRequestContextStorage
 
     /// Initialize Lambda request context
     public init(source: Source) {
