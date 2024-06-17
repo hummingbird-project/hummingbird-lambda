@@ -24,8 +24,8 @@ import XCTest
 final class LambdaTests: XCTestCase {
     func testSimpleRoute() async throws {
         struct HelloLambda: APIGatewayLambdaFunction {
+            // Currently requires Context to be set as Swift 6 cannot infer the Context type
             typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
-
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HTTPResponder<Context> {
@@ -135,7 +135,6 @@ final class LambdaTests: XCTestCase {
     func testErrorEncoding() async throws {
         struct HelloLambda: APIGatewayLambdaFunction {
             typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
-
             static let body = "BadRequest"
             init(context: LambdaInitializationContext) {}
 
@@ -161,7 +160,6 @@ final class LambdaTests: XCTestCase {
     func testSimpleRouteV2() async throws {
         struct HelloLambda: APIGatewayV2LambdaFunction {
             typealias Context = BasicLambdaRequestContext<APIGatewayV2Request>
-
             init(context: LambdaInitializationContext) {}
 
             func buildResponder() -> some HTTPResponder<Context> {
@@ -264,6 +262,39 @@ final class LambdaTests: XCTestCase {
             }
             try await client.execute(uri: "/multi?foo=bar1&foo=bar2", method: .post) { response in
                 XCTAssertEqual(response.statusCode, .ok)
+            }
+        }
+    }
+
+    func testCustomRequestContext() async throws {
+        struct MyRequestContext: LambdaRequestContext {
+            typealias Event = APIGatewayRequest
+
+            var coreContext: CoreRequestContextStorage
+            let string = "Hello"
+            init(source: Source) {
+                self.coreContext = .init(source: source)
+            }
+        }
+        struct HelloLambda: APIGatewayLambdaFunction {
+            typealias Context = MyRequestContext
+            init(context: LambdaInitializationContext) {}
+
+            func buildResponder() -> some HTTPResponder<Context> {
+                let router = Router(context: Context.self)
+                router.middlewares.add(LogRequestsMiddleware(.debug))
+                router.post { request, context in
+                    XCTAssertEqual(request.head.authority, "127.0.0.1:8080")
+                    return ["response": context.string]
+                }
+                return router.buildResponder()
+            }
+        }
+        try await HelloLambda.test { client in
+            try await client.execute(uri: "/", method: .post) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+                XCTAssertEqual(response.headers?["Content-Type"], "application/json; charset=utf-8")
+                XCTAssertEqual(response.body, #"{"response":"Hello"}"#)
             }
         }
     }

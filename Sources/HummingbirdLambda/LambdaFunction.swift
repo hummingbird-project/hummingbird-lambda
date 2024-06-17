@@ -47,7 +47,7 @@ public protocol LambdaFunction: Sendable {
     /// Event that triggers the lambda
     associatedtype Event: Decodable
     /// Request context
-    associatedtype Context: LambdaRequestContext<Event> = BasicLambdaRequestContext<Event>
+    associatedtype Context: InitializableFromSource<LambdaRequestContextSource<Event>> = BasicLambdaRequestContext<Event>
     /// Output of lambda
     associatedtype Output: Encodable
     /// HTTP Responder

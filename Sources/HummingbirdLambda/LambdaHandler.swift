@@ -48,8 +48,7 @@ struct LambdaFunctionHandler<L: LambdaFunction>: LambdaHandler {
     /// - Parameter context: The context for this invocation.
     public func handle(_ event: Event, context: LambdaContext) async throws -> Output {
         let requestContext = L.Context(
-            event,
-            lambdaContext: context
+            source: .init(event: event, lambdaContext: context)
         )
         let request = try lambda.request(context: context, from: event)
         let response: Response
