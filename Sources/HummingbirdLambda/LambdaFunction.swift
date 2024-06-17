@@ -47,7 +47,7 @@ public protocol LambdaFunction: Sendable where Context.Source == LambdaRequestCo
     /// Event that triggers the lambda
     associatedtype Event: Decodable
     /// Request context
-    associatedtype Context: InstantiableRequestContext = BasicLambdaRequestContext<Event>
+    associatedtype Context: InitializableFromSource = BasicLambdaRequestContext<Event>
     /// Output of lambda
     associatedtype Output: Encodable
     /// HTTP Responder
