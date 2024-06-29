@@ -51,16 +51,7 @@ struct LambdaFunctionHandler<L: LambdaFunction>: LambdaHandler {
             source: .init(event: event, lambdaContext: context)
         )
         let request = try lambda.request(context: context, from: event)
-        let response: Response
-        do {
-            response = try await self.responder.respond(to: request, context: requestContext)
-        } catch {
-            if let error = error as? HTTPResponseError {
-                response = error.response(allocator: context.allocator)
-            } else {
-                throw error
-            }
-        }
+        let response = try await self.responder.respond(to: request, context: requestContext)
 
         return try await self.lambda.output(from: response)
     }

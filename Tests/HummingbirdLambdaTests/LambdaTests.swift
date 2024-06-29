@@ -149,7 +149,7 @@ final class LambdaTests: XCTestCase {
         }
         try await HelloLambda.test { client in
             try await client.execute(uri: "/", method: .post) { response in
-                let expectedBody = "{\"error\":{\"message\":\"\(HelloLambda.body)\"}}\n"
+                let expectedBody = "{\"error\":{\"message\":\"\(HelloLambda.body)\"}}"
                 XCTAssertEqual(response.statusCode, .badRequest)
                 XCTAssertEqual(response.body, expectedBody)
                 XCTAssertEqual(response.headers?["Content-Length"], expectedBody.utf8.count.description)
