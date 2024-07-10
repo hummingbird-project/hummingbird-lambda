@@ -30,7 +30,7 @@ struct LambdaFunctionHandler<L: LambdaFunction>: LambdaHandler {
     ///
     /// Create `LambdaFunction` from context and create responder
     /// - Parameter context: Lambda initialization context
-    public init(context: LambdaInitializationContext) async throws {
+    init(context: LambdaInitializationContext) async throws {
         let lambda = try await L(context: context)
 
         context.terminator.register(name: "Application") { eventLoop in
@@ -46,7 +46,7 @@ struct LambdaFunctionHandler<L: LambdaFunction>: LambdaHandler {
     /// Handle an invocation of this Lambda
     /// - Parameter event: The event that triggered the Lambda
     /// - Parameter context: The context for this invocation.
-    public func handle(_ event: Event, context: LambdaContext) async throws -> Output {
+    func handle(_ event: Event, context: LambdaContext) async throws -> Output {
         let requestContext = L.Context(
             source: .init(event: event, lambdaContext: context)
         )
