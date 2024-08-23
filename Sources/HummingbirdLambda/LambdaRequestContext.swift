@@ -12,7 +12,6 @@ public struct LambdaRequestContextSource<Event>: RequestContextSource {
     public let event: Event
     public let lambdaContext: LambdaContext
 
-    public var allocator: ByteBufferAllocator { self.lambdaContext.allocator }
     public var logger: Logger { self.lambdaContext.logger }
 }
 
