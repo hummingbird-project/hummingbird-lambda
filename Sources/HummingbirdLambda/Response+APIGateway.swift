@@ -30,6 +30,15 @@ package protocol APIResponse {
 
 extension Response {
     package func apiResponse<Response: APIResponse>() async throws -> Response {
+        var body: String?
+        var isBase64Encoded: Bool?
+        let collateWriter = CollateResponseBodyWriter()
+        _ = try await self.body.write(collateWriter)
+
+        var headers = self.headers
+        if let trailingHeaders = collateWriter.trailingHeaders {
+            headers.append(contentsOf: trailingHeaders)
+        }
         let groupedHeaders: [String: [String]] = self.headers.reduce(into: [:]) { result, item in
             if result[item.name.rawName] == nil {
                 result[item.name.rawName] = [item.value]
@@ -51,10 +60,7 @@ extension Response {
                 return nil
             }
         }
-        var body: String?
-        var isBase64Encoded: Bool?
-        let collateWriter = CollateResponseBodyWriter()
-        _ = try await self.body.write(collateWriter)
+
         let buffer = collateWriter.buffer
         if let contentType = self.headers[.contentType] {
             let mediaType = MediaType(from: contentType)
