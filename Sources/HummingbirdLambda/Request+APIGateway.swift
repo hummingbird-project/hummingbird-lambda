@@ -50,9 +50,9 @@ extension Request {
         if let apiGatewayBody = from.body {
             if from.isBase64Encoded {
                 let base64Decoded = try apiGatewayBody.base64decoded()
-                body = context.allocator.buffer(bytes: base64Decoded)
+                body = ByteBuffer(bytes: base64Decoded)
             } else {
-                body = context.allocator.buffer(string: apiGatewayBody)
+                body = ByteBuffer(string: apiGatewayBody)
             }
         } else {
             body = nil

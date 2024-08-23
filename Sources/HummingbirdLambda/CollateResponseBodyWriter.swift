@@ -23,4 +23,8 @@ internal final class CollateResponseBodyWriter: ResponseBodyWriter {
     func write(_ buffer: ByteBuffer) async throws {
         self.buffer.writeImmutableBuffer(buffer)
     }
+
+    func finish(_ trailingHeaders: HTTPFields?) async throws {
+        
+    }
 }
