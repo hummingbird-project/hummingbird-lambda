@@ -77,7 +77,7 @@ extension APIGatewayRequest: APIRequest {
     }
 
     var httpHeaders: [(name: String, value: String)] {
-        var headerValues = [(name: String, value: String)].init()
+        var headerValues = [(name: String, value: String)]()
         var originalHeaders = self.headers
         headerValues.reserveCapacity(headers.count)
         for header in self.multiValueHeaders {

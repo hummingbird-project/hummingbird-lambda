@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 import HummingbirdCore
 
-internal final class CollateResponseBodyWriter: ResponseBodyWriter {
+final class CollateResponseBodyWriter: ResponseBodyWriter {
     var buffer: ByteBuffer
 
     init() {
@@ -24,7 +24,5 @@ internal final class CollateResponseBodyWriter: ResponseBodyWriter {
         self.buffer.writeImmutableBuffer(buffer)
     }
 
-    func finish(_ trailingHeaders: HTTPFields?) async throws {
-        
-    }
+    func finish(_: HTTPFields?) async throws {}
 }
