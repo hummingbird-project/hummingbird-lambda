@@ -9,6 +9,9 @@ on:
     - '**.yml'
   pull_request:
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-ci
+  cancel-in-progress: true
 
 jobs:
   linux:
@@ -16,8 +19,7 @@ jobs:
     timeout-minutes: 15
     strategy:
       matrix:
-        image: ["swift:5.9", "swift:5.10", "swiftlang/swift:nightly-jammy"]
-    
+        image: ["swift:5.9", "swift:5.10", "swift:6.0"]
     container:
       image: ${{ matrix.image }}
     steps:
@@ -34,6 +36,6 @@ jobs:
           -ignore-filename-regex="\/Benchmarks\/" \
           -instr-profile .build/debug/codecov/default.profdata > info.lcov
     - name: Upload to codecov.io
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
-        file: info.lcov
+        files: info.lcov
