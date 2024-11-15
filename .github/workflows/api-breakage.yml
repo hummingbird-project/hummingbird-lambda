@@ -1,15 +1,17 @@
-# This will be interesting to see how often AWS break there own APIs
 name: API breaking changes
 
 on:
   pull_request:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-apibreakage
+  cancel-in-progress: true
 
 jobs:
   linux:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     container:
-      image: swift:5.9
+      image: swift:latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
