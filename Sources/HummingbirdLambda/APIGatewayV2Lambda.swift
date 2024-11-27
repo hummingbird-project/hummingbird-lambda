@@ -45,21 +45,21 @@ public protocol APIGatewayV2LambdaFunction: LambdaFunction where Event == APIGat
 extension LambdaFunction where Event == APIGatewayV2Request {
     /// Specialization of Lambda.request where `Event` is `APIGatewayV2Request`
     public func request(context: LambdaContext, from: Event) throws -> Request {
-        return try Request(context: context, from: from)
+        try Request(context: context, from: from)
     }
 }
 
 extension LambdaFunction where Output == APIGatewayV2Response {
     /// Specialization of Lambda.request where `Output` is `APIGatewayV2Response`
     public func output(from response: Response) async throws -> Output {
-        return try await response.apiResponse()
+        try await response.apiResponse()
     }
 }
 
 // conform `APIGatewayV2Request` to `APIRequest` so we can use Request.init(context:application:from)
 extension APIGatewayV2Request: APIRequest {
     var path: String {
-        return context.http.path
+        context.http.path
     }
 
     var httpMethod: HTTPRequest.Method { context.http.method }

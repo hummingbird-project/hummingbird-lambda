@@ -34,7 +34,7 @@ struct LambdaFunctionHandler<L: LambdaFunction>: LambdaHandler {
         let lambda = try await L(context: context)
 
         context.terminator.register(name: "Application") { eventLoop in
-            return eventLoop.makeFutureWithTask {
+            eventLoop.makeFutureWithTask {
                 try await lambda.shutdown()
             }
         }

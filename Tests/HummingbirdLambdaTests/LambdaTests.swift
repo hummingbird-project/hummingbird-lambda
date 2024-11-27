@@ -13,13 +13,14 @@
 //===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
-@testable import AWSLambdaRuntimeCore
-@testable import HummingbirdLambda
 import HummingbirdLambdaTesting
 import Logging
 import NIOCore
 import NIOPosix
 import XCTest
+
+@testable import AWSLambdaRuntimeCore
+@testable import HummingbirdLambda
 
 final class LambdaTests: XCTestCase {
     func testSimpleRoute() async throws {
