@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "hummingbird-lambda",
     platforms: [
-        .macOS(.v14),
+        .macOS(.v14)
     ],
     products: [
         .library(name: "HummingbirdLambda", targets: ["HummingbirdLambda"]),
@@ -20,22 +20,34 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.32.0"),
     ],
     targets: [
-        .target(name: "HummingbirdLambda", dependencies: [
-            .product(name: "AWSLambdaRuntime", package: "swift-aws-lambda-runtime"),
-            .product(name: "AWSLambdaEvents", package: "swift-aws-lambda-events"),
-            .product(name: "ExtrasBase64", package: "swift-extras-base64"),
-            .product(name: "Hummingbird", package: "hummingbird"),
-        ]),
-        .target(name: "HummingbirdLambdaTesting", dependencies: [
-            .byName(name: "HummingbirdLambda"),
-        ]),
-        .executableTarget(name: "HBLambdaTest", dependencies: [
-            .byName(name: "HummingbirdLambda"),
-        ]),
-        .testTarget(name: "HummingbirdLambdaTests", dependencies: [
-            .byName(name: "HummingbirdLambda"),
-            .byName(name: "HummingbirdLambdaTesting"),
-            .product(name: "NIOPosix", package: "swift-nio"),
-        ]),
+        .target(
+            name: "HummingbirdLambda",
+            dependencies: [
+                .product(name: "AWSLambdaRuntime", package: "swift-aws-lambda-runtime"),
+                .product(name: "AWSLambdaEvents", package: "swift-aws-lambda-events"),
+                .product(name: "ExtrasBase64", package: "swift-extras-base64"),
+                .product(name: "Hummingbird", package: "hummingbird"),
+            ]
+        ),
+        .target(
+            name: "HummingbirdLambdaTesting",
+            dependencies: [
+                .byName(name: "HummingbirdLambda")
+            ]
+        ),
+        .executableTarget(
+            name: "HBLambdaTest",
+            dependencies: [
+                .byName(name: "HummingbirdLambda")
+            ]
+        ),
+        .testTarget(
+            name: "HummingbirdLambdaTests",
+            dependencies: [
+                .byName(name: "HummingbirdLambda"),
+                .byName(name: "HummingbirdLambdaTesting"),
+                .product(name: "NIOPosix", package: "swift-nio"),
+            ]
+        ),
     ]
 )

@@ -13,13 +13,14 @@
 //===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
-@testable import AWSLambdaRuntimeCore
 import Foundation
 import HTTPTypes
-@testable import HummingbirdLambda
 import Logging
 import NIOCore
 import NIOPosix
+
+@testable import AWSLambdaRuntimeCore
+@testable import HummingbirdLambda
 
 class LambdaTestFramework<Lambda: LambdaFunction> where Lambda.Event: LambdaTestableEvent {
     let context: LambdaContext

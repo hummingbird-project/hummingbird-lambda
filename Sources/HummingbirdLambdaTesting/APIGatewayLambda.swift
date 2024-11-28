@@ -46,43 +46,43 @@ extension APIGatewayRequest: LambdaTestableEvent {
         let headerValuesString = try String(decoding: JSONEncoder().encode(singleHeaderValues), as: UTF8.self)
         let multiHeaderValuesString = try String(decoding: JSONEncoder().encode(headerValues), as: UTF8.self)
         let eventJson = """
-        {
-            "httpMethod": "\(method)", 
-            "body": \(base64Body), 
-            "resource": "\(url.path)", 
-            "requestContext": {
-                "resourceId": "123456", 
-                "apiId": "1234567890", 
-                "resourcePath": "\(url.path)", 
+            {
                 "httpMethod": "\(method)", 
-                "requestId": "\(UUID().uuidString)", 
-                "accountId": "123456789012", 
-                "stage": "Prod", 
-                "identity": {
-                    "apiKey": null, 
-                    "userArn": null, 
-                    "cognitoAuthenticationType": null, 
-                    "caller": null, 
-                    "userAgent": "Custom User Agent String", 
-                    "user": null, 
-                    "cognitoIdentityPoolId": null, 
-                    "cognitoAuthenticationProvider": null, 
-                    "sourceIp": "127.0.0.1", 
-                    "accountId": null
+                "body": \(base64Body), 
+                "resource": "\(url.path)", 
+                "requestContext": {
+                    "resourceId": "123456", 
+                    "apiId": "1234567890", 
+                    "resourcePath": "\(url.path)", 
+                    "httpMethod": "\(method)", 
+                    "requestId": "\(UUID().uuidString)", 
+                    "accountId": "123456789012", 
+                    "stage": "Prod", 
+                    "identity": {
+                        "apiKey": null, 
+                        "userArn": null, 
+                        "cognitoAuthenticationType": null, 
+                        "caller": null, 
+                        "userAgent": "Custom User Agent String", 
+                        "user": null, 
+                        "cognitoIdentityPoolId": null, 
+                        "cognitoAuthenticationProvider": null, 
+                        "sourceIp": "127.0.0.1", 
+                        "accountId": null
+                    }, 
+                    "extendedRequestId": null, 
+                    "path": "\(uri)"
                 }, 
-                "extendedRequestId": null, 
-                "path": "\(uri)"
-            }, 
-            "queryStringParameters": \(queryValuesString), 
-            "multiValueQueryStringParameters": \(multiQueryValuesString), 
-            "headers": \(headerValuesString), 
-            "multiValueHeaders": \(multiHeaderValuesString), 
-            "pathParameters": null, 
-            "stageVariables": null, 
-            "path": "\(url.path)", 
-            "isBase64Encoded": \(body != nil)
-        }
-        """
+                "queryStringParameters": \(queryValuesString), 
+                "multiValueQueryStringParameters": \(multiQueryValuesString), 
+                "headers": \(headerValuesString), 
+                "multiValueHeaders": \(multiHeaderValuesString), 
+                "pathParameters": null, 
+                "stageVariables": null, 
+                "path": "\(url.path)", 
+                "isBase64Encoded": \(body != nil)
+            }
+            """
         self = try JSONDecoder().decode(Self.self, from: Data(eventJson.utf8))
     }
 }

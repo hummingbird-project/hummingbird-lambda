@@ -33,7 +33,7 @@ extension Request {
     /// Specialization of Lambda.request where `In` is `APIGateway.Request`
     init(context: LambdaContext, from: some APIRequest) throws {
         func urlPercentEncoded(_ string: String) -> String {
-            return string.addingPercentEncoding(withAllowedCharacters: .urlQueryComponentAllowed) ?? string
+            string.addingPercentEncoding(withAllowedCharacters: .urlQueryComponentAllowed) ?? string
         }
 
         // construct URI with query parameters

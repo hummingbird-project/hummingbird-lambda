@@ -45,14 +45,14 @@ public protocol APIGatewayLambdaFunction: LambdaFunction where Event == APIGatew
 extension LambdaFunction where Event == APIGatewayRequest {
     /// Specialization of Lambda.request where `Event` is `APIGatewayRequest`
     public func request(context: LambdaContext, from: Event) throws -> Request {
-        return try Request(context: context, from: from)
+        try Request(context: context, from: from)
     }
 }
 
 extension LambdaFunction where Output == APIGatewayResponse {
     /// Specialization of Lambda.request where `Output` is `APIGatewayResponse`
     public func output(from response: Response) async throws -> Output {
-        return try await response.apiResponse()
+        try await response.apiResponse()
     }
 }
 
