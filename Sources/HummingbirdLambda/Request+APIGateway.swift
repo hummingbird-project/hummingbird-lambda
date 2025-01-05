@@ -20,6 +20,7 @@ import HTTPTypes
 import Hummingbird
 import NIOCore
 
+/// Protocol for APIGateway/APIGatewayV2 requests
 protocol APIRequest: LambdaEvent {
     var path: String { get }
     var httpMethod: HTTPRequest.Method { get }

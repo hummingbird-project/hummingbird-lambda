@@ -23,21 +23,23 @@ import UnixSignals
 /// swift-aws-lambda-runtime v2 proposal indicates this will eventually be added
 extension LambdaRuntime: @retroactive Service {}
 
+/// Lambda event type that can generate HTTP Request
 public protocol LambdaEvent: Decodable {
     func request(context: LambdaContext) throws -> Request
 }
 
+/// Lambda output type that can be generated from HTTP Response
 public protocol LambdaOutput: Encodable {
     init(from: Response) async throws
 }
 
-/// Protocol for an Application. Brings together all the components of Hummingbird together
+/// Protocol for a AWS Lambda function.
 public protocol LambdaFunctionProtocol: Service where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Event>> {
     /// Event that triggers the lambda
     associatedtype Event: LambdaEvent
     /// Output of lambda
     associatedtype Output: LambdaOutput
-    /// Responder that generates a response from a requests and context
+    /// Responder that generates a response from a request and context
     associatedtype Responder: HTTPResponder
     /// Context passed with Request to responder
     typealias Context = Responder.Context
@@ -46,7 +48,7 @@ public protocol LambdaFunctionProtocol: Service where Responder.Context: Initial
     var responder: Responder { get async throws }
     /// Logger
     var logger: Logger { get }
-    /// services attached to the application.
+    /// services attached to the lambda.
     var services: [any Service] { get }
 }
 
@@ -59,7 +61,7 @@ extension LambdaFunctionProtocol {
 
 /// Conform to `Service` from `ServiceLifecycle`.
 extension LambdaFunctionProtocol {
-    /// Construct application and run it
+    /// Construct lambda runtime and run it
     public func run() async throws {
         let responder = try await self.responder
         let runtime = LambdaRuntime { (event: Event, context: LambdaContext) -> Output in
@@ -75,7 +77,7 @@ extension LambdaFunctionProtocol {
         try await serviceGroup.run()
     }
 
-    /// Helper function that runs application inside a ServiceGroup which will gracefully
+    /// Helper function that runs lambda inside a ServiceGroup which will gracefully
     /// shutdown on signals SIGINT, SIGTERM
     public func runService(gracefulShutdownSignals: [UnixSignal] = [.sigterm, .sigint]) async throws {
         let serviceGroup = ServiceGroup(
@@ -89,6 +91,7 @@ extension LambdaFunctionProtocol {
     }
 }
 
+/// Concrete Lambda function
 public struct LambdaFunction<Responder: HTTPResponder, Event: LambdaEvent, Output: LambdaOutput>: LambdaFunctionProtocol
 where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Event>> {
     /// routes requests to responders based on URI
@@ -98,6 +101,13 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Even
     /// Logger
     public var logger: Logger
 
+    ///  Initialize LambdaFunction
+    /// - Parameters:
+    ///   - responder: HTTP responder
+    ///   - event: Lambda event type that will trigger lambda
+    ///   - output: Lambda output type
+    ///   - services: Services attached to LambdaFunction
+    ///   - logger: Logger used by lambda during setup
     public init(
         responder: Responder,
         event: Event.Type = Event.self,
@@ -116,6 +126,13 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Even
         self.services = services
     }
 
+    ///  Initialize LambdaFunction
+    /// - Parameters:
+    ///   - router: HTTP responder builder
+    ///   - event: Lambda event type that will trigger lambda
+    ///   - output: Lambda output type
+    ///   - services: Services attached to LambdaFunction
+    ///   - logger: Logger used by lambda during setup
     public init<ResponderBuilder: HTTPResponderBuilder>(
         router: ResponderBuilder,
         event: Event.Type = Event.self,
@@ -130,77 +147,9 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Even
         )
     }
 
-    ///  Add service to be managed by application ServiceGroup
+    ///  Add service to be managed by lambda function's ServiceGroup
     /// - Parameter services: list of services to be added
     public mutating func addServices(_ services: any Service...) {
         self.services.append(contentsOf: services)
     }
 }
-
-/*
-/// Protocol for Hummingbird Lambdas.
-///
-/// Defines the `Event` and `Output` types, how you convert from `Event` to ``HummingbirdCore/Request``
-/// and ``HummingbirdCore/Response`` to `Output`. Create a type conforming to this protocol and tag it
-/// with `@main`.
-/// ```swift
-/// struct MyLambda: LambdaFunction {
-///     typealias Event = APIGatewayRequest
-///     typealias Output = APIGatewayResponse
-///     typealias Context = MyLambdaRequestContext // must conform to `LambdaRequestContext`
-///
-///     init(context: LambdaInitializationContext) {}
-///
-///     /// build responder that will create a response from a request
-///     func buildResponder() -> some Responder<Context> {
-///         let router = Router(context: Context.self)
-///         router.get("hello") { _,_ in
-///             "Hello"
-///         }
-///         return router.buildResponder()
-///     }
-/// }
-/// ```
-/// - SeeAlso: ``APIGatewayLambdaFunction`` and ``APIGatewayV2LambdaFunction`` for specializations of this protocol.
-public protocol LambdaFunction: Sendable {
-    /// Event that triggers the lambda
-    associatedtype Event: Decodable
-    /// Request context
-    associatedtype Context: InitializableFromSource<LambdaRequestContextSource<Event>> = BasicLambdaRequestContext<Event>
-    /// Output of lambda
-    associatedtype Output: Encodable
-    /// HTTP Responder
-    associatedtype Responder: HTTPResponder<Context>
-
-    func buildResponder() -> Responder
-
-    /// Initialize application.
-    init(context: LambdaInitializationContext) async throws
-
-    /// Called when Lambda is terminating. This is where you can cleanup any resources
-    func shutdown() async throws
-
-    /// Convert from `In` type to `Request`
-    /// - Parameters:
-    ///   - context: Lambda context
-    ///   - from: input type
-    func request(context: LambdaContext, from: Event) throws -> Request
-
-    /// Convert from `Response` to `Out` type
-    /// - Parameter from: response from Hummingbird
-    func output(from: Response) async throws -> Output
-}
-
-extension LambdaFunction {
-    /// Initializes and runs the Lambda function.
-    ///
-    /// If you precede your `EventLoopLambdaHandler` conformer's declaration with the
-    /// [@main](https://docs.swift.org/swift-book/ReferenceManual/Attributes.html#ID626)
-    /// attribute, the system calls the conformer's `main()` method to launch the lambda function.
-    public static func main() throws {
-        LambdaFunctionHandler<Self>.main()
-    }
-
-    public func shutdown() async throws {}
-}
-*/
