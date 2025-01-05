@@ -18,6 +18,7 @@ import Logging
 import NIOCore
 import NIOPosix
 
+/*
 /// Specialization of LambdaHandler which runs an Lambda
 struct LambdaFunctionHandler<L: LambdaFunction>: LambdaHandler {
     public typealias Event = L.Event
@@ -56,3 +57,4 @@ struct LambdaFunctionHandler<L: LambdaFunction>: LambdaHandler {
         return try await self.lambda.output(from: response)
     }
 }
+*/

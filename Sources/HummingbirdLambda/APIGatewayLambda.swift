@@ -18,6 +18,7 @@ import Hummingbird
 import NIOCore
 import NIOHTTP1
 
+/*
 /// Protocol for Hummingbird Lambdas that use APIGateway
 ///
 /// With this protocol you no longer need to set the `Event` and `Output`
@@ -55,6 +56,9 @@ extension LambdaFunction where Output == APIGatewayResponse {
         try await response.apiResponse()
     }
 }
+*/
+public typealias APIGatewayLambdaFunction<Responder: HTTPResponder> = LambdaFunction<Responder, APIGatewayRequest, APIGatewayResponse>
+where Responder.Context: InitializableFromSource<LambdaRequestContextSource<APIGatewayRequest>>
 
 // conform `APIGatewayRequest` to `APIRequest` so we can use Request.init(context:application:from)
 extension APIGatewayRequest: APIRequest {

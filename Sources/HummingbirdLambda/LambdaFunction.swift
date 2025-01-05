@@ -13,12 +13,131 @@
 //===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
-import AWSLambdaRuntimeCore
+import AWSLambdaRuntime
 import Hummingbird
 import Logging
 import NIOCore
-import NIOPosix
+import ServiceLifecycle
+import UnixSignals
 
+/// swift-aws-lambda-runtime v2 proposal indicates this will eventually be added
+extension LambdaRuntime: @retroactive Service {}
+
+public protocol LambdaEvent: Decodable {
+    func request(context: LambdaContext) throws -> Request
+}
+
+public protocol LambdaOutput: Encodable {
+    init(from: Response) async throws
+}
+
+/// Protocol for an Application. Brings together all the components of Hummingbird together
+public protocol LambdaFunctionProtocol: Service where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Event>> {
+    /// Event that triggers the lambda
+    associatedtype Event: LambdaEvent
+    /// Output of lambda
+    associatedtype Output: LambdaOutput
+    /// Responder that generates a response from a requests and context
+    associatedtype Responder: HTTPResponder
+    /// Context passed with Request to responder
+    typealias Context = Responder.Context
+
+    /// Build the responder
+    var responder: Responder { get async throws }
+    /// Logger
+    var logger: Logger { get }
+    /// services attached to the application.
+    var services: [any Service] { get }
+}
+
+extension LambdaFunctionProtocol {
+    /// Default to no extra services attached to the application.
+    public var services: [any Service] { [] }
+    /// Default logger.
+    public var logger: Logger { .init(label: "Hummingbird") }
+}
+
+/// Conform to `Service` from `ServiceLifecycle`.
+extension LambdaFunctionProtocol {
+    /// Construct application and run it
+    public func run() async throws {
+        let responder = try await self.responder
+        let runtime = LambdaRuntime { (event: Event, context: LambdaContext) -> Output in
+            let request = try event.request(context: context)
+            let context = Responder.Context(source: .init(event: event, lambdaContext: context))
+            let response = try await responder.respond(to: request, context: context)
+            return try await .init(from: response)
+        }
+        let services: [any Service] = self.services + [runtime]
+        let serviceGroup = ServiceGroup(
+            configuration: .init(services: services, logger: self.logger)
+        )
+        try await serviceGroup.run()
+    }
+
+    /// Helper function that runs application inside a ServiceGroup which will gracefully
+    /// shutdown on signals SIGINT, SIGTERM
+    public func runService(gracefulShutdownSignals: [UnixSignal] = [.sigterm, .sigint]) async throws {
+        let serviceGroup = ServiceGroup(
+            configuration: .init(
+                services: [self],
+                gracefulShutdownSignals: gracefulShutdownSignals,
+                logger: self.logger
+            )
+        )
+        try await serviceGroup.run()
+    }
+}
+
+public struct LambdaFunction<Responder: HTTPResponder, Event: LambdaEvent, Output: LambdaOutput>: LambdaFunctionProtocol
+where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Event>> {
+    /// routes requests to responders based on URI
+    public let responder: Responder
+    /// services attached to the application.
+    public var services: [any Service]
+    /// Logger
+    public var logger: Logger
+
+    public init(
+        responder: Responder,
+        event: Event.Type = Event.self,
+        output: Output.Type = Output.self,
+        services: [Service] = [],
+        logger: Logger? = nil
+    ) {
+        if let logger {
+            self.logger = logger
+        } else {
+            var logger = Logger(label: "Hummingbird")
+            logger.logLevel = Environment().get("LOG_LEVEL").map { Logger.Level(rawValue: $0) ?? .info } ?? .info
+            self.logger = logger
+        }
+        self.responder = responder
+        self.services = services
+    }
+
+    public init<ResponderBuilder: HTTPResponderBuilder>(
+        router: ResponderBuilder,
+        event: Event.Type = Event.self,
+        output: Output.Type = Output.self,
+        services: [Service] = [],
+        logger: Logger? = nil
+    ) where Responder == ResponderBuilder.Responder {
+        self.init(
+            responder: router.buildResponder(),
+            services: services,
+            logger: logger
+        )
+    }
+
+    ///  Add service to be managed by application ServiceGroup
+    /// - Parameter services: list of services to be added
+    public mutating func addServices(_ services: any Service...) {
+        self.services.append(contentsOf: services)
+    }
+}
+
+/*
 /// Protocol for Hummingbird Lambdas.
 ///
 /// Defines the `Event` and `Output` types, how you convert from `Event` to ``HummingbirdCore/Request``
@@ -84,3 +203,4 @@ extension LambdaFunction {
 
     public func shutdown() async throws {}
 }
+*/

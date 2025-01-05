@@ -20,13 +20,54 @@ import HTTPTypes
 import Hummingbird
 import NIOCore
 
-protocol APIRequest {
+protocol APIRequest: LambdaEvent {
     var path: String { get }
     var httpMethod: HTTPRequest.Method { get }
     var queryString: String { get }
     var httpHeaders: [(name: String, value: String)] { get }
     var body: String? { get }
     var isBase64Encoded: Bool { get }
+}
+
+extension APIRequest {
+    public func request(context: LambdaContext) throws -> Request {
+        func urlPercentEncoded(_ string: String) -> String {
+            string.addingPercentEncoding(withAllowedCharacters: .urlQueryComponentAllowed) ?? string
+        }
+
+        // construct URI with query parameters
+        var uri = self.path
+        if self.queryString.count > 0 {
+            uri += "?\(self.queryString)"
+        }
+        // construct headers
+        var authority: String?
+        let headers = HTTPFields(headers: self.httpHeaders, authority: &authority)
+
+        // get body
+        let body: ByteBuffer?
+        if let apiGatewayBody = self.body {
+            if self.isBase64Encoded {
+                let base64Decoded = try apiGatewayBody.base64decoded()
+                body = ByteBuffer(bytes: base64Decoded)
+            } else {
+                body = ByteBuffer(string: apiGatewayBody)
+            }
+        } else {
+            body = nil
+        }
+
+        return Request(
+            head: .init(
+                method: self.httpMethod,
+                scheme: "https",
+                authority: authority,
+                path: uri,
+                headerFields: headers
+            ),
+            body: body.map(RequestBody.init) ?? RequestBody(buffer: .init())
+        )
+    }
 }
 
 extension Request {
@@ -95,7 +136,7 @@ extension HTTPFields {
 }
 
 extension CharacterSet {
-    static var urlQueryComponentAllowed: CharacterSet = {
+    nonisolated(unsafe) static var urlQueryComponentAllowed: CharacterSet = {
         var cs = CharacterSet.urlQueryAllowed
         cs.remove(charactersIn: "&=")
         return cs

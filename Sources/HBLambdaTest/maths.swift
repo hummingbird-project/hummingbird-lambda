@@ -18,8 +18,10 @@ import Hummingbird
 import HummingbirdLambda
 import Logging
 
+typealias AppRequestContext = BasicLambdaRequestContext<APIGatewayRequest>
+
 struct DebugMiddleware: RouterMiddleware {
-    typealias Context = MathsHandler.Context
+    typealias Context = AppRequestContext
     func handle(
         _ request: Request,
         context: Context,
@@ -32,18 +34,47 @@ struct DebugMiddleware: RouterMiddleware {
     }
 }
 
+struct Operands: Decodable {
+    let lhs: Double
+    let rhs: Double
+}
+
+struct Result: ResponseEncodable {
+    let result: Double
+}
+
+@main
+struct MathsLambda {
+    static func main() async throws {
+        let router = Router(context: AppRequestContext.self)
+        router.middlewares.add(DebugMiddleware())
+        router.post("add") { request, context -> Result in
+            let operands = try await request.decode(as: Operands.self, context: context)
+            return Result(result: operands.lhs + operands.rhs)
+        }
+        router.post("subtract") { request, context -> Result in
+            let operands = try await request.decode(as: Operands.self, context: context)
+            return Result(result: operands.lhs - operands.rhs)
+        }
+        router.post("multiply") { request, context -> Result in
+            let operands = try await request.decode(as: Operands.self, context: context)
+            return Result(result: operands.lhs * operands.rhs)
+        }
+        router.post("divide") { request, context -> Result in
+            let operands = try await request.decode(as: Operands.self, context: context)
+            return Result(result: operands.lhs / operands.rhs)
+        }
+        let lambda = APIGatewayLambdaFunction(
+            router: router,
+            logger: Logger(label: "lambda")
+        )
+        try await lambda.runService()
+    }
+}
+/*
 @main
 struct MathsHandler: APIGatewayLambdaFunction {
     typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
-
-    struct Operands: Decodable {
-        let lhs: Double
-        let rhs: Double
-    }
-
-    struct Result: ResponseEncodable {
-        let result: Double
-    }
 
     init(context: LambdaInitializationContext) {}
 
@@ -71,3 +102,4 @@ struct MathsHandler: APIGatewayLambdaFunction {
 
     func shutdown() async throws {}
 }
+*/
