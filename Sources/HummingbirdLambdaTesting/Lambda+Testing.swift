@@ -15,7 +15,7 @@
 import HummingbirdLambda
 import Logging
 
-extension LambdaFunction where Event: LambdaTestableEvent {
+extension LambdaFunctionProtocol where Event: LambdaTestableEvent {
     /// Test `LambdaFunction`
     ///
     /// The `test` closure uses the provided test client to make calls to the
@@ -24,28 +24,22 @@ extension LambdaFunction where Event: LambdaTestableEvent {
     ///
     /// The example below is using the `.router` framework to test
     /// ```swift
-    /// struct HelloLambda: APIGatewayLambdaFunction {
-    ///     init(context: LambdaInitializationContext) {}
-    ///
-    ///     func buildResponder() -> some  HTTPResponder<Context> {
-    ///         let router = Router(context: Context.self)
-    ///         router.get("hello") { request, _ in
-    ///             return "Hello"
-    ///         }
-    ///         return router.buildResponder()
-    ///     }
+    /// let router = Router(context: Context.self)
+    /// router.get("hello") { request, _ in
+    ///     return "Hello"
     /// }
-    /// try await HelloLambda.test { client in
+    /// let lambda = LambdaFunction(router: router)
+    /// try await lambda.test { client in
     ///     try await client.execute(uri: "/hello", method: .get) { response in
     ///         XCTAssertEqual(response.body, "Hello")
     ///     }
     /// }
     /// ```
-    public static func test<Value>(
+    public func test<Value>(
         logLevel: Logger.Level = .debug,
         _ test: @escaping @Sendable (LambdaTestClient<Self>) async throws -> Value
     ) async throws -> Value {
-        let lambda = LambdaTestFramework<Self>(logLevel: logLevel)
+        let lambda = LambdaTestFramework(lambda: self)
         return try await lambda.run(test)
     }
 }

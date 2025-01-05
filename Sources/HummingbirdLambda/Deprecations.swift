@@ -15,13 +15,13 @@
 // Below is a list of unavailable symbols with the "HB" prefix. These are available
 // temporarily to ease transition from the old symbols that included the "HB"
 // prefix to the new ones.
-
+/*
 @_documentation(visibility: internal) @available(*, unavailable, renamed: "LambdaFunction")
 public typealias HBLambda = LambdaFunction
 @_documentation(visibility: internal) @available(*, unavailable, renamed: "APIGatewayLambdaFunction")
 public typealias HBAPIGatewayLambda = APIGatewayLambdaFunction
 @_documentation(visibility: internal) @available(*, unavailable, renamed: "APIGatewayV2LambdaFunction")
-public typealias HBAPIGatewayV2Lambda = APIGatewayV2LambdaFunction
+public typealias HBAPIGatewayV2Lambda = APIGatewayV2LambdaFunction*/
 @_documentation(visibility: internal) @available(*, unavailable, renamed: "LambdaRequestContext")
 public typealias HBLambdaRequestContext = LambdaRequestContext
 @_documentation(visibility: internal) @available(*, unavailable, renamed: "BasicLambdaRequestContext")
