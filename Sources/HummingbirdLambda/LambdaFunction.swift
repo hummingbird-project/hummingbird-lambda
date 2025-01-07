@@ -75,7 +75,7 @@ extension LambdaFunctionProtocol {
     }
 
     /// Helper function that runs lambda inside a ServiceGroup which will gracefully
-    /// shutdown on signals SIGINT, SIGTERM
+    /// shutdown on signals SIGTERM
     public func runService() async throws {
         let serviceGroup = ServiceGroup(
             configuration: .init(
