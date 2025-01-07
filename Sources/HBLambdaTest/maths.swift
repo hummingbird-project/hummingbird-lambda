@@ -65,8 +65,7 @@ struct MathsLambda {
             return Result(result: operands.lhs / operands.rhs)
         }
         let lambda = APIGatewayV2LambdaFunction(
-            router: router,
-            logger: Logger(label: "lambda")
+            router: router
         )
         try await lambda.runService()
     }
