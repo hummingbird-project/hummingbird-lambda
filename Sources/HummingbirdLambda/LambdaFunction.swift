@@ -70,7 +70,7 @@ extension LambdaFunctionProtocol {
             let response = try await responder.respond(to: request, context: context)
             return try await .init(from: response)
         }
-        let services: [any Service] = self.services + [LambdaRuntimeService(runtime: runtime)]
+        let services: [any Service] = self.services + [LambdaRuntimeService(runtime: runtime, logger: self.logger)]
         let serviceGroup = ServiceGroup(
             configuration: .init(services: services, logger: self.logger)
         )
@@ -156,8 +156,15 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Even
 
 private struct LambdaRuntimeService<Handler: StreamingLambdaHandler>: Service {
     let runtime: LambdaRuntime<Handler>
+    let logger: Logger
 
     func run() async throws {
-        try await self.runtime.run()
+        try await withGracefulShutdownHandler {
+            try await cancelWhenGracefulShutdown {
+                try await self.runtime.run()
+            }
+        } onGracefulShutdown: {
+            self.logger.info("SHUTDOWN!")
+        }
     }
 }
