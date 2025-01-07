@@ -20,9 +20,6 @@ import NIOCore
 import ServiceLifecycle
 import UnixSignals
 
-/// swift-aws-lambda-runtime v2 proposal indicates this will eventually be added
-extension LambdaRuntime: @retroactive Service {}
-
 /// Lambda event type that can generate HTTP Request
 public protocol LambdaEvent: Decodable {
     func request(context: LambdaContext) throws -> Request
@@ -70,7 +67,7 @@ extension LambdaFunctionProtocol {
             let response = try await responder.respond(to: request, context: context)
             return try await .init(from: response)
         }
-        let services: [any Service] = self.services + [LambdaRuntimeService(runtime: runtime, logger: self.logger)]
+        let services: [any Service] = self.services + [LambdaRuntimeService(runtime: runtime)]
         let serviceGroup = ServiceGroup(
             configuration: .init(services: services, logger: self.logger)
         )
@@ -156,15 +153,10 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Even
 
 private struct LambdaRuntimeService<Handler: StreamingLambdaHandler>: Service {
     let runtime: LambdaRuntime<Handler>
-    let logger: Logger
 
     func run() async throws {
-        try await withGracefulShutdownHandler {
-            try await cancelWhenGracefulShutdown {
-                try await self.runtime.run()
-            }
-        } onGracefulShutdown: {
-            self.logger.info("SHUTDOWN!")
+        try await cancelWhenGracefulShutdown {
+            try await self.runtime.run()
         }
     }
 }
