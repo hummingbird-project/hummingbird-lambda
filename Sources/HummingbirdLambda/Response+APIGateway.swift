@@ -18,7 +18,7 @@ import ExtrasBase64
 import Hummingbird
 import NIOHTTP1
 
-package protocol APIResponse {
+package protocol APIResponse: LambdaOutput {
     init(
         statusCode: HTTPResponse.Status,
         headers: AWSLambdaEvents.HTTPHeaders?,
@@ -28,6 +28,64 @@ package protocol APIResponse {
     )
 }
 
+extension APIResponse {
+    public init(from response: Response) async throws {
+        var body: String?
+        var isBase64Encoded: Bool?
+        let collateWriter = CollateResponseBodyWriter()
+        _ = try await response.body.write(collateWriter)
+
+        var headers = response.headers
+        if let trailingHeaders = collateWriter.trailingHeaders {
+            headers.append(contentsOf: trailingHeaders)
+        }
+        let groupedHeaders: [String: [String]] = response.headers.reduce(into: [:]) { result, item in
+            if result[item.name.rawName] == nil {
+                result[item.name.rawName] = [item.value]
+            } else {
+                result[item.name.rawName]?.append(item.value)
+            }
+        }
+        let singleHeaders = groupedHeaders.compactMapValues { item -> String? in
+            if item.count == 1 {
+                return item.first!
+            } else {
+                return nil
+            }
+        }
+        let multiHeaders = groupedHeaders.compactMapValues { item -> [String]? in
+            if item.count > 1 {
+                return item
+            } else {
+                return nil
+            }
+        }
+
+        let buffer = collateWriter.buffer
+        if let contentType = response.headers[.contentType] {
+            let mediaType = MediaType(from: contentType)
+            switch mediaType {
+            case .some(.text), .some(.applicationJson), .some(.applicationUrlEncoded):
+                body = String(buffer: buffer)
+            default:
+                break
+            }
+        }
+
+        if body == nil {
+            body = String(base64Encoding: buffer.readableBytesView)
+            isBase64Encoded = true
+        }
+
+        self.init(
+            statusCode: response.status,
+            headers: singleHeaders,
+            multiValueHeaders: multiHeaders,
+            body: body,
+            isBase64Encoded: isBase64Encoded
+        )
+    }
+}
 extension Response {
     package func apiResponse<Response: APIResponse>() async throws -> Response {
         var body: String?
