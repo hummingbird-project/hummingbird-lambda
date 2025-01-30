@@ -63,12 +63,12 @@ extension APIGatewayRequest: APIRequest {
             return string.addingPercentEncoding(withAllowedCharacters: .urlQueryComponentAllowed) ?? string
         }
         var queryParams: [String] = []
-        var queryStringParameters = self.queryStringParameters ?? [:]
+        var queryStringParameters = self.queryStringParameters
         // go through list of multi value query string params first, removing any
         // from the single value list if they are found in the multi value list
-        self.multiValueQueryStringParameters?.forEach { multiValueQuery in
-            queryStringParameters[multiValueQuery.key] = nil
-            queryParams += multiValueQuery.value.map { "\(urlPercentEncoded(multiValueQuery.key))=\(urlPercentEncoded($0))" }
+        for (key, value) in self.multiValueQueryStringParameters {
+            queryStringParameters[key] = nil
+            queryParams += value.map { "\(urlPercentEncoded(key))=\(urlPercentEncoded($0))" }
         }
         queryParams += queryStringParameters.map {
             "\(urlPercentEncoded($0.key))=\(urlPercentEncoded($0.value))"
