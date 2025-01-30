@@ -1,11 +1,11 @@
-// swift-tools-version:5.9
+// swift-tools-version:6.0
 
 import PackageDescription
 
 let package = Package(
     name: "hummingbird-lambda",
     platforms: [
-        .macOS(.v14)
+        .macOS(.v15)
     ],
     products: [
         .library(name: "HummingbirdLambda", targets: ["HummingbirdLambda"]),
@@ -13,7 +13,7 @@ let package = Package(
         .executable(name: "HBLambdaTest", targets: ["HBLambdaTest"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/swift-server/swift-aws-lambda-runtime.git", from: "1.0.0-alpha.2"),
+        .package(url: "https://github.com/swift-server/swift-aws-lambda-runtime.git", branch: "main"),
         .package(url: "https://github.com/swift-server/swift-aws-lambda-events.git", from: "1.0.0"),
         .package(url: "https://github.com/swift-extras/swift-extras-base64.git", from: "1.0.0"),
         .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.0.0"),
