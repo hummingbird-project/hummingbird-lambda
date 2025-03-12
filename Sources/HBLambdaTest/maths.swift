@@ -18,8 +18,10 @@ import Hummingbird
 import HummingbirdLambda
 import Logging
 
+typealias AppRequestContext = BasicLambdaRequestContext<APIGatewayV2Request>
+
 struct DebugMiddleware: RouterMiddleware {
-    typealias Context = MathsHandler.Context
+    typealias Context = AppRequestContext
     func handle(
         _ request: Request,
         context: Context,
@@ -32,42 +34,34 @@ struct DebugMiddleware: RouterMiddleware {
     }
 }
 
-@main
-struct MathsHandler: APIGatewayLambdaFunction {
-    typealias Context = BasicLambdaRequestContext<APIGatewayRequest>
-
-    struct Operands: Decodable {
-        let lhs: Double
-        let rhs: Double
-    }
-
-    struct Result: ResponseEncodable {
-        let result: Double
-    }
-
-    init(context: LambdaInitializationContext) {}
-
-    func buildResponder() -> some HTTPResponder<Context> {
-        let router = Router(context: Context.self)
-        router.middlewares.add(DebugMiddleware())
-        router.post("add") { request, context -> Result in
-            let operands = try await request.decode(as: Operands.self, context: context)
-            return Result(result: operands.lhs + operands.rhs)
-        }
-        router.post("subtract") { request, context -> Result in
-            let operands = try await request.decode(as: Operands.self, context: context)
-            return Result(result: operands.lhs - operands.rhs)
-        }
-        router.post("multiply") { request, context -> Result in
-            let operands = try await request.decode(as: Operands.self, context: context)
-            return Result(result: operands.lhs * operands.rhs)
-        }
-        router.post("divide") { request, context -> Result in
-            let operands = try await request.decode(as: Operands.self, context: context)
-            return Result(result: operands.lhs / operands.rhs)
-        }
-        return router.buildResponder()
-    }
-
-    func shutdown() async throws {}
+struct Operands: Decodable {
+    let lhs: Double
+    let rhs: Double
 }
+
+struct Result: ResponseEncodable {
+    let result: Double
+}
+
+let router = Router(context: AppRequestContext.self)
+router.middlewares.add(DebugMiddleware())
+router.post("add") { request, context -> Result in
+    let operands = try await request.decode(as: Operands.self, context: context)
+    return Result(result: operands.lhs + operands.rhs)
+}
+router.post("subtract") { request, context -> Result in
+    let operands = try await request.decode(as: Operands.self, context: context)
+    return Result(result: operands.lhs - operands.rhs)
+}
+router.post("multiply") { request, context -> Result in
+    let operands = try await request.decode(as: Operands.self, context: context)
+    return Result(result: operands.lhs * operands.rhs)
+}
+router.post("divide") { request, context -> Result in
+    let operands = try await request.decode(as: Operands.self, context: context)
+    return Result(result: operands.lhs / operands.rhs)
+}
+let lambda = APIGatewayV2LambdaFunction(
+    router: router
+)
+try await lambda.runService()
