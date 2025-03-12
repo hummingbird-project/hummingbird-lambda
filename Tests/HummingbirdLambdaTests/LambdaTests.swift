@@ -13,13 +13,13 @@
 //===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
+import ExtrasBase64
 import HummingbirdLambdaTesting
 import Logging
 import NIOCore
 import NIOPosix
 import XCTest
 
-@testable import AWSLambdaRuntimeCore
 @testable import HummingbirdLambda
 
 final class LambdaTests: XCTestCase {
@@ -52,7 +52,7 @@ final class LambdaTests: XCTestCase {
             let body = ByteBuffer(bytes: (0...255).map { _ in UInt8.random(in: 0...255) })
             try await client.execute(uri: "/", method: .post, body: body) { response in
                 XCTAssertEqual(response.isBase64Encoded, true)
-                XCTAssertEqual(response.body, String(base64Encoding: body.readableBytesView))
+                XCTAssertEqual(response.body, String(_base64Encoding: body.readableBytesView))
             }
         }
     }
@@ -151,7 +151,7 @@ final class LambdaTests: XCTestCase {
             let body = ByteBuffer(bytes: (0...255).map { _ in UInt8.random(in: 0...255) })
             try await client.execute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0"], body: body) { response in
                 XCTAssertEqual(response.isBase64Encoded, true)
-                XCTAssertEqual(response.body, String(base64Encoding: body.readableBytesView))
+                XCTAssertEqual(response.body, String(_base64Encoding: body.readableBytesView))
             }
         }
     }
