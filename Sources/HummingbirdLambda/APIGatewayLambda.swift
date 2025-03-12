@@ -13,7 +13,6 @@
 //===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
-import AWSLambdaRuntimeCore
 import Hummingbird
 import NIOCore
 import NIOHTTP1

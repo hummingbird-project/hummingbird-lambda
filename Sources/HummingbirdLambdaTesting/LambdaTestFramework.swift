@@ -19,7 +19,7 @@ import Logging
 import NIOCore
 import ServiceLifecycle
 
-@testable import AWSLambdaRuntimeCore
+@testable import AWSLambdaRuntime
 @testable import HummingbirdLambda
 
 class LambdaTestFramework<Lambda: LambdaFunctionProtocol> where Lambda.Event: LambdaTestableEvent {

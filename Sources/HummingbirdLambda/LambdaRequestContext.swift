@@ -1,4 +1,4 @@
-import AWSLambdaRuntimeCore
+import AWSLambdaRuntime
 import Hummingbird
 import Logging
 import NIOCore
