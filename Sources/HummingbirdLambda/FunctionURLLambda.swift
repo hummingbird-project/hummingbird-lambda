@@ -18,7 +18,7 @@ import Hummingbird
 import NIOCore
 import NIOHTTP1
 
-/// Protocol for Hummingbird Lambdas that use APIGatewayV2
+/// Protocol for Hummingbird Lambdas that use FunctionURL
 ///
 /// With this protocol you no longer need to set the `Event` and `Output`
 /// associated values.
@@ -38,31 +38,31 @@ import NIOHTTP1
 ///     }
 /// }
 /// ```
-public protocol APIGatewayV2LambdaFunction: LambdaFunction where Event == APIGatewayV2Request, Output == APIGatewayV2Response {
-    associatedtype Context = BasicLambdaRequestContext<APIGatewayV2Request>
+public protocol FunctionURLLambdaFunction: LambdaFunction where Event == FunctionURLRequest, Output == FunctionURLResponse {
+    associatedtype Context = BasicLambdaRequestContext<FunctionURLRequest>
 }
 
-extension LambdaFunction where Event == APIGatewayV2Request {
-    /// Specialization of Lambda.request where `Event` is `APIGatewayV2Request`
+extension LambdaFunction where Event == FunctionURLRequest {
+    /// Specialization of Lambda.request where `Event` is `FunctionURLRequest`
     public func request(context: LambdaContext, from: Event) throws -> Request {
         try Request(context: context, from: from)
     }
 }
 
-extension LambdaFunction where Output == APIGatewayV2Response {
-    /// Specialization of Lambda.request where `Output` is `APIGatewayV2Response`
+extension LambdaFunction where Output == FunctionURLResponse {
+    /// Specialization of Lambda.request where `Output` is `FunctionURLResponse`
     public func output(from response: Response) async throws -> Output {
         try await response.apiResponse()
     }
 }
 
-// conform `APIGatewayV2Request` to `APIRequest` so we can use Request.init(context:application:from)
-extension APIGatewayV2Request: APIRequest {
+// conform `FunctionURLRequest` to `APIRequest` so we can use Request.init(context:application:from)
+extension FunctionURLRequest: APIRequest {
     var path: String {
-        context.http.path
+        requestContext.http.path
     }
 
-    var httpMethod: HTTPRequest.Method { context.http.method }
+    var httpMethod: HTTPRequest.Method { requestContext.http.method }
     var queryString: String { self.rawQueryString }
     var httpHeaders: [(name: String, value: String)] {
         self.headers.flatMap { header in
@@ -74,8 +74,8 @@ extension APIGatewayV2Request: APIRequest {
     }
 }
 
-// conform `APIGatewayV2Response` to `APIResponse` so we can use Response.apiReponse()
-extension APIGatewayV2Response: APIResponse {
+// conform `FunctionURLResponse` to `APIResponse` so we can use Response.apiReponse()
+extension FunctionURLResponse: APIResponse {
     package init(
         statusCode: HTTPResponse.Status,
         headers: AWSLambdaEvents.HTTPHeaders?,
@@ -83,7 +83,7 @@ extension APIGatewayV2Response: APIResponse {
         body: String?,
         isBase64Encoded: Bool?
     ) {
-        precondition(multiValueHeaders == nil || multiValueHeaders?.isEmpty == true, "Multi value headers are unavailable in APIGatewayV2")
-        self.init(statusCode: statusCode, headers: headers, body: body, isBase64Encoded: isBase64Encoded, cookies: nil)
+        precondition(multiValueHeaders == nil || multiValueHeaders?.isEmpty == true, "Multi value headers are unavailable in FunctionURL")
+        self.init(statusCode: statusCode, headers: headers, body: body, cookies: nil, isBase64Encoded: isBase64Encoded)
     }
 }
