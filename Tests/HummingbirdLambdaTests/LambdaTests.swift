@@ -18,6 +18,7 @@ import HummingbirdLambdaTesting
 import Logging
 import NIOCore
 import NIOPosix
+import Synchronization
 import XCTest
 
 @testable import HummingbirdLambda
@@ -226,6 +227,24 @@ final class LambdaTests: XCTestCase {
                 XCTAssertEqual(response.statusCode, .ok)
                 XCTAssertEqual(response.headers?["Content-Type"], "application/json; charset=utf-8")
                 XCTAssertEqual(response.body, #"{"response":"Hello"}"#)
+            }
+        }
+    }
+
+    func testBaforeLambdaStart() async throws {
+        let beforeLambdaStartHasRun = Atomic(false)
+        let router = Router(context: BasicLambdaRequestContext<APIGatewayRequest>.self)
+        router.middlewares.add(LogRequestsMiddleware(.debug))
+        router.get("hello") { request, _ in
+            beforeLambdaStartHasRun.load(ordering: .relaxed).description
+        }
+        var lambda = APIGatewayLambdaFunction(router: router)
+        lambda.beforeLambdaStarts {
+            beforeLambdaStartHasRun.store(true, ordering: .relaxed)
+        }
+        try await lambda.test { client in
+            try await client.execute(uri: "/hello", method: .get) { response in
+                XCTAssertEqual(response.body, "true")
             }
         }
     }

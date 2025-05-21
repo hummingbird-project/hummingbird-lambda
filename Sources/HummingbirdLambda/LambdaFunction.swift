@@ -47,6 +47,9 @@ public protocol LambdaFunctionProtocol: Service where Responder.Context: Initial
     var logger: Logger { get }
     /// services attached to the lambda.
     var services: [any Service] { get }
+    /// Array of processes run before we kick off the lambda. These tend to be processes that need
+    /// other services running but need to be run before the server is setup
+    var processesRunBeforeLambdaStart: [@Sendable () async throws -> Void] { get }
 }
 
 extension LambdaFunctionProtocol {
@@ -54,6 +57,8 @@ extension LambdaFunctionProtocol {
     public var services: [any Service] { [] }
     /// Default logger.
     public var logger: Logger { .init(label: "Hummingbird") }
+    /// Default to no processes being run before the server is setup
+    public var processesRunBeforeLambdaStart: [@Sendable () async throws -> Void] { [] }
 }
 
 /// Conform to `Service` from `ServiceLifecycle`.
@@ -67,7 +72,12 @@ extension LambdaFunctionProtocol {
             let response = try await responder.respond(to: request, context: context)
             return try await .init(from: response)
         }
-        let services: [any Service] = self.services + [LambdaRuntimeService(runtime: runtime, logger: self.logger)]
+        let lambdaRuntimeService = LambdaRuntimeService(runtime: runtime, logger: self.logger).withPrelude {
+            for process in self.processesRunBeforeLambdaStart {
+                try await process()
+            }
+        }
+        let services: [any Service] = self.services + [lambdaRuntimeService]
         let serviceGroup = ServiceGroup(
             configuration: .init(services: services, logger: self.logger)
         )
@@ -97,6 +107,8 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Even
     public var services: [any Service]
     /// Logger
     public var logger: Logger
+    /// Processes to be run before lambda is started
+    public private(set) var processesRunBeforeLambdaStart: [@Sendable () async throws -> Void]
 
     ///  Initialize LambdaFunction
     /// - Parameters:
@@ -121,6 +133,7 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Even
         }
         self.responder = responder
         self.services = services
+        self.processesRunBeforeLambdaStart = []
     }
 
     ///  Initialize LambdaFunction
@@ -148,6 +161,23 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Even
     /// - Parameter services: list of services to be added
     public mutating func addServices(_ services: any Service...) {
         self.services.append(contentsOf: services)
+    }
+
+    /// Add a process to run before we kick off the lambda runtime service
+    ///
+    /// This is for processes that might need another Service running but need
+    /// to run before the lambda has started processing requests. For example a
+    /// database migration process might need the database connection pool running
+    /// but should be finished before any request to the server can be made. Also
+    /// there may be situations where you want another Service to have fully initialized
+    /// before starting the lambda service.
+    ///
+    /// You can call `beforeLambdaStarts` multiple times and each process will still
+    /// be called.
+    ///
+    /// - Parameter process: Process to run before server is started
+    public mutating func beforeLambdaStarts(perform process: @escaping @Sendable () async throws -> Void) {
+        self.processesRunBeforeLambdaStart.append(process)
     }
 }
 

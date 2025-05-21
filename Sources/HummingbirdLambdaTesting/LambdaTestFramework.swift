@@ -43,6 +43,10 @@ class LambdaTestFramework<Lambda: LambdaFunctionProtocol> where Lambda.Event: La
         let client = LambdaTestClient(lambda: lambda, context: context)
         // if we have no services then just run test
         if self.lambda.services.count == 0 {
+            // run the runBeforeServer processes before we run test closure.
+            for process in self.lambda.processesRunBeforeLambdaStart {
+                try await process()
+            }
             return try await test(client)
         }
         // if we have services then setup task group with service group running in separate task from test
@@ -58,6 +62,9 @@ class LambdaTestFramework<Lambda: LambdaFunctionProtocol> where Lambda.Event: La
                 try await serviceGroup.run()
             }
             do {
+                for process in self.lambda.processesRunBeforeLambdaStart {
+                    try await process()
+                }
                 let value = try await test(client)
                 await serviceGroup.triggerGracefulShutdown()
                 return value

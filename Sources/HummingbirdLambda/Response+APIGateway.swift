@@ -73,7 +73,7 @@ extension APIResponse {
         }
 
         if body == nil {
-            body = String(base64Encoding: buffer.readableBytesView)
+            body = String(_base64Encoding: buffer.readableBytesView)
             isBase64Encoded = true
         }
 
@@ -131,7 +131,7 @@ extension Response {
         }
 
         if body == nil {
-            body = String(base64Encoding: buffer.readableBytesView)
+            body = String(_base64Encoding: buffer.readableBytesView)
             isBase64Encoded = true
         }
 
