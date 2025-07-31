@@ -13,74 +13,182 @@
 //===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
-import AWSLambdaRuntimeCore
+import AWSLambdaRuntime
 import Hummingbird
 import Logging
 import NIOCore
-import NIOPosix
+import ServiceLifecycle
+import UnixSignals
 
-/// Protocol for Hummingbird Lambdas.
-///
-/// Defines the `Event` and `Output` types, how you convert from `Event` to ``HummingbirdCore/Request``
-/// and ``HummingbirdCore/Response`` to `Output`. Create a type conforming to this protocol and tag it
-/// with `@main`.
-/// ```swift
-/// struct MyLambda: LambdaFunction {
-///     typealias Event = APIGatewayRequest
-///     typealias Output = APIGatewayResponse
-///     typealias Context = MyLambdaRequestContext // must conform to `LambdaRequestContext`
-///
-///     init(context: LambdaInitializationContext) {}
-///
-///     /// build responder that will create a response from a request
-///     func buildResponder() -> some Responder<Context> {
-///         let router = Router(context: Context.self)
-///         router.get("hello") { _,_ in
-///             "Hello"
-///         }
-///         return router.buildResponder()
-///     }
-/// }
-/// ```
-/// - SeeAlso: ``APIGatewayLambdaFunction`` and ``APIGatewayV2LambdaFunction`` for specializations of this protocol.
-public protocol LambdaFunction: Sendable {
-    /// Event that triggers the lambda
-    associatedtype Event: Decodable
-    /// Request context
-    associatedtype Context: InitializableFromSource<LambdaRequestContextSource<Event>> = BasicLambdaRequestContext<Event>
-    /// Output of lambda
-    associatedtype Output: Encodable
-    /// HTTP Responder
-    associatedtype Responder: HTTPResponder<Context>
-
-    func buildResponder() -> Responder
-
-    /// Initialize application.
-    init(context: LambdaInitializationContext) async throws
-
-    /// Called when Lambda is terminating. This is where you can cleanup any resources
-    func shutdown() async throws
-
-    /// Convert from `In` type to `Request`
-    /// - Parameters:
-    ///   - context: Lambda context
-    ///   - from: input type
-    func request(context: LambdaContext, from: Event) throws -> Request
-
-    /// Convert from `Response` to `Out` type
-    /// - Parameter from: response from Hummingbird
-    func output(from: Response) async throws -> Output
+/// Lambda event type that can generate HTTP Request
+public protocol LambdaEvent: Decodable {
+    func request(context: LambdaContext) throws -> Request
 }
 
-extension LambdaFunction {
-    /// Initializes and runs the Lambda function.
-    ///
-    /// If you precede your `EventLoopLambdaHandler` conformer's declaration with the
-    /// [@main](https://docs.swift.org/swift-book/ReferenceManual/Attributes.html#ID626)
-    /// attribute, the system calls the conformer's `main()` method to launch the lambda function.
-    public static func main() throws {
-        LambdaFunctionHandler<Self>.main()
+/// Lambda output type that can be generated from HTTP Response
+public protocol LambdaOutput: Encodable {
+    init(from: Response) async throws
+}
+
+/// Protocol for a AWS Lambda function.
+public protocol LambdaFunctionProtocol: Service where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Event>> {
+    /// Event that triggers the lambda
+    associatedtype Event: LambdaEvent
+    /// Output of lambda
+    associatedtype Output: LambdaOutput
+    /// Responder that generates a response from a request and context
+    associatedtype Responder: HTTPResponder
+    /// Context passed with Request to responder
+    typealias Context = Responder.Context
+
+    /// Build the responder
+    var responder: Responder { get async throws }
+    /// Logger
+    var logger: Logger { get }
+    /// services attached to the lambda.
+    var services: [any Service] { get }
+    /// Array of processes run before we kick off the lambda. These tend to be processes that need
+    /// other services running but need to be run before the server is setup
+    var processesRunBeforeLambdaStart: [@Sendable () async throws -> Void] { get }
+}
+
+extension LambdaFunctionProtocol {
+    /// Default to no extra services attached to the application.
+    public var services: [any Service] { [] }
+    /// Default logger.
+    public var logger: Logger { .init(label: "Hummingbird") }
+    /// Default to no processes being run before the server is setup
+    public var processesRunBeforeLambdaStart: [@Sendable () async throws -> Void] { [] }
+}
+
+/// Conform to `Service` from `ServiceLifecycle`.
+extension LambdaFunctionProtocol {
+    /// Construct lambda runtime and run it
+    public func run() async throws {
+        let responder = try await self.responder
+        let runtime = LambdaRuntime { (event: Event, context: LambdaContext) -> Output in
+            let request = try event.request(context: context)
+            let context = Responder.Context(source: .init(event: event, lambdaContext: context))
+            let response = try await responder.respond(to: request, context: context)
+            return try await .init(from: response)
+        }
+        let lambdaRuntimeService = LambdaRuntimeService(runtime: runtime, logger: self.logger).withPrelude {
+            for process in self.processesRunBeforeLambdaStart {
+                try await process()
+            }
+        }
+        let services: [any Service] = self.services + [lambdaRuntimeService]
+        let serviceGroup = ServiceGroup(
+            configuration: .init(services: services, logger: self.logger)
+        )
+        try await serviceGroup.run()
     }
 
-    public func shutdown() async throws {}
+    /// Helper function that runs lambda inside a ServiceGroup which will gracefully
+    /// shutdown on signals SIGTERM
+    public func runService() async throws {
+        let serviceGroup = ServiceGroup(
+            configuration: .init(
+                services: [self],
+                gracefulShutdownSignals: [.sigterm, .sigint],
+                logger: self.logger
+            )
+        )
+        try await serviceGroup.run()
+    }
+}
+
+/// Concrete Lambda function
+public struct LambdaFunction<Responder: HTTPResponder, Event: LambdaEvent, Output: LambdaOutput>: LambdaFunctionProtocol
+where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Event>> {
+    /// routes requests to responders based on URI
+    public let responder: Responder
+    /// services attached to the application.
+    public var services: [any Service]
+    /// Logger
+    public var logger: Logger
+    /// Processes to be run before lambda is started
+    public private(set) var processesRunBeforeLambdaStart: [@Sendable () async throws -> Void]
+
+    ///  Initialize LambdaFunction
+    /// - Parameters:
+    ///   - responder: HTTP responder
+    ///   - event: Lambda event type that will trigger lambda
+    ///   - output: Lambda output type
+    ///   - services: Services attached to LambdaFunction
+    ///   - logger: Logger used by lambda during setup
+    public init(
+        responder: Responder,
+        event: Event.Type = Event.self,
+        output: Output.Type = Output.self,
+        services: [Service] = [],
+        logger: Logger? = nil
+    ) {
+        if let logger {
+            self.logger = logger
+        } else {
+            var logger = Logger(label: "Hummingbird")
+            logger.logLevel = Environment().get("LOG_LEVEL").map { Logger.Level(rawValue: $0) ?? .info } ?? .info
+            self.logger = logger
+        }
+        self.responder = responder
+        self.services = services
+        self.processesRunBeforeLambdaStart = []
+    }
+
+    ///  Initialize LambdaFunction
+    /// - Parameters:
+    ///   - router: HTTP responder builder
+    ///   - event: Lambda event type that will trigger lambda
+    ///   - output: Lambda output type
+    ///   - services: Services attached to LambdaFunction
+    ///   - logger: Logger used by lambda during setup
+    public init<ResponderBuilder: HTTPResponderBuilder>(
+        router: ResponderBuilder,
+        event: Event.Type = Event.self,
+        output: Output.Type = Output.self,
+        services: [Service] = [],
+        logger: Logger? = nil
+    ) where Responder == ResponderBuilder.Responder {
+        self.init(
+            responder: router.buildResponder(),
+            services: services,
+            logger: logger
+        )
+    }
+
+    ///  Add service to be managed by lambda function's ServiceGroup
+    /// - Parameter services: list of services to be added
+    public mutating func addServices(_ services: any Service...) {
+        self.services.append(contentsOf: services)
+    }
+
+    /// Add a process to run before we kick off the lambda runtime service
+    ///
+    /// This is for processes that might need another Service running but need
+    /// to run before the lambda has started processing requests. For example a
+    /// database migration process might need the database connection pool running
+    /// but should be finished before any request to the server can be made. Also
+    /// there may be situations where you want another Service to have fully initialized
+    /// before starting the lambda service.
+    ///
+    /// You can call `beforeLambdaStarts` multiple times and each process will still
+    /// be called.
+    ///
+    /// - Parameter process: Process to run before server is started
+    public mutating func beforeLambdaStarts(perform process: @escaping @Sendable () async throws -> Void) {
+        self.processesRunBeforeLambdaStart.append(process)
+    }
+}
+
+private struct LambdaRuntimeService<Handler: StreamingLambdaHandler>: Service {
+    let runtime: LambdaRuntime<Handler>
+    let logger: Logger
+
+    func run() async throws {
+        try await cancelWhenGracefulShutdown {
+            try await self.runtime.run()
+        }
+        self.logger.info("Shutting down Hummingbird")
+    }
 }

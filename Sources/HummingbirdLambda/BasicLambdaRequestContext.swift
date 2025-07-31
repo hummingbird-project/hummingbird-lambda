@@ -12,8 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-import AWSLambdaRuntimeCore
-import Foundation
 import Hummingbird
 import Logging
 import NIOCore

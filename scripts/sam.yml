@@ -1,56 +1,34 @@
-AWSTemplateFormatVersion : '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: A sample SAM template for deploying Hummingbird Lambda functions.
 
 Globals:
-  Function:
-    Timeout: 3
-    MemorySize: 128
+    Function:
+        Timeout: 3
+        MemorySize: 128
 
 Resources:
-# HelloWorld Function
-  hbLambdaTestFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: Provided
-      Runtime: provided.al2
-      Architectures: 
-        - arm64
-      CodeUri: ../.build/plugins/AWSLambdaPackager/outputs/AWSLambdaPackager/HBLambdaTest/HBLambdaTest.zip
-      # Instructs new versions to be published to an alias named "live".
-      AutoPublishAlias: live
-      Events:
-        Add:
-          Type: Api
-          Properties:
-            Path: /add
-            Method: post
-        Subtract:
-          Type: Api
-          Properties:
-            Path: /subtract
-            Method: post
-        Multiply:
-          Type: Api
-          Properties:
-            Path: /multiply
-            Method: post
-        Divide:
-          Type: Api
-          Properties:
-            Path: /divide
-            Method: post
+    hbLambdaTestFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: swift.bootstrap
+            Runtime: provided.al2
+            Architectures:
+                - arm64
+            CodeUri: ../.build/plugins/AWSLambdaPackager/outputs/AWSLambdaPackager/HBLambdaTest/HBLambdaTest.zip
+            Environment:
+                Variables:
+                    # by default, AWS Lambda runtime produces no log
+                    # use `LOG_LEVEL: debug` for for lifecycle and event handling information
+                    # use `LOG_LEVEL: trace` for detailed input event information
+                    LOG_LEVEL: trace
+            # Instructs new versions to be published to an alias named "live".
+            # AutoPublishAlias: live
+            Events:
+                HttpApiEvent:
+                    Type: HttpApi
 
 Outputs:
-  AddFunctionApi:
-    Description: "API Gateway endpoint URL for Prod stage for Add function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/add/"
-  SubtractFunctionApi:
-    Description: "API Gateway endpoint URL for Prod stage for Subtract function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/subtract/"
-  MultipleFunctionApi:
-    Description: "API Gateway endpoint URL for Prod stage for Multiple function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/multiple/"
-  DivideFunctionApi:
-    Description: "API Gateway endpoint URL for Prod stage for Divide function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/divide/"
+    HttpApi:
+        Description: "API Gateway endpoint URL for Prod stage"
+        Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
