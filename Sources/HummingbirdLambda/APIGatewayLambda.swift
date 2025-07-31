@@ -13,48 +13,13 @@
 //===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
-import AWSLambdaRuntimeCore
 import Hummingbird
 import NIOCore
 import NIOHTTP1
 
-/// Protocol for Hummingbird Lambdas that use APIGateway
-///
-/// With this protocol you no longer need to set the `Event` and `Output`
-/// associated values.
-/// ```swift
-/// struct MyLambda: APIGatewayLambda {
-///     typealias Context = MyLambdaRequestContext
-///
-///     init(context: LambdaInitializationContext) {}
-///
-///     /// build responder that will create a response from a request
-///     func buildResponder() -> some Responder<Context> {
-///         let router = Router(context: Context.self)
-///         router.get("hello") { _,_ in
-///             "Hello"
-///         }
-///         return router.buildResponder()
-///     }
-/// }
-/// ```
-public protocol APIGatewayLambdaFunction: LambdaFunction where Event == APIGatewayRequest, Output == APIGatewayResponse {
-    associatedtype Context = BasicLambdaRequestContext<APIGatewayRequest>
-}
-
-extension LambdaFunction where Event == APIGatewayRequest {
-    /// Specialization of Lambda.request where `Event` is `APIGatewayRequest`
-    public func request(context: LambdaContext, from: Event) throws -> Request {
-        try Request(context: context, from: from)
-    }
-}
-
-extension LambdaFunction where Output == APIGatewayResponse {
-    /// Specialization of Lambda.request where `Output` is `APIGatewayResponse`
-    public func output(from response: Response) async throws -> Output {
-        try await response.apiResponse()
-    }
-}
+/// Typealias for Lambda function triggered by APIGateway
+public typealias APIGatewayLambdaFunction<Responder: HTTPResponder> = LambdaFunction<Responder, APIGatewayRequest, APIGatewayResponse>
+where Responder.Context: InitializableFromSource<LambdaRequestContextSource<APIGatewayRequest>>
 
 // conform `APIGatewayRequest` to `APIRequest` so we can use Request.init(context:application:from)
 extension APIGatewayRequest: APIRequest {

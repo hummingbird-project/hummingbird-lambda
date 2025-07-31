@@ -17,18 +17,17 @@ import Foundation
 import HTTPTypes
 import Logging
 import NIOCore
-import NIOPosix
+import ServiceLifecycle
 
-@testable import AWSLambdaRuntimeCore
+@testable import AWSLambdaRuntime
 @testable import HummingbirdLambda
 
-class LambdaTestFramework<Lambda: LambdaFunction> where Lambda.Event: LambdaTestableEvent {
+class LambdaTestFramework<Lambda: LambdaFunctionProtocol> where Lambda.Event: LambdaTestableEvent {
     let context: LambdaContext
-    var terminator: LambdaTerminator
+    let lambda: Lambda
 
-    init(logLevel: Logger.Level) {
-        var logger = Logger(label: "TestLambda")
-        logger.logLevel = logLevel
+    init(lambda: Lambda) {
+        self.lambda = lambda
         self.context = .init(
             requestID: UUID().uuidString,
             traceID: "abc123",
@@ -36,39 +35,59 @@ class LambdaTestFramework<Lambda: LambdaFunction> where Lambda.Event: LambdaTest
             deadline: .now() + .seconds(15),
             cognitoIdentity: nil,
             clientContext: nil,
-            logger: logger,
-            eventLoop: MultiThreadedEventLoopGroup.singleton.any(),
-            allocator: ByteBufferAllocator()
-        )
-        self.terminator = .init()
-    }
-
-    var initializationContext: LambdaInitializationContext {
-        .init(
-            logger: self.context.logger,
-            eventLoop: self.context.eventLoop,
-            allocator: self.context.allocator,
-            terminator: .init()
+            logger: lambda.logger
         )
     }
 
     func run<Value>(_ test: @escaping @Sendable (LambdaTestClient<Lambda>) async throws -> Value) async throws -> Value {
-        let handler = try await LambdaFunctionHandler<Lambda>(context: self.initializationContext)
-        let value = try await test(LambdaTestClient(handler: handler, context: context))
-        try await self.terminator.terminate(eventLoop: self.context.eventLoop).get()
-        self.terminator = .init()
-        return value
+        let client = LambdaTestClient(lambda: lambda, context: context)
+        // if we have no services then just run test
+        if self.lambda.services.count == 0 {
+            // run the runBeforeServer processes before we run test closure.
+            for process in self.lambda.processesRunBeforeLambdaStart {
+                try await process()
+            }
+            return try await test(client)
+        }
+        // if we have services then setup task group with service group running in separate task from test
+        return try await withThrowingTaskGroup(of: Void.self) { group in
+            let serviceGroup = ServiceGroup(
+                configuration: .init(
+                    services: self.lambda.services,
+                    gracefulShutdownSignals: [.sigterm, .sigint],
+                    logger: self.lambda.logger
+                )
+            )
+            group.addTask {
+                try await serviceGroup.run()
+            }
+            do {
+                for process in self.lambda.processesRunBeforeLambdaStart {
+                    try await process()
+                }
+                let value = try await test(client)
+                await serviceGroup.triggerGracefulShutdown()
+                return value
+            } catch {
+                await serviceGroup.triggerGracefulShutdown()
+                throw error
+            }
+        }
     }
 }
 
 /// Client used to send requests to lambda test framework
-public struct LambdaTestClient<Lambda: LambdaFunction> where Lambda.Event: LambdaTestableEvent {
-    let handler: LambdaFunctionHandler<Lambda>
+public struct LambdaTestClient<Lambda: LambdaFunctionProtocol> where Lambda.Event: LambdaTestableEvent {
+    let lambda: Lambda
     let context: LambdaContext
 
     func execute(uri: String, method: HTTPRequest.Method, headers: HTTPFields, body: ByteBuffer?) async throws -> Lambda.Output {
         let event = try Lambda.Event(uri: uri, method: method, headers: headers, body: body)
-        return try await self.handler.handle(event, context: self.context)
+        let request = try event.request(context: context)
+        let context = Lambda.Responder.Context(source: .init(event: event, lambdaContext: context))
+        let response = try await lambda.responder.respond(to: request, context: context)
+        let output = try await Lambda.Output(from: response)
+        return output
     }
 
     /// Send request to lambda test framework and call `testCallback`` on the response returned

@@ -13,6 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
+import ExtrasBase64
 import Foundation
 import HTTPTypes
 import HummingbirdCore
@@ -21,7 +22,7 @@ import NIOCore
 extension APIGatewayV2Request: LambdaTestableEvent {
     /// Construct APIGatewayV2 Event from uri, method, headers and body
     public init(uri: String, method: HTTPRequest.Method, headers: HTTPFields, body: ByteBuffer?) throws {
-        let base64Body = body.map { "\"\(String(base64Encoding: $0.readableBytesView))\"" } ?? "null"
+        let base64Body = body.map { "\"\(Base64.encodeToString(bytes: $0.readableBytesView))\"" } ?? "null"
         let url = URI(uri)
         let queryValues: [String: [String]] = url.queryParameters.reduce([:]) { result, value in
             var result = result
