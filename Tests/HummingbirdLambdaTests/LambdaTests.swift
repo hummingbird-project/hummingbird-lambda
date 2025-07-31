@@ -205,6 +205,88 @@ final class LambdaTests: XCTestCase {
         }
     }
 
+    func testSimpleRouteURLFunction() async throws {
+        let router = Router(context: BasicLambdaRequestContext<FunctionURLRequest>.self)
+        router.middlewares.add(LogRequestsMiddleware(.debug))
+        router.post { request, _ in
+            XCTAssertEqual(request.head.authority, "127.0.0.1:8080")
+            return ["response": "hello"]
+        }
+        let lambda = FunctionURLLambdaFunction(router: router)
+        try await lambda.test { client in
+            try await client.execute(uri: "/", method: .post) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+                XCTAssertEqual(response.headers?["Content-Type"], "application/json; charset=utf-8")
+                XCTAssertEqual(response.body, #"{"response":"hello"}"#)
+            }
+        }
+    }
+
+    func testBase64EncodingURLFunction() async throws {
+        let router = Router(context: BasicLambdaRequestContext<FunctionURLRequest>.self)
+        router.middlewares.add(LogRequestsMiddleware(.debug))
+        router.post { request, _ in
+            let buffer = try await request.body.collect(upTo: .max)
+            return Response(status: .ok, body: .init(byteBuffer: buffer))
+        }
+        let lambda = FunctionURLLambdaFunction(router: router)
+        try await lambda.test { client in
+            let body = ByteBuffer(bytes: (0...255).map { _ in UInt8.random(in: 0...255) })
+            try await client.execute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0"], body: body) { response in
+                XCTAssertEqual(response.isBase64Encoded, true)
+                XCTAssertEqual(response.body, Base64.encodeToString(bytes: body.readableBytesView))
+            }
+        }
+    }
+
+    func testHeaderValuesURLFunction() async throws {
+        let router = Router(context: BasicLambdaRequestContext<FunctionURLRequest>.self)
+        router.middlewares.add(LogRequestsMiddleware(.debug))
+        router.post { request, _ -> HTTPResponse.Status in
+            XCTAssertEqual(request.headers[.userAgent], "HBXCT/2.0")
+            XCTAssertEqual(request.headers[.acceptLanguage], "en")
+            return .ok
+        }
+        router.post("/multi") { request, _ -> HTTPResponse.Status in
+            XCTAssertEqual(request.headers[.userAgent], "HBXCT/2.0")
+            XCTAssertEqual(request.headers[values: .acceptLanguage], ["en", "fr"])
+            return .ok
+        }
+        let lambda = FunctionURLLambdaFunction(router: router)
+        try await lambda.test { client in
+            try await client.execute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+            }
+            var headers: HTTPFields = [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]
+            headers[values: .acceptLanguage].append("fr")
+            try await client.execute(uri: "/multi", method: .post, headers: headers) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+            }
+        }
+    }
+
+    func testQueryValuesURLFunction() async throws {
+        let router = Router(context: BasicLambdaRequestContext<FunctionURLRequest>.self)
+        router.middlewares.add(LogRequestsMiddleware(.debug))
+        router.post { request, _ -> HTTPResponse.Status in
+            XCTAssertEqual(request.uri.queryParameters["foo"], "bar")
+            return .ok
+        }
+        router.post("/multi") { request, _ -> HTTPResponse.Status in
+            XCTAssertEqual(request.uri.queryParameters.getAll("foo"), ["bar1", "bar2"])
+            return .ok
+        }
+        let lambda = FunctionURLLambdaFunction(router: router)
+        try await lambda.test { client in
+            try await client.execute(uri: "/?foo=bar", method: .post) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+            }
+            try await client.execute(uri: "/multi?foo=bar1&foo=bar2", method: .post) { response in
+                XCTAssertEqual(response.statusCode, .ok)
+            }
+        }
+    }
+
     func testCustomRequestContext() async throws {
         struct MyRequestContext: LambdaRequestContext {
             typealias Event = APIGatewayRequest
