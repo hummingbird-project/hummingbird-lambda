@@ -17,26 +17,26 @@ import Hummingbird
 import NIOCore
 import NIOHTTP1
 
-/// Typealias for Lambda function triggered by APIGatewayV2
+/// Typealias for Lambda function triggered by function URL
 ///
 /// ```swift
-/// let router = Router(context: BasicLambdaRequestContext<APIGatewayV2Request>.self)
+/// let router = Router(context: BasicLambdaRequestContext<FunctionURLRequest>.self)
 /// router.get { request, context in
 ///     "Hello!"
 /// }
-/// let lambda = APIGatewayV2LambdaFunction(router: router)
+/// let lambda = FunctionURLLambdaFunction(router: router)
 /// try await lambda.runService()
 /// ```
-public typealias APIGatewayV2LambdaFunction<Responder: HTTPResponder> = LambdaFunction<Responder, APIGatewayV2Request, APIGatewayV2Response>
-where Responder.Context: InitializableFromSource<LambdaRequestContextSource<APIGatewayV2Request>>
+public typealias FunctionURLLambdaFunction<Responder: HTTPResponder> = LambdaFunction<Responder, FunctionURLRequest, FunctionURLResponse>
+where Responder.Context: InitializableFromSource<LambdaRequestContextSource<FunctionURLRequest>>
 
-// conform `APIGatewayV2Request` to `APIRequest` so we can use Request.init(context:application:from)
-extension APIGatewayV2Request: APIRequest {
+// conform `FunctionURLRequest` to `APIRequest` so we can use Request.init(context:application:from)
+extension FunctionURLRequest: APIRequest {
     var path: String {
-        context.http.path
+        requestContext.http.path
     }
 
-    var httpMethod: HTTPRequest.Method { context.http.method }
+    var httpMethod: HTTPRequest.Method { requestContext.http.method }
     var queryString: String { self.rawQueryString }
     var httpHeaders: [(name: String, value: String)] {
         self.headers.flatMap { header in
@@ -48,8 +48,8 @@ extension APIGatewayV2Request: APIRequest {
     }
 }
 
-// conform `APIGatewayV2Response` to `APIResponse` so we can use Response.apiReponse()
-extension APIGatewayV2Response: APIResponse {
+// conform `FunctionURLResponse` to `APIResponse` so we can use Response.apiReponse()
+extension FunctionURLResponse: APIResponse {
     package init(
         statusCode: HTTPResponse.Status,
         headers: AWSLambdaEvents.HTTPHeaders?,
@@ -57,7 +57,7 @@ extension APIGatewayV2Response: APIResponse {
         body: String?,
         isBase64Encoded: Bool?
     ) {
-        precondition(multiValueHeaders == nil || multiValueHeaders?.isEmpty == true, "Multi value headers are unavailable in APIGatewayV2")
-        self.init(statusCode: statusCode, headers: headers, body: body, isBase64Encoded: isBase64Encoded, cookies: nil)
+        precondition(multiValueHeaders == nil || multiValueHeaders?.isEmpty == true, "Multi value headers are unavailable in FunctionURL")
+        self.init(statusCode: statusCode, headers: headers, body: body, cookies: nil, isBase64Encoded: isBase64Encoded)
     }
 }
