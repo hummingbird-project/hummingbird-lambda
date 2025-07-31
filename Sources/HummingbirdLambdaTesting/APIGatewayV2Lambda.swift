@@ -69,6 +69,7 @@ extension APIGatewayV2Request: LambdaTestableEvent {
                     "domainName":"hello.test.com",
                     "apiId":"pb5dg6g3rg",
                     "requestId":"LgLpnibOFiAEPCA=",
+                    "routeKey":"\(method) \(url.path)",
                     "http":{
                         "path":"\(url.path)",
                         "userAgent":"Paw/3.1.10 (Macintosh; OS X/10.15.4) GCDHTTPRequest",

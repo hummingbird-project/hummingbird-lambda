@@ -18,6 +18,15 @@ import NIOCore
 import NIOHTTP1
 
 /// Typealias for Lambda function triggered by APIGatewayV2
+///
+/// ```swift
+/// let router = Router(context: BasicLambdaRequestContext<APIGatewayV2Request>.self)
+/// router.get { request, context in
+///     "Hello!"
+/// }
+/// let lambda = APIGatewayV2LambdaFunction(router: router)
+/// try await lambda.runService()
+/// ```
 public typealias APIGatewayV2LambdaFunction<Responder: HTTPResponder> = LambdaFunction<Responder, APIGatewayV2Request, APIGatewayV2Response>
 where Responder.Context: InitializableFromSource<LambdaRequestContextSource<APIGatewayV2Request>>
 

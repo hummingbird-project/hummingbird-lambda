@@ -13,48 +13,22 @@
 //===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
-import AWSLambdaRuntimeCore
 import Hummingbird
 import NIOCore
 import NIOHTTP1
 
-/// Protocol for Hummingbird Lambdas that use FunctionURL
+/// Typealias for Lambda function triggered by function URL
 ///
-/// With this protocol you no longer need to set the `Event` and `Output`
-/// associated values.
 /// ```swift
-/// struct MyLambda: APIGatewayLambda {
-///     typealias Context = MyLambdaRequestContext
-///
-///     init(context: LambdaInitializationContext) {}
-///
-///     /// build responder that will create a response from a request
-///     func buildResponder() -> some Responder<Context> {
-///         let router = Router(context: Context.self)
-///         router.get("hello") { _,_ in
-///             "Hello"
-///         }
-///         return router.buildResponder()
-///     }
+/// let router = Router(context: BasicLambdaRequestContext<FunctionURLRequest>.self)
+/// router.get { request, context in
+///     "Hello!"
 /// }
+/// let lambda = FunctionURLLambdaFunction(router: router)
+/// try await lambda.runService()
 /// ```
-public protocol FunctionURLLambdaFunction: LambdaFunction where Event == FunctionURLRequest, Output == FunctionURLResponse {
-    associatedtype Context = BasicLambdaRequestContext<FunctionURLRequest>
-}
-
-extension LambdaFunction where Event == FunctionURLRequest {
-    /// Specialization of Lambda.request where `Event` is `FunctionURLRequest`
-    public func request(context: LambdaContext, from: Event) throws -> Request {
-        try Request(context: context, from: from)
-    }
-}
-
-extension LambdaFunction where Output == FunctionURLResponse {
-    /// Specialization of Lambda.request where `Output` is `FunctionURLResponse`
-    public func output(from response: Response) async throws -> Output {
-        try await response.apiResponse()
-    }
-}
+public typealias FunctionURLLambdaFunction<Responder: HTTPResponder> = LambdaFunction<Responder, FunctionURLRequest, FunctionURLResponse>
+where Responder.Context: InitializableFromSource<LambdaRequestContextSource<FunctionURLRequest>>
 
 // conform `FunctionURLRequest` to `APIRequest` so we can use Request.init(context:application:from)
 extension FunctionURLRequest: APIRequest {

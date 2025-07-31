@@ -13,15 +13,22 @@
 //===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
+import ExtrasBase64
 import Foundation
 import HTTPTypes
 import HummingbirdCore
 import NIOCore
 
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
+import Foundation
+#endif
+
 extension FunctionURLRequest: LambdaTestableEvent {
     /// Construct FunctionURL Event from uri, method, headers and body
     public init(uri: String, method: HTTPRequest.Method, headers: HTTPFields, body: ByteBuffer?) throws {
-        let base64Body = body.map { "\"\(String(base64Encoding: $0.readableBytesView))\"" } ?? "null"
+        let base64Body = body.map { "\"\(Base64.encodeToString(bytes: $0.readableBytesView))\"" } ?? "null"
         let url = URI(uri)
         let queryValues: [String: [String]] = url.queryParameters.reduce([:]) { result, value in
             var result = result
@@ -51,18 +58,17 @@ extension FunctionURLRequest: LambdaTestableEvent {
                     "timeEpoch":1587750461466,
                     "domainPrefix":"hello",
                     "authorizer":{
-                        "jwt":{
-                            "scopes":[
-                                "hello"
-                            ],
-                            "claims":{
-                                "aud":"customers",
-                                "iss":"https://hello.test.com/",
-                                "iat":"1587749276",
-                                "exp":"1587756476"
-                            }
+                        "iam": {
+                                "accessKey": "AKIA...",
+                                "accountId": "111122223333",
+                                "callerId": "AIDA...",
+                                "cognitoIdentity": null,
+                                "principalOrgId": null,
+                                "userArn": "arn:aws:iam::111122223333:user/example-user",
+                                "userId": "AIDA..."
                         }
                     },
+                    "routeKey":"\(method) \(url.path)",
                     "accountId":"0123456789",
                     "stage":"$default",
                     "domainName":"hello.test.com",
