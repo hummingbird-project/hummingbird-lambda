@@ -14,10 +14,15 @@
 
 import AWSLambdaEvents
 import ExtrasBase64
-import Foundation
 import HTTPTypes
 import HummingbirdCore
 import NIOCore
+
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
+import Foundation
+#endif
 
 extension APIGatewayV2Request: LambdaTestableEvent {
     /// Construct APIGatewayV2 Event from uri, method, headers and body

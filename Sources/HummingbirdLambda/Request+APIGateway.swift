@@ -15,7 +15,6 @@
 import AWSLambdaEvents
 import AWSLambdaRuntime
 import ExtrasBase64
-import Foundation
 import HTTPTypes
 import Hummingbird
 import NIOCore
@@ -32,10 +31,6 @@ protocol APIRequest: LambdaEvent {
 
 extension APIRequest {
     public func request(context: LambdaContext) throws -> Request {
-        func urlPercentEncoded(_ string: String) -> String {
-            string.addingPercentEncoding(withAllowedCharacters: .urlQueryComponentAllowed) ?? string
-        }
-
         // construct URI with query parameters
         var uri = self.path
         if self.queryString.count > 0 {
@@ -74,10 +69,6 @@ extension APIRequest {
 extension Request {
     /// Specialization of Lambda.request where `In` is `APIGateway.Request`
     init(context: LambdaContext, from: some APIRequest) throws {
-        func urlPercentEncoded(_ string: String) -> String {
-            string.addingPercentEncoding(withAllowedCharacters: .urlQueryComponentAllowed) ?? string
-        }
-
         // construct URI with query parameters
         var uri = from.path
         if from.queryString.count > 0 {
@@ -134,12 +125,4 @@ extension HTTPFields {
             }
         }
     }
-}
-
-extension CharacterSet {
-    nonisolated(unsafe) static var urlQueryComponentAllowed: CharacterSet = {
-        var cs = CharacterSet.urlQueryAllowed
-        cs.remove(charactersIn: "&=")
-        return cs
-    }()
 }
