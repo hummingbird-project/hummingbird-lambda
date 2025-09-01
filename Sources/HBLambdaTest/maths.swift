@@ -43,25 +43,30 @@ struct Result: ResponseEncodable {
     let result: Double
 }
 
-let router = Router(context: AppRequestContext.self)
-router.middlewares.add(DebugMiddleware())
-router.post("add") { request, context -> Result in
-    let operands = try await request.decode(as: Operands.self, context: context)
-    return Result(result: operands.lhs + operands.rhs)
+@main
+struct MathsLambda {
+    static func main() async throws {
+        let router = Router(context: AppRequestContext.self)
+        router.middlewares.add(DebugMiddleware())
+        router.post("add") { request, context -> Result in
+            let operands = try await request.decode(as: Operands.self, context: context)
+            return Result(result: operands.lhs + operands.rhs)
+        }
+        router.post("subtract") { request, context -> Result in
+            let operands = try await request.decode(as: Operands.self, context: context)
+            return Result(result: operands.lhs - operands.rhs)
+        }
+        router.post("multiply") { request, context -> Result in
+            let operands = try await request.decode(as: Operands.self, context: context)
+            return Result(result: operands.lhs * operands.rhs)
+        }
+        router.post("divide") { request, context -> Result in
+            let operands = try await request.decode(as: Operands.self, context: context)
+            return Result(result: operands.lhs / operands.rhs)
+        }
+        let lambda = APIGatewayV2LambdaFunction(
+            router: router
+        )
+        try await lambda.runService()
+    }
 }
-router.post("subtract") { request, context -> Result in
-    let operands = try await request.decode(as: Operands.self, context: context)
-    return Result(result: operands.lhs - operands.rhs)
-}
-router.post("multiply") { request, context -> Result in
-    let operands = try await request.decode(as: Operands.self, context: context)
-    return Result(result: operands.lhs * operands.rhs)
-}
-router.post("divide") { request, context -> Result in
-    let operands = try await request.decode(as: Operands.self, context: context)
-    return Result(result: operands.lhs / operands.rhs)
-}
-let lambda = APIGatewayV2LambdaFunction(
-    router: router
-)
-try await lambda.runService()
