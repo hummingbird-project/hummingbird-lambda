@@ -23,7 +23,6 @@ import ServiceLifecycle
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials
-import Dispatch
 #else
 import Foundation
 #endif
@@ -38,7 +37,7 @@ class LambdaTestFramework<Lambda: LambdaFunctionProtocol> where Lambda.Event: La
             requestID: UUID().uuidString,
             traceID: "abc123",
             invokedFunctionARN: "aws:arn:",
-            deadline: .now() + .seconds(15),
+            deadline: LambdaClock().now.advanced(by: .seconds(15)),
             cognitoIdentity: nil,
             clientContext: nil,
             logger: lambda.logger
