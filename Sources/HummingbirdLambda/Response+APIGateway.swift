@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2023-2024 the Hummingbird authors
+// Copyright (c) 2023-2025 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -73,7 +73,7 @@ extension APIResponse {
         }
 
         if body == nil {
-            body = String(_base64Encoding: buffer.readableBytesView)
+            body = Base64.encodeToString(bytes: buffer.readableBytesView)
             isBase64Encoded = true
         }
 
@@ -131,7 +131,7 @@ extension Response {
         }
 
         if body == nil {
-            body = String(_base64Encoding: buffer.readableBytesView)
+            body = Base64.encodeToString(bytes: buffer.readableBytesView)
             isBase64Encoded = true
         }
 

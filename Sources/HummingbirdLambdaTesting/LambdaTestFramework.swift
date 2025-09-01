@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2021-2024 the Hummingbird authors
+// Copyright (c) 2021-2025 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -13,7 +13,6 @@
 //===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
-import Foundation
 import HTTPTypes
 import Logging
 import NIOCore
@@ -21,6 +20,12 @@ import ServiceLifecycle
 
 @testable import AWSLambdaRuntime
 @testable import HummingbirdLambda
+
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
+import Foundation
+#endif
 
 class LambdaTestFramework<Lambda: LambdaFunctionProtocol> where Lambda.Event: LambdaTestableEvent {
     let context: LambdaContext
@@ -32,7 +37,7 @@ class LambdaTestFramework<Lambda: LambdaFunctionProtocol> where Lambda.Event: La
             requestID: UUID().uuidString,
             traceID: "abc123",
             invokedFunctionARN: "aws:arn:",
-            deadline: .now() + .seconds(15),
+            deadline: LambdaClock().now.advanced(by: .seconds(15)),
             cognitoIdentity: nil,
             clientContext: nil,
             logger: lambda.logger

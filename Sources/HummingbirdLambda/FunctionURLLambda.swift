@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2021-2024 the Hummingbird authors
+// Copyright (c) 2021-2025 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -58,6 +58,6 @@ extension FunctionURLResponse: APIResponse {
         isBase64Encoded: Bool?
     ) {
         precondition(multiValueHeaders == nil || multiValueHeaders?.isEmpty == true, "Multi value headers are unavailable in FunctionURL")
-        self.init(statusCode: statusCode, headers: headers, body: body, cookies: nil, isBase64Encoded: isBase64Encoded)
+        self.init(statusCode: statusCode, headers: headers, body: body, isBase64Encoded: isBase64Encoded, cookies: nil)
     }
 }

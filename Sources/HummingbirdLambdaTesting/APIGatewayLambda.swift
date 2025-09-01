@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2021-2024 the Hummingbird authors
+// Copyright (c) 2021-2025 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -14,10 +14,15 @@
 
 import AWSLambdaEvents
 import ExtrasBase64
-import Foundation
 import HTTPTypes
 import HummingbirdCore
 import NIOCore
+
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
+import Foundation
+#endif
 
 extension APIGatewayRequest: LambdaTestableEvent {
     /// Construct APIGateway Event from uri, method, headers and body

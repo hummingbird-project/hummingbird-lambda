@@ -2,7 +2,7 @@
 //
 // This source file is part of the Hummingbird server framework project
 //
-// Copyright (c) 2021-2024 the Hummingbird authors
+// Copyright (c) 2021-2025 the Hummingbird authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -33,19 +33,16 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<APIG
 // conform `APIGatewayRequest` to `APIRequest` so we can use Request.init(context:application:from)
 extension APIGatewayRequest: APIRequest {
     var queryString: String {
-        func urlPercentEncoded(_ string: String) -> String {
-            return string.addingPercentEncoding(withAllowedCharacters: .urlQueryComponentAllowed) ?? string
-        }
         var queryParams: [String] = []
         var queryStringParameters = self.queryStringParameters
         // go through list of multi value query string params first, removing any
         // from the single value list if they are found in the multi value list
         for (key, value) in self.multiValueQueryStringParameters {
             queryStringParameters[key] = nil
-            queryParams += value.map { "\(urlPercentEncoded(key))=\(urlPercentEncoded($0))" }
+            queryParams += value.map { "\(key.addingPercentEncoding(forURLComponent: .query))=\($0.addingPercentEncoding(forURLComponent: .query))" }
         }
         queryParams += queryStringParameters.map {
-            "\(urlPercentEncoded($0.key))=\(urlPercentEncoded($0.value))"
+            "\($0.key.addingPercentEncoding(forURLComponent: .query))=\($0.value.addingPercentEncoding(forURLComponent: .query))"
         }
         return queryParams.joined(separator: "&")
     }
