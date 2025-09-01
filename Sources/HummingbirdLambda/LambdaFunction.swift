@@ -98,7 +98,29 @@ extension LambdaFunctionProtocol {
     }
 }
 
-/// Concrete Lambda function
+/// Represents a Lambda function with input/output and background processes
+///
+/// Setup lambda that is triggered by `Event` and has output `Output`. The `Event` type is
+/// converted to a Hummingbird ``/HummingbirdCore/Request`` and passed into the `responder`. The
+/// resulting ``/HummingbirdCore/Response`` is then converted to the `Output` type of the lambda.
+///
+/// For example an APIGateway Lamdba is setup as follows
+/// ```swift
+/// let router = Router(context: BasicLambdaRequestContext<APIGatewayRequest>.self)
+/// router.get { request, context in
+///     "Hello!"
+/// }
+/// let lambda = LambdaFunction(
+///     event: APIGatewayRequest.self,
+///     output: APIGatewayResponse.self,
+///     router: router
+/// )
+/// try await lambda.runService()
+/// ```
+///
+/// HummingbirdLambda includes typealiases for lambdas that accept Event and Output types
+/// for APIGateway: ``APIGatewayLambdaFunction``, APIGateway2: ``APIGatewayV2LambdaFunction``
+/// and FunctionURLs: ``FunctionURLLambdaFunction``.
 public struct LambdaFunction<Responder: HTTPResponder, Event: LambdaEvent, Output: LambdaOutput>: LambdaFunctionProtocol
 where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Event>> {
     /// routes requests to responders based on URI
@@ -110,7 +132,7 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Even
     /// Processes to be run before lambda is started
     public private(set) var processesRunBeforeLambdaStart: [@Sendable () async throws -> Void]
 
-    ///  Initialize LambdaFunction
+    /// Initialize LambdaFunction
     /// - Parameters:
     ///   - responder: HTTP responder
     ///   - event: Lambda event type that will trigger lambda
@@ -136,7 +158,7 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Even
         self.processesRunBeforeLambdaStart = []
     }
 
-    ///  Initialize LambdaFunction
+    /// Initialize LambdaFunction
     /// - Parameters:
     ///   - router: HTTP responder builder
     ///   - event: Lambda event type that will trigger lambda
@@ -157,7 +179,7 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Even
         )
     }
 
-    ///  Add service to be managed by lambda function's ServiceGroup
+    /// Add service to be managed by lambda function's ServiceGroup
     /// - Parameter services: list of services to be added
     public mutating func addServices(_ services: any Service...) {
         self.services.append(contentsOf: services)
