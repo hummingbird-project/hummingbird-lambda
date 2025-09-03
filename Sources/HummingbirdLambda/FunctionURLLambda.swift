@@ -58,6 +58,6 @@ extension FunctionURLResponse: APIResponse {
         isBase64Encoded: Bool?
     ) {
         precondition(multiValueHeaders == nil || multiValueHeaders?.isEmpty == true, "Multi value headers are unavailable in FunctionURL")
-        self.init(statusCode: statusCode, headers: headers, body: body, isBase64Encoded: isBase64Encoded, cookies: nil)
+        self.init(statusCode: statusCode, headers: headers, body: body, cookies: nil, isBase64Encoded: isBase64Encoded)
     }
 }
