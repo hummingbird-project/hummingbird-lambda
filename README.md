@@ -16,3 +16,7 @@ router.get("hello") { _, _ in
 let lambda = APIGatewayV2LambdaFunction(router: router)
 try await lambda.runService()
 ```
+
+## Documentation
+
+Reference documentation for Hummingbird Lambda can be found, alongside documentation for Hummingbird on the [Hummingbird documentation website](https://docs.hummingbird.codes/2.0/documentation/hummingbirdlambda).
