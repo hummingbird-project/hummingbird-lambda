@@ -36,6 +36,7 @@ class LambdaTestFramework<Lambda: LambdaFunctionProtocol> where Lambda.Event: La
         self.context = .init(
             requestID: UUID().uuidString,
             traceID: "abc123",
+            tenantID: nil,
             invokedFunctionARN: "aws:arn:",
             deadline: LambdaClock().now.advanced(by: .seconds(15)),
             cognitoIdentity: nil,
