@@ -45,6 +45,9 @@ extension APIGatewayV2Request: APIRequest {
                 .map { (name: header.key, value: String($0.drop(while: \.isWhitespace))) }
             return headers
         }
+            + self.cookies.map { cookieValue in
+                (name: "cookie", value: cookieValue)
+            }
     }
 }
 
