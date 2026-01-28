@@ -1,16 +1,10 @@
-//===----------------------------------------------------------------------===//
 //
 // This source file is part of the Hummingbird server framework project
-//
-// Copyright (c) 2021-2025 the Hummingbird authors
-// Licensed under Apache License v2.0
+// Copyright (c) the Hummingbird authors
 //
 // See LICENSE.txt for license information
-// See hummingbird/CONTRIBUTORS.txt for the list of Hummingbird authors
-//
 // SPDX-License-Identifier: Apache-2.0
 //
-//===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
 import ExtrasBase64
@@ -39,6 +33,10 @@ extension APIGatewayV2Request: LambdaTestableEvent {
         }
         let queryValueStrings = try String(decoding: JSONEncoder().encode(queryValues.mapValues { $0.joined(separator: ",") }), as: UTF8.self)
         let headerValues: [String: [String]] = headers.reduce(["host": ["127.0.0.1:8080"]]) { result, value in
+            guard value.name != .cookie else {
+                // Cookies are handled separately in V2
+                return result
+            }
             var result = result
             let key = String(value.name)
             var values = result[key] ?? []
@@ -46,7 +44,10 @@ extension APIGatewayV2Request: LambdaTestableEvent {
             result[key] = values
             return result
         }
+        let cookieValues = headers[values: .cookie]
+
         let headerValueStrings = try String(decoding: JSONEncoder().encode(headerValues.mapValues { $0.joined(separator: ",") }), as: UTF8.self)
+        let cookieValueStrings = try String(decoding: JSONEncoder().encode(cookieValues), as: UTF8.self)
         let eventJson = """
             {
                 "routeKey":"\(method) \(url.path)",
@@ -88,7 +89,8 @@ extension APIGatewayV2Request: LambdaTestableEvent {
                 "isBase64Encoded": \(body != nil),
                 "rawQueryString":"\(url.query ?? "")",
                 "queryStringParameters":\(queryValueStrings),
-                "headers":\(headerValueStrings)
+                "headers":\(headerValueStrings),
+                "cookies":\(cookieValueStrings)
             }
             """
         self = try JSONDecoder().decode(Self.self, from: Data(eventJson.utf8))

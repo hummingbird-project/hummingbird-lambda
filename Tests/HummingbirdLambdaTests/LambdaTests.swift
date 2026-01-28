@@ -1,16 +1,10 @@
-//===----------------------------------------------------------------------===//
 //
 // This source file is part of the Hummingbird server framework project
-//
-// Copyright (c) 2023-2024 the Hummingbird authors
-// Licensed under Apache License v2.0
+// Copyright (c) the Hummingbird authors
 //
 // See LICENSE.txt for license information
-// See hummingbird/CONTRIBUTORS.txt for the list of Hummingbird authors
-//
 // SPDX-License-Identifier: Apache-2.0
 //
-//===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
 import ExtrasBase64
@@ -163,20 +157,36 @@ final class LambdaTests: XCTestCase {
         router.post { request, _ -> HTTPResponse.Status in
             XCTAssertEqual(request.headers[.userAgent], "HBXCT/2.0")
             XCTAssertEqual(request.headers[.acceptLanguage], "en")
+            let cookie = request.cookies["my-cookie"]
+            XCTAssertEqual(cookie?.name, "my-cookie")
+            XCTAssertEqual(cookie?.value, "bar")
             return .ok
         }
         router.post("/multi") { request, _ -> HTTPResponse.Status in
             XCTAssertEqual(request.headers[.userAgent], "HBXCT/2.0")
             XCTAssertEqual(request.headers[values: .acceptLanguage], ["en", "fr"])
+            // Cookies A & B are sent in the same header; cookie C is sent in a separate header
+            let cookieA = request.cookies["my-cookie-a"]
+            XCTAssertEqual(cookieA?.name, "my-cookie-a")
+            XCTAssertEqual(cookieA?.value, "A")
+            let cookieB = request.cookies["my-cookie-b"]
+            XCTAssertEqual(cookieB?.name, "my-cookie-b")
+            XCTAssertEqual(cookieB?.value, "B")
+            let cookieC = request.cookies["my-cookie-c"]
+            XCTAssertEqual(cookieC?.name, "my-cookie-c")
+            XCTAssertEqual(cookieC?.value, "C")
+
             return .ok
         }
         let lambda = APIGatewayV2LambdaFunction(router: router)
         try await lambda.test { client in
-            try await client.execute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]) { response in
+            try await client.execute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0", .acceptLanguage: "en", .cookie: "my-cookie=bar"]) {
+                response in
                 XCTAssertEqual(response.statusCode, .ok)
             }
-            var headers: HTTPFields = [.userAgent: "HBXCT/2.0", .acceptLanguage: "en"]
+            var headers: HTTPFields = [.userAgent: "HBXCT/2.0", .acceptLanguage: "en", .cookie: "my-cookie-a=A;my-cookie-b=B"]
             headers[values: .acceptLanguage].append("fr")
+            headers[values: .cookie].append("my-cookie-c=C")
             try await client.execute(uri: "/multi", method: .post, headers: headers) { response in
                 XCTAssertEqual(response.statusCode, .ok)
             }

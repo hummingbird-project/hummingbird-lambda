@@ -1,16 +1,10 @@
-//===----------------------------------------------------------------------===//
 //
 // This source file is part of the Hummingbird server framework project
-//
-// Copyright (c) 2021-2025 the Hummingbird authors
-// Licensed under Apache License v2.0
+// Copyright (c) the Hummingbird authors
 //
 // See LICENSE.txt for license information
-// See hummingbird/CONTRIBUTORS.txt for the list of Hummingbird authors
-//
 // SPDX-License-Identifier: Apache-2.0
 //
-//===----------------------------------------------------------------------===//
 
 import AWSLambdaEvents
 import Hummingbird
@@ -45,6 +39,9 @@ extension APIGatewayV2Request: APIRequest {
                 .map { (name: header.key, value: String($0.drop(while: \.isWhitespace))) }
             return headers
         }
+            + self.cookies.map { cookieValue in
+                (name: "cookie", value: cookieValue)
+            }
     }
 }
 
