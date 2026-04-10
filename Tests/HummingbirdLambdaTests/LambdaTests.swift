@@ -15,6 +15,7 @@ import NIOPosix
 import Synchronization
 import XCTest
 
+@testable import Hummingbird
 @testable import HummingbirdLambda
 
 final class LambdaTests: XCTestCase {
@@ -152,17 +153,110 @@ final class LambdaTests: XCTestCase {
     }
 
     func testHeaderValuesV2() async throws {
+        
+        struct TestCookie: Sendable {
+            let name: String
+            let value: String
+            let properties: Cookie.Properties
+
+            var expires: Date? { self.properties[.expires].flatMap { Date(httpHeader: $0) } }
+            /// indicates the maximum lifetime of the cookie in seconds. Max age has precedence over expires
+            /// (not all user agents support max-age)
+            var maxAge: Int? { self.properties[.maxAge].map { Int($0) } ?? nil }
+            /// specifies those hosts to which the cookie will be sent
+            var domain: String? { self.properties[.domain] }
+            /// The scope of each cookie is limited to a set of paths, controlled by the Path attribute
+            var path: String? { self.properties[.path] }
+            /// The Secure attribute limits the scope of the cookie to "secure" channels
+            var secure: Bool { self.properties[.secure] != nil }
+            /// The HttpOnly attribute limits the scope of the cookie to HTTP requests
+            var httpOnly: Bool { self.properties[.httpOnly] != nil }
+            /// The SameSite attribute lets servers specify whether/when cookies are sent with cross-origin requests
+            var sameSite: Cookie.SameSite? { self.properties[.sameSite].map { Cookie.SameSite(rawValue: $0) } ?? nil }
+            
+            init?(from header: String) {
+                var iterator = header.splitSequence(separator: ";").makeIterator()
+                guard let keyValue = iterator.next() else { return nil }
+                var keyValueIterator = keyValue.splitMaxSplitsSequence(separator: "=", maxSplits: 1).makeIterator()
+                guard let key = keyValueIterator.next() else { return nil }
+                guard let value = keyValueIterator.next() else { return nil }
+                self.name = String(key)
+                self.value = String(value)
+
+                var properties = Cookie.Properties()
+                // extract elements
+                while let element = iterator.next() {
+                    var keyValueIterator = element.splitMaxSplitsSequence(separator: "=", maxSplits: 1).makeIterator()
+                    guard var key = keyValueIterator.next() else { return nil }
+                    key = key.drop(while: \.isWhitespace)
+                    if let value = keyValueIterator.next() {
+                        properties[key] = String(value)
+                    } else {
+                        properties[key] = ""
+                    }
+                }
+                self.properties = properties
+            }
+
+            static func getName<S: StringProtocol>(from header: S) -> String? {
+                if let equals = header.firstIndex(of: "=") {
+                    return String(header[..<equals])
+                }
+                return nil
+            }
+            
+            func toCookie() throws -> Cookie {
+                return try Cookie.validated(name: name, value: value, expires: expires,
+                                        maxAge: maxAge, domain: domain, path: path, secure: secure, httpOnly: httpOnly, sameSite: sameSite)
+            }
+            
+        }
+        
+        struct TestCookies: Sendable {
+            
+            /// Construct cookies accessor from cookie header strings
+            /// - Parameter cookieHeaders: An array of cookie header strings
+            public init(from cookieHeaders: [String]) {
+                
+                let cookieStrings:[String:String] = cookieHeaders.reduce(into: [:])
+                { results, header in
+                    if let cookieName = TestCookie.getName(from: header) {
+                        results[cookieName] = header
+                    }
+                }
+                self.cookieStrings = cookieStrings
+            }
+
+            /// access cookies via dictionary subscript
+            public subscript(_ key: String) -> TestCookie? {
+                guard let cookieString = cookieStrings[key] else {
+                    return nil
+                }
+                return TestCookie(from: cookieString)
+            }
+
+            var cookieStrings: [String:String]
+        }
+        
+        
         let router = Router(context: BasicLambdaRequestContext<APIGatewayV2Request>.self)
         router.middlewares.add(LogRequestsMiddleware(.debug))
-        router.post { request, _ -> HTTPResponse.Status in
+        router.post { request, _ -> Response in
             XCTAssertEqual(request.headers[.userAgent], "HBXCT/2.0")
             XCTAssertEqual(request.headers[.acceptLanguage], "en")
             let cookie = request.cookies["my-cookie"]
             XCTAssertEqual(cookie?.name, "my-cookie")
             XCTAssertEqual(cookie?.value, "bar")
-            return .ok
+            
+            //Set-Cookie in response
+            let respCookie = Cookie(name: "resp-cookie", value: "xxxxxxx", maxAge: 600,
+                                    domain: "example.com", path: "/", secure: true,
+                                    httpOnly: true, sameSite: .lax)
+            var respHeaders = HTTPFields()
+            respHeaders[values: .setCookie] = [respCookie.description]
+            return Response(status: .ok, headers: respHeaders)
         }
-        router.post("/multi") { request, _ -> HTTPResponse.Status in
+        router.post("/multi") { request, _ -> Response in
             XCTAssertEqual(request.headers[.userAgent], "HBXCT/2.0")
             XCTAssertEqual(request.headers[values: .acceptLanguage], ["en", "fr"])
             // Cookies A & B are sent in the same header; cookie C is sent in a separate header
@@ -176,19 +270,90 @@ final class LambdaTests: XCTestCase {
             XCTAssertEqual(cookieC?.name, "my-cookie-c")
             XCTAssertEqual(cookieC?.value, "C")
 
-            return .ok
+            // Set Multivalue Cookies
+            var respHeaders = HTTPFields()
+            let cookieNames = ["id_token","access_token","refresh_token","auth_nonce"]
+            for cookieName in cookieNames {
+                let cookie = Cookie(name: cookieName, value: "xxxxxxx", maxAge: 600,
+                                    domain: "example.com", path: "/", secure: true,
+                                    httpOnly: true, sameSite: .lax)
+                
+                var cookies = respHeaders[values: .setCookie]
+                cookies.append(cookie.description)
+                respHeaders[values: .setCookie] = cookies
+            }
+            // Multivalue Headers
+            respHeaders[values: .accept] = ["application/json"]
+            respHeaders[values: .accept].append("text/html")
+            // Single Value Headers
+            respHeaders[.contentLanguage] = "en, de, fr"
+            return Response(status: .ok, headers: respHeaders)
         }
+        
         let lambda = APIGatewayV2LambdaFunction(router: router)
         try await lambda.test { client in
             try await client.execute(uri: "/", method: .post, headers: [.userAgent: "HBXCT/2.0", .acceptLanguage: "en", .cookie: "my-cookie=bar"]) {
                 response in
                 XCTAssertEqual(response.statusCode, .ok)
+                
+                // Cookie Validation
+                XCTAssertEqual(response.cookies?.count, 1, "Should only have 1 cookie")
+                let cookieStrings = try XCTUnwrap(response.cookies)
+                let cookie = try XCTUnwrap(Cookies(from: cookieStrings)["resp-cookie"])
+                XCTAssertEqual(cookie.name, "resp-cookie")
+                XCTAssertEqual(cookie.value, "xxxxxxx")
+                
+                // TestCookies required because Cookies fails to load anything but name and value
+                let tstCookies = TestCookies(from: cookieStrings)
+                let tstCookie = try XCTUnwrap(tstCookies["resp-cookie"]?.toCookie())
+                XCTAssertEqual(tstCookie.maxAge, 600)
+                XCTAssertEqual(tstCookie.domain, "example.com")
+                XCTAssertEqual(tstCookie.path, "/")
+                XCTAssertTrue(tstCookie.secure)
+                XCTAssertTrue(tstCookie.httpOnly)
+                XCTAssertEqual(tstCookie.sameSite, .lax)
             }
+            
             var headers: HTTPFields = [.userAgent: "HBXCT/2.0", .acceptLanguage: "en", .cookie: "my-cookie-a=A;my-cookie-b=B"]
             headers[values: .acceptLanguage].append("fr")
             headers[values: .cookie].append("my-cookie-c=C")
             try await client.execute(uri: "/multi", method: .post, headers: headers) { response in
                 XCTAssertEqual(response.statusCode, .ok)
+                
+                // Cookie Validation
+                XCTAssertEqual(response.cookies?.count, 4, "Should only have 4 cookies")
+                let cookieStrings = try XCTUnwrap(response.cookies)
+                let cookies = try XCTUnwrap(Cookies(from: cookieStrings))
+                let tstCookies = TestCookies(from: cookieStrings)
+
+                let cookieNames = ["id_token","access_token","refresh_token","auth_nonce"]
+                for cookieName in cookieNames {
+                    let cookie = try XCTUnwrap(cookies[cookieName])
+                    // TestCookies required because Cookies fails to load anything but name and value
+                    let tstCookie = try XCTUnwrap(tstCookies[cookieName]?.toCookie())
+
+                    XCTAssertEqual(cookie.name, cookieName)
+                    XCTAssertEqual(cookie.value, "xxxxxxx")
+                    XCTAssertEqual(tstCookie.maxAge, 600)
+                    XCTAssertEqual(tstCookie.domain, "example.com")
+                    XCTAssertEqual(tstCookie.path, "/")
+                    XCTAssertTrue(tstCookie.secure)
+                    XCTAssertTrue(tstCookie.httpOnly)
+                    XCTAssertEqual(tstCookie.sameSite, .lax)
+                }
+                
+                // Single Value Header Validation
+                let cLang = try XCTUnwrap(response.headers?.first(name: "Content-Language"))
+                XCTAssertEqual(cLang, "en, de, fr")
+
+                // Multivalue Header Validation
+                let acceptExpect = ["application/json","text/html"]
+                let accept = try XCTUnwrap(response.headers?.first(name: "Accept"))
+                let acceptItems = accept.split(separator: ",")
+                XCTAssertEqual(acceptItems.count, 2, "Should only have 2 Accept headers")
+                for acceptExpt in acceptExpect {
+                    XCTAssertTrue(acceptItems.contains(where: { $0 == acceptExpt }))
+                }
             }
         }
     }
