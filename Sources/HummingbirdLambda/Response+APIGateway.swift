@@ -33,7 +33,7 @@ extension APIResponse {
         if let trailingHeaders = collateWriter.trailingHeaders {
             headers.append(contentsOf: trailingHeaders)
         }
-        let groupedHeaders: [String: [String]] = response.headers.reduce(into: [:]) { result, item in
+        let groupedHeaders: [String: [String]] = headers.reduce(into: [:]) { result, item in
             if result[item.name.rawName] == nil {
                 result[item.name.rawName] = [item.value]
             } else {
@@ -56,7 +56,7 @@ extension APIResponse {
         }
 
         let buffer = collateWriter.buffer
-        if let contentType = response.headers[.contentType] {
+        if let contentType = headers[.contentType] {
             let mediaType = MediaType(from: contentType)
             switch mediaType {
             case .some(.text), .some(.applicationJson), .some(.applicationUrlEncoded):

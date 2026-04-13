@@ -54,7 +54,46 @@ extension APIGatewayV2Response: APIResponse {
         body: String?,
         isBase64Encoded: Bool?
     ) {
-        precondition(multiValueHeaders == nil || multiValueHeaders?.isEmpty == true, "Multi value headers are unavailable in APIGatewayV2")
-        self.init(statusCode: statusCode, headers: headers, body: body, isBase64Encoded: isBase64Encoded, cookies: nil)
+        let setCookieHeaderName = "set-cookie"
+        
+        func isSetCookieHeader(_ name: String) -> Bool {
+            name.caseInsensitiveCompare(setCookieHeaderName) == .orderedSame
+        }
+        
+        var outputHeaders = headers ?? [:]
+        var cookies: [String] = []
+        
+        // Move any single Set-Cookie header into the APIGatewayV2 cookies array.
+        var cookieKeys: [String] = []
+        for (name, value) in outputHeaders {
+            if isSetCookieHeader(name) {
+                cookies.append(value)
+                cookieKeys.append(name)
+            }
+        }
+        // Remove set-cookie from outputHeaders
+        for key in cookieKeys {
+            outputHeaders.removeValue(forKey: key)
+        }
+    
+        // Move any multi-value Set-Cookie headers into the APIGatewayV2 cookies array.
+        // For other repeated headers, fold them into a single comma-separated value.
+        if let multiValueHeaders {
+            for (name, values) in multiValueHeaders {
+                if isSetCookieHeader(name) {
+                    cookies.append(contentsOf: values)
+                } else {
+                    outputHeaders[name] = values.joined(separator: ",")
+                }
+            }
+        }
+                
+        self.init(
+            statusCode: statusCode,
+            headers: outputHeaders.isEmpty ? nil : outputHeaders,
+            body: body,
+            isBase64Encoded: isBase64Encoded,
+            cookies: cookies.isEmpty ? nil : cookies
+        )
     }
 }
