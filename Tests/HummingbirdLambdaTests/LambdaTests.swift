@@ -341,18 +341,18 @@ final class LambdaTests: XCTestCase {
                     XCTAssertTrue(tstCookie.httpOnly)
                     XCTAssertEqual(tstCookie.sameSite, .lax)
                 }
-                
+
                 // Single Value Header Validation
                 let cLang = try XCTUnwrap(response.headers?.first(name: "Content-Language"))
                 XCTAssertEqual(cLang, "en, de, fr")
 
                 // Multivalue Header Validation
-                let acceptExpect = ["application/json","text/html"]
+                let acceptExpect = ["application/json", "text/html"]
                 let accept = try XCTUnwrap(response.headers?.first(name: "Accept"))
                 let acceptItems = accept.split(separator: ",")
                 XCTAssertEqual(acceptItems.count, 2, "Should only have 2 Accept headers")
                 for acceptExpt in acceptExpect {
-                    XCTAssertTrue(acceptItems.contains(where: { $0 == acceptExpt }))
+                    XCTAssertTrue(acceptItems.contains(where: { $0.trimmingCharacters(in: .whitespacesAndNewlines) == acceptExpt }))
                 }
             }
         }

@@ -57,7 +57,7 @@ extension APIGatewayV2Response: APIResponse {
         let setCookieHeaderName = "set-cookie"
         
         func isSetCookieHeader(_ name: String) -> Bool {
-            name.lowercased() == setCookieHeaderName
+            name.caseInsensitiveCompare(setCookieHeaderName) == .orderedSame
         }
         
         var outputHeaders = headers ?? [:]
