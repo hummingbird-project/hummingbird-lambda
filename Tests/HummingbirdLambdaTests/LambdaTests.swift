@@ -194,7 +194,7 @@ final class LambdaTests: XCTestCase {
         }
     }
 
-    func testCookieReaponseV2() async throws {
+    func testCookieResponseV2() async throws {
         
         struct TestCookie: Sendable {
             let name: String
