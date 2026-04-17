@@ -55,14 +55,14 @@ extension APIGatewayV2Response: APIResponse {
         isBase64Encoded: Bool?
     ) {
         let setCookieHeaderName = "set-cookie"
-        
+
         func isSetCookieHeader(_ name: String) -> Bool {
             name.caseInsensitiveCompare(setCookieHeaderName) == .orderedSame
         }
-        
+
         var outputHeaders = headers ?? [:]
         var cookies: [String] = []
-        
+
         // Move any single Set-Cookie header into the APIGatewayV2 cookies array.
         var cookieKeys: [String] = []
         for (name, value) in outputHeaders {
@@ -75,7 +75,7 @@ extension APIGatewayV2Response: APIResponse {
         for key in cookieKeys {
             outputHeaders.removeValue(forKey: key)
         }
-    
+
         // Move any multi-value Set-Cookie headers into the APIGatewayV2 cookies array.
         // For other repeated headers, fold them into a single comma-separated value.
         if let multiValueHeaders {
@@ -87,7 +87,7 @@ extension APIGatewayV2Response: APIResponse {
                 }
             }
         }
-                
+
         self.init(
             statusCode: statusCode,
             headers: outputHeaders.isEmpty ? nil : outputHeaders,

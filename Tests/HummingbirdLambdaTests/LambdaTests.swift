@@ -195,7 +195,7 @@ final class LambdaTests: XCTestCase {
     }
 
     func testCookieResponseV2() async throws {
-        
+
         struct TestCookie: Sendable {
             let name: String
             let value: String
@@ -215,7 +215,7 @@ final class LambdaTests: XCTestCase {
             var httpOnly: Bool { self.properties[.httpOnly] != nil }
             /// The SameSite attribute lets servers specify whether/when cookies are sent with cross-origin requests
             var sameSite: Cookie.SameSite? { self.properties[.sameSite].map { Cookie.SameSite(rawValue: $0) } ?? nil }
-            
+
             init?(from header: String) {
                 var iterator = header.splitSequence(separator: ";").makeIterator()
                 guard let keyValue = iterator.next() else { return nil }
@@ -246,22 +246,30 @@ final class LambdaTests: XCTestCase {
                 }
                 return nil
             }
-            
+
             func toCookie() throws -> Cookie {
-                return try Cookie.validated(name: name, value: value, expires: expires,
-                                        maxAge: maxAge, domain: domain, path: path, secure: secure, httpOnly: httpOnly, sameSite: sameSite)
+                try Cookie.validated(
+                    name: name,
+                    value: value,
+                    expires: expires,
+                    maxAge: maxAge,
+                    domain: domain,
+                    path: path,
+                    secure: secure,
+                    httpOnly: httpOnly,
+                    sameSite: sameSite
+                )
             }
-            
+
         }
-        
+
         struct TestCookies: Sendable {
-            
+
             /// Construct cookies accessor from cookie header strings
             /// - Parameter cookieHeaders: An array of cookie header strings
             public init(from cookieHeaders: [String]) {
-                
-                let cookieStrings:[String:String] = cookieHeaders.reduce(into: [:])
-                { results, header in
+
+                let cookieStrings: [String: String] = cookieHeaders.reduce(into: [:]) { results, header in
                     if let cookieName = TestCookie.getName(from: header) {
                         results[cookieName] = header
                     }
@@ -277,18 +285,24 @@ final class LambdaTests: XCTestCase {
                 return TestCookie(from: cookieString)
             }
 
-            var cookieStrings: [String:String]
+            var cookieStrings: [String: String]
         }
-        
-        
+
         let router = Router(context: BasicLambdaRequestContext<APIGatewayV2Request>.self)
         router.middlewares.add(LogRequestsMiddleware(.debug))
         router.post { request, _ -> Response in
-            
+
             //Set-Cookie in response
-            let respCookie = Cookie(name: "resp-cookie", value: "xxxxxxx", maxAge: 600,
-                                    domain: "example.com", path: "/", secure: true,
-                                    httpOnly: true, sameSite: .lax)
+            let respCookie = Cookie(
+                name: "resp-cookie",
+                value: "xxxxxxx",
+                maxAge: 600,
+                domain: "example.com",
+                path: "/",
+                secure: true,
+                httpOnly: true,
+                sameSite: .lax
+            )
             var respHeaders = HTTPFields()
             respHeaders[values: .setCookie] = [respCookie.description]
             return Response(status: .ok, headers: respHeaders)
@@ -297,16 +311,24 @@ final class LambdaTests: XCTestCase {
 
             // Set Multivalue Cookies
             var respHeaders = HTTPFields()
-            let cookieNames = ["id_token","access_token","refresh_token","auth_nonce"]
+            let cookieNames = ["id_token", "access_token", "refresh_token", "auth_nonce"]
             for cookieName in cookieNames {
-                let cookie = Cookie(name: cookieName, value: "xxxxxxx", maxAge: 600,
-                                    domain: "example.com", path: "/", secure: true,
-                                    httpOnly: true, sameSite: .lax)
-                
+                let cookie = Cookie(
+                    name: cookieName,
+                    value: "xxxxxxx",
+                    maxAge: 600,
+                    domain: "example.com",
+                    path: "/",
+                    secure: true,
+                    httpOnly: true,
+                    sameSite: .lax
+                )
+
                 var cookies = respHeaders[values: .setCookie]
                 cookies.append(cookie.description)
                 respHeaders[values: .setCookie] = cookies
             }
+
             // Multivalue Headers
             respHeaders[values: .accept] = ["application/json"]
             respHeaders[values: .accept].append("text/html")
@@ -314,20 +336,20 @@ final class LambdaTests: XCTestCase {
             respHeaders[.contentLanguage] = "en, de, fr"
             return Response(status: .ok, headers: respHeaders)
         }
-        
+
         let lambda = APIGatewayV2LambdaFunction(router: router)
         try await lambda.test { client in
             try await client.execute(uri: "/", method: .post) {
                 response in
                 XCTAssertEqual(response.statusCode, .ok)
-                
+
                 // Cookie Validation
                 XCTAssertEqual(response.cookies?.count, 1, "Should only have 1 cookie")
                 let cookieStrings = try XCTUnwrap(response.cookies)
                 let cookie = try XCTUnwrap(Cookies(from: cookieStrings)["resp-cookie"])
                 XCTAssertEqual(cookie.name, "resp-cookie")
                 XCTAssertEqual(cookie.value, "xxxxxxx")
-                
+
                 // TestCookies required because Cookies fails to load anything but name and value
                 let tstCookies = TestCookies(from: cookieStrings)
                 let tstCookie = try XCTUnwrap(tstCookies["resp-cookie"]?.toCookie())
@@ -338,23 +360,24 @@ final class LambdaTests: XCTestCase {
                 XCTAssertTrue(tstCookie.httpOnly)
                 XCTAssertEqual(tstCookie.sameSite, .lax)
             }
-            
+
             var headers: HTTPFields = [.userAgent: "HBXCT/2.0", .acceptLanguage: "en", .cookie: "my-cookie-a=A;my-cookie-b=B"]
             headers[values: .acceptLanguage].append("fr")
             headers[values: .cookie].append("my-cookie-c=C")
             try await client.execute(uri: "/multi", method: .post, headers: headers) { response in
                 XCTAssertEqual(response.statusCode, .ok)
-                
+
                 // Cookie Validation
                 XCTAssertEqual(response.cookies?.count, 4, "Should only have 4 cookies")
                 let cookieStrings = try XCTUnwrap(response.cookies)
                 let cookies = try XCTUnwrap(Cookies(from: cookieStrings))
                 let tstCookies = TestCookies(from: cookieStrings)
 
-                let cookieNames = ["id_token","access_token","refresh_token","auth_nonce"]
+                let cookieNames = ["id_token", "access_token", "refresh_token", "auth_nonce"]
                 for cookieName in cookieNames {
                     let cookie = try XCTUnwrap(cookies[cookieName])
                     // TestCookies required because Cookies fails to load anything but name and value
+
                     let tstCookie = try XCTUnwrap(tstCookies[cookieName]?.toCookie())
 
                     XCTAssertEqual(cookie.name, cookieName)
@@ -368,13 +391,16 @@ final class LambdaTests: XCTestCase {
                 }
 
                 // Single Value Header Validation
+
                 let cLang = try XCTUnwrap(response.headers?.first(name: "Content-Language"))
                 XCTAssertEqual(cLang, "en, de, fr")
 
                 // Multivalue Header Validation
+
                 let acceptExpect = ["application/json", "text/html"]
                 let accept = try XCTUnwrap(response.headers?.first(name: "Accept"))
                 let acceptItems = accept.split(separator: ",")
+
                 XCTAssertEqual(acceptItems.count, 2, "Should only have 2 Accept headers")
                 for acceptExpt in acceptExpect {
                     XCTAssertTrue(acceptItems.contains(where: { $0.trimmingCharacters(in: .whitespacesAndNewlines) == acceptExpt }))
