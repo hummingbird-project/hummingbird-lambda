@@ -7,13 +7,14 @@
 //
 
 import AWSLambdaEvents
-import HTTPTypes
+public import HTTPTypes
+public import HummingbirdLambda
 import Logging
 import NIOCore
 import ServiceLifecycle
+import UnixSignals
 
 @testable import AWSLambdaRuntime
-@testable import HummingbirdLambda
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials
@@ -21,7 +22,7 @@ import FoundationEssentials
 import Foundation
 #endif
 
-class LambdaTestFramework<Lambda: LambdaFunctionProtocol> where Lambda.Event: LambdaTestableEvent {
+final class LambdaTestFramework<Lambda: LambdaFunctionProtocol> where Lambda.Event: LambdaTestableEvent {
     let context: LambdaContext
     let lambda: Lambda
 

@@ -7,11 +7,11 @@
 //
 
 import AWSLambdaEvents
-import AWSLambdaRuntime
-import Hummingbird
-import Logging
+public import AWSLambdaRuntime
+public import Hummingbird
+public import Logging
 import NIOCore
-import ServiceLifecycle
+public import ServiceLifecycle
 import UnixSignals
 
 /// Lambda event type that can generate HTTP Request
@@ -20,7 +20,7 @@ public protocol LambdaEvent: Decodable {
 }
 
 /// Lambda output type that can be generated from HTTP Response
-public protocol LambdaOutput: Encodable {
+public protocol LambdaOutput: Encodable, SendableMetatype {
     init(from: Response) async throws
 }
 
@@ -64,7 +64,8 @@ extension LambdaFunctionProtocol {
             let request = try event.request(context: context)
             let context = Responder.Context(source: .init(event: event, lambdaContext: context))
             let response = try await responder.respond(to: request, context: context)
-            return try await .init(from: response)
+            let output = try await Output(from: response)
+            return output
         }
         let lambdaRuntimeService = LambdaRuntimeService(runtime: runtime, logger: self.logger).withPrelude {
             for process in self.processesRunBeforeLambdaStart {
@@ -137,7 +138,7 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Even
         responder: Responder,
         event: Event.Type = Event.self,
         output: Output.Type = Output.self,
-        services: [Service] = [],
+        services: [any Service] = [],
         logger: Logger? = nil
     ) {
         if let logger {
@@ -163,7 +164,7 @@ where Responder.Context: InitializableFromSource<LambdaRequestContextSource<Even
         router: ResponderBuilder,
         event: Event.Type = Event.self,
         output: Output.Type = Output.self,
-        services: [Service] = [],
+        services: [any Service] = [],
         logger: Logger? = nil
     ) where Responder == ResponderBuilder.Responder {
         self.init(

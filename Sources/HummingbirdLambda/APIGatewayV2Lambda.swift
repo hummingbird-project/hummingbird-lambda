@@ -6,8 +6,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-import AWSLambdaEvents
-import Hummingbird
+public import AWSLambdaEvents
+package import HTTPTypes
+public import Hummingbird
 import NIOCore
 import NIOHTTP1
 
@@ -57,7 +58,7 @@ extension APIGatewayV2Response: APIResponse {
         let setCookieHeaderName = "set-cookie"
 
         func isSetCookieHeader(_ name: String) -> Bool {
-            name.caseInsensitiveCompare(setCookieHeaderName) == .orderedSame
+            name._lambdaCaseInsensitiveCompare(setCookieHeaderName)
         }
 
         var outputHeaders = headers ?? [:]

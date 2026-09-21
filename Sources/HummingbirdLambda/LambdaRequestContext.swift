@@ -6,9 +6,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-import AWSLambdaRuntime
+public import AWSLambdaRuntime
 import Hummingbird
-import Logging
+public import Logging
 import NIOCore
 
 public struct LambdaRequestContextSource<Event>: RequestContextSource {

@@ -6,8 +6,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-import AWSLambdaEvents
-import Hummingbird
+public import AWSLambdaEvents
+package import HTTPTypes
+public import Hummingbird
 import NIOCore
 import NIOHTTP1
 

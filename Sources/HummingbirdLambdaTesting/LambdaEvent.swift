@@ -6,9 +6,10 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-import HTTPTypes
-import NIOCore
+public import HTTPTypes
+public import NIOCore
 
+/// Lambda event that can be used with HummingbirdLambdaTesting
 public protocol LambdaTestableEvent {
     init(uri: String, method: HTTPRequest.Method, headers: HTTPFields, body: ByteBuffer?) throws
 }
