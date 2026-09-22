@@ -24,7 +24,7 @@ let package = Package(
         .executable(name: "HBLambdaTest", targets: ["HBLambdaTest"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/awslabs/swift-aws-lambda-runtime.git", from: "3.0.1"),
+        .package(url: "https://github.com/awslabs/swift-aws-lambda-runtime.git", from: "3.0.2"),
         .package(url: "https://github.com/awslabs/swift-aws-lambda-events.git", from: "1.4.0"),
         .package(url: "https://github.com/swift-extras/swift-extras-base64.git", from: "1.0.0"),
         .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.18.0"),

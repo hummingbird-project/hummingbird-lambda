@@ -7,14 +7,13 @@
 //
 
 import AWSLambdaEvents
+import AWSLambdaRuntime
 public import HTTPTypes
 public import HummingbirdLambda
 import Logging
 import NIOCore
 import ServiceLifecycle
 import UnixSignals
-
-@testable import AWSLambdaRuntime
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials
