@@ -6,12 +6,11 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-import AWSLambdaEvents
+public import AWSLambdaEvents
 import ExtrasBase64
-import Foundation
-import HTTPTypes
+public import HTTPTypes
 import HummingbirdCore
-import NIOCore
+public import NIOCore
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials
