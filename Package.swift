@@ -1,5 +1,4 @@
 // swift-tools-version:6.2
-
 import PackageDescription
 
 var swiftSettings: [SwiftSetting] = [
@@ -26,9 +25,9 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/awslabs/swift-aws-lambda-runtime.git", from: "3.0.2"),
         .package(url: "https://github.com/awslabs/swift-aws-lambda-events.git", from: "1.4.0"),
-        .package(url: "https://github.com/swift-extras/swift-extras-base64.git", from: "1.0.0"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.18.0"),
-        .package(url: "https://github.com/apple/swift-nio.git", from: "2.91.0"),
+        .package(url: "https://github.com/swift-extras/swift-extras-base64.git", from: "1.2.0"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.27.0", traits: []),
+        .package(url: "https://github.com/apple/swift-nio.git", from: "2.100.0"),
     ],
     targets: [
         .target(
