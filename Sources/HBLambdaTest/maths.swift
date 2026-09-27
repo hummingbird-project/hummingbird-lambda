@@ -16,10 +16,10 @@ typealias AppRequestContext = BasicLambdaRequestContext<APIGatewayV2Request>
 
 struct DebugMiddleware: RouterMiddleware {
     typealias Context = AppRequestContext
-    func handle(
+    @concurrent func handle(
         _ request: Request,
         context: Context,
-        next: (Request, Context) async throws -> Output
+        next: @concurrent (Request, Context) async throws -> Output
     ) async throws -> Output {
         context.logger.debug("\(request.method) \(request.uri)")
         context.logger.debug("\(context.event)")
