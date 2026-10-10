@@ -16,4 +16,4 @@
 here=$(dirname "$0")
 
 cd "$here"/..
-swift package --disable-sandbox archive
+swift package --disable-sandbox lambda-build --base-docker-image swift:6.3-amazonlinux2023
