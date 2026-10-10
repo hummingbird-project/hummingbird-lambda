@@ -1,0 +1,1317 @@
+{
+  "@context" : "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph" : [
+    {
+      "creationInfo" : "urn:uuid:24cadb78-f065-47a2-b70b-056a23343c08:creationInfo",
+      "from" : "urn:uuid:24cadb78-f065-47a2-b70b-056a23343c08",
+      "relationshipType" : "hasDeclaredLicense",
+      "spdxId" : "urn:uuid:24cadb78-f065-47a2-b70b-056a23343c08-hasDeclaredLicense-urn:spdx:Apache-2.0",
+      "to" : [
+        "urn:spdx:Apache-2.0"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "urn:uuid:24cadb78-f065-47a2-b70b-056a23343c08:creationInfo",
+      "simplelicensing_licenseExpression" : "Apache-2.0",
+      "spdxId" : "urn:spdx:Apache-2.0",
+      "type" : "simplelicensing_LicenseExpression"
+    },
+    {
+      "@id" : "urn:uuid:24cadb78-f065-47a2-b70b-056a23343c08:creationInfo",
+      "created" : "2026-10-10T11:28:35Z",
+      "createdBy" : [
+        "urn:uuid:24cadb78-f065-47a2-b70b-056a23343c08"
+      ],
+      "specVersion" : "6.4.0-dev",
+      "type" : "CreationInfo"
+    },
+    {
+      "creationInfo" : "urn:uuid:24cadb78-f065-47a2-b70b-056a23343c08:creationInfo",
+      "name" : "swift-package-manager",
+      "spdxId" : "urn:uuid:24cadb78-f065-47a2-b70b-056a23343c08",
+      "type" : "Agent"
+    },
+    {
+      "@id" : "_:creationInfo",
+      "created" : "2026-10-10T11:28:35Z",
+      "createdBy" : [
+        "urn:uuid:24cadb78-f065-47a2-b70b-056a23343c08"
+      ],
+      "specVersion" : "3.0.1",
+      "type" : "CreationInfo"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "profileConformance" : [
+        "core",
+        "software"
+      ],
+      "rootElement" : [
+        "urn:spdx:hummingbird-lambda"
+      ],
+      "spdxId" : "urn:uuid:c064ee3b-0028-43e1-82b3-074ea79a7e4c",
+      "type" : "software_Sbom"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:uuid:c064ee3b-0028-43e1-82b3-074ea79a7e4c",
+      "relationshipType" : "describes",
+      "spdxId" : "urn:uuid:c064ee3b-0028-43e1-82b3-074ea79a7e4c-describes-urn:spdx:hummingbird-lambda",
+      "to" : [
+        "urn:spdx:hummingbird-lambda"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "profileConformance" : [
+        "core",
+        "software"
+      ],
+      "rootElement" : [
+        "urn:uuid:c064ee3b-0028-43e1-82b3-074ea79a7e4c"
+      ],
+      "spdxId" : "urn:uuid:4b86096d-c923-40be-ba59-822229351f8c",
+      "type" : "SpdxDocument"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: hummingbird>",
+      "externalUrl" : "pkg:swift/github.com/hummingbird-project/hummingbird@2.27.1",
+      "name" : "hummingbird",
+      "software_internalVersion" : "2.27.1",
+      "software_primaryPurpose" : "application",
+      "spdxId" : "urn:spdx:hummingbird",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: hummingbird-lambda>",
+      "externalUrl" : "pkg:swift/hummingbird-lambda",
+      "name" : "hummingbird-lambda",
+      "software_internalVersion" : "unknown",
+      "software_primaryPurpose" : "application",
+      "spdxId" : "urn:spdx:hummingbird-lambda",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/hummingbird-lambda/hummingbird-lambda:HBLambdaTest",
+      "name" : "HBLambdaTest",
+      "software_internalVersion" : "unknown",
+      "software_primaryPurpose" : "application",
+      "spdxId" : "urn:spdx:hummingbird-lambda:HBLambdaTest",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/hummingbird-lambda/hummingbird-lambda:HummingbirdLambda",
+      "name" : "HummingbirdLambda",
+      "software_internalVersion" : "unknown",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:hummingbird-lambda:HummingbirdLambda",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/hummingbird-lambda/hummingbird-lambda:HummingbirdLambdaTesting",
+      "name" : "HummingbirdLambdaTesting",
+      "software_internalVersion" : "unknown",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:hummingbird-lambda:HummingbirdLambdaTesting",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/hummingbird-lambda/hummingbird-lambda:HummingbirdLambdaTests",
+      "name" : "HummingbirdLambdaTests",
+      "software_internalVersion" : "unknown",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:hummingbird-lambda:HummingbirdLambdaTests",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/hummingbird-project/hummingbird:Hummingbird@2.27.1",
+      "name" : "Hummingbird",
+      "software_internalVersion" : "2.27.1",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:hummingbird:Hummingbird",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-async-algorithms>",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-async-algorithms@1.1.7",
+      "name" : "swift-async-algorithms",
+      "software_internalVersion" : "1.1.7",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-async-algorithms",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-async-algorithms:AsyncAlgorithms@1.1.7",
+      "name" : "AsyncAlgorithms",
+      "software_internalVersion" : "1.1.7",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-async-algorithms:AsyncAlgorithms",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-atomics>",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-atomics@1.3.1",
+      "name" : "swift-atomics",
+      "software_internalVersion" : "1.3.1",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-atomics",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-atomics:Atomics@1.3.1",
+      "name" : "Atomics",
+      "software_internalVersion" : "1.3.1",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-atomics:Atomics",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-aws-lambda-events>",
+      "externalUrl" : "pkg:swift/github.com/awslabs/swift-aws-lambda-events@1.5.0",
+      "name" : "swift-aws-lambda-events",
+      "software_internalVersion" : "1.5.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-aws-lambda-events",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/awslabs/swift-aws-lambda-events:AWSLambdaEvents@1.5.0",
+      "name" : "AWSLambdaEvents",
+      "software_internalVersion" : "1.5.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-aws-lambda-events:AWSLambdaEvents",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-aws-lambda-runtime>",
+      "externalUrl" : "pkg:swift/github.com/awslabs/swift-aws-lambda-runtime@3.0.2",
+      "name" : "swift-aws-lambda-runtime",
+      "software_internalVersion" : "3.0.2",
+      "software_primaryPurpose" : "application",
+      "spdxId" : "urn:spdx:swift-aws-lambda-runtime",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/awslabs/swift-aws-lambda-runtime:AWSLambdaRuntime@3.0.2",
+      "name" : "AWSLambdaRuntime",
+      "software_internalVersion" : "3.0.2",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-aws-lambda-runtime:AWSLambdaRuntime",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-collections>",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-collections@1.7.2",
+      "name" : "swift-collections",
+      "software_internalVersion" : "1.7.2",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-collections",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-collections:DequeModule@1.7.2",
+      "name" : "DequeModule",
+      "software_internalVersion" : "1.7.2",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-collections:DequeModule",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-collections:OrderedCollections@1.7.2",
+      "name" : "OrderedCollections",
+      "software_internalVersion" : "1.7.2",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-collections:OrderedCollections",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-distributed-tracing>",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-distributed-tracing@1.5.0",
+      "name" : "swift-distributed-tracing",
+      "software_internalVersion" : "1.5.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-distributed-tracing",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-distributed-tracing:Tracing@1.5.0",
+      "name" : "Tracing",
+      "software_internalVersion" : "1.5.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-distributed-tracing:Tracing",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-extras-base64>",
+      "externalUrl" : "pkg:swift/github.com/swift-extras/swift-extras-base64@1.2.0",
+      "name" : "swift-extras-base64",
+      "software_internalVersion" : "1.2.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-extras-base64",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/swift-extras/swift-extras-base64:ExtrasBase64@1.2.0",
+      "name" : "ExtrasBase64",
+      "software_internalVersion" : "1.2.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-extras-base64:ExtrasBase64",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-http-types>",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-http-types@1.8.0",
+      "name" : "swift-http-types",
+      "software_internalVersion" : "1.8.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-http-types",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-http-types:HTTPTypes@1.8.0",
+      "name" : "HTTPTypes",
+      "software_internalVersion" : "1.8.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-http-types:HTTPTypes",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-log>",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-log@1.16.1",
+      "name" : "swift-log",
+      "software_internalVersion" : "1.16.1",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-log",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-log:Logging@1.16.1",
+      "name" : "Logging",
+      "software_internalVersion" : "1.16.1",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-log:Logging",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-metrics>",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-metrics@2.12.0",
+      "name" : "swift-metrics",
+      "software_internalVersion" : "2.12.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-metrics",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-metrics:Metrics@2.12.0",
+      "name" : "Metrics",
+      "software_internalVersion" : "2.12.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-metrics:Metrics",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-nio>",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-nio@2.104.0",
+      "name" : "swift-nio",
+      "software_internalVersion" : "2.104.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-nio",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-nio-extras>",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-nio-extras@1.35.1",
+      "name" : "swift-nio-extras",
+      "software_internalVersion" : "1.35.1",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-nio-extras",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-nio-extras:NIOExtras@1.35.1",
+      "name" : "NIOExtras",
+      "software_internalVersion" : "1.35.1",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-nio-extras:NIOExtras",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-nio-extras:NIOHTTPTypes@1.35.1",
+      "name" : "NIOHTTPTypes",
+      "software_internalVersion" : "1.35.1",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-nio-extras:NIOHTTPTypes",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-nio-extras:NIOHTTPTypesHTTP1@1.35.1",
+      "name" : "NIOHTTPTypesHTTP1",
+      "software_internalVersion" : "1.35.1",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-nio-extras:NIOHTTPTypesHTTP1",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-nio:NIO@2.104.0",
+      "name" : "NIO",
+      "software_internalVersion" : "2.104.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-nio:NIO",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-nio:NIOConcurrencyHelpers@2.104.0",
+      "name" : "NIOConcurrencyHelpers",
+      "software_internalVersion" : "2.104.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-nio:NIOConcurrencyHelpers",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-nio:NIOCore@2.104.0",
+      "name" : "NIOCore",
+      "software_internalVersion" : "2.104.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-nio:NIOCore",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-nio:NIOFoundationEssentialsCompat@2.104.0",
+      "name" : "NIOFoundationEssentialsCompat",
+      "software_internalVersion" : "2.104.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-nio:NIOFoundationEssentialsCompat",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-nio:NIOHTTP1@2.104.0",
+      "name" : "NIOHTTP1",
+      "software_internalVersion" : "2.104.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-nio:NIOHTTP1",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-nio:NIOPosix@2.104.0",
+      "name" : "NIOPosix",
+      "software_internalVersion" : "2.104.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-nio:NIOPosix",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-nio:_NIOFileSystem@2.104.0",
+      "name" : "_NIOFileSystem",
+      "software_internalVersion" : "2.104.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-nio:_NIOFileSystem",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-service-context>",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-service-context@1.3.0",
+      "name" : "swift-service-context",
+      "software_internalVersion" : "1.3.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-service-context",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-service-context:ServiceContextModule@1.3.0",
+      "name" : "ServiceContextModule",
+      "software_internalVersion" : "1.3.0",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-service-context:ServiceContextModule",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-service-lifecycle>",
+      "externalUrl" : "pkg:swift/github.com/swift-server/swift-service-lifecycle@2.12.1",
+      "name" : "swift-service-lifecycle",
+      "software_internalVersion" : "2.12.1",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-service-lifecycle",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/swift-server/swift-service-lifecycle:ServiceLifecycle@2.12.1",
+      "name" : "ServiceLifecycle",
+      "software_internalVersion" : "2.12.1",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-service-lifecycle:ServiceLifecycle",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "description" : "<ResolvedPackage: swift-system>",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-system@1.8.1",
+      "name" : "swift-system",
+      "software_internalVersion" : "1.8.1",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-system",
+      "summary" : "swift-package",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "externalUrl" : "pkg:swift/github.com/apple/swift-system:SystemPackage@1.8.1",
+      "name" : "SystemPackage",
+      "software_internalVersion" : "1.8.1",
+      "software_primaryPurpose" : "library",
+      "spdxId" : "urn:spdx:swift-system:SystemPackage",
+      "summary" : "swift-product",
+      "type" : "software_Package"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:hummingbird",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:hummingbird-dependsOn",
+      "to" : [
+        "urn:spdx:hummingbird:Hummingbird",
+        "urn:spdx:swift-async-algorithms",
+        "urn:spdx:swift-atomics",
+        "urn:spdx:swift-collections",
+        "urn:spdx:swift-distributed-tracing",
+        "urn:spdx:swift-http-types",
+        "urn:spdx:swift-log",
+        "urn:spdx:swift-metrics",
+        "urn:spdx:swift-nio",
+        "urn:spdx:swift-nio-extras",
+        "urn:spdx:swift-service-lifecycle"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:hummingbird-lambda",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:hummingbird-lambda-dependsOn",
+      "to" : [
+        "urn:spdx:hummingbird",
+        "urn:spdx:hummingbird-lambda:HBLambdaTest",
+        "urn:spdx:hummingbird-lambda:HummingbirdLambda",
+        "urn:spdx:hummingbird-lambda:HummingbirdLambdaTesting",
+        "urn:spdx:hummingbird-lambda:HummingbirdLambdaTests",
+        "urn:spdx:swift-async-algorithms",
+        "urn:spdx:swift-aws-lambda-events",
+        "urn:spdx:swift-aws-lambda-runtime",
+        "urn:spdx:swift-distributed-tracing",
+        "urn:spdx:swift-extras-base64",
+        "urn:spdx:swift-nio",
+        "urn:spdx:swift-nio-extras",
+        "urn:spdx:swift-service-lifecycle"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:hummingbird-lambda",
+      "relationshipType" : "hasTest",
+      "spdxId" : "urn:spdx:hummingbird-lambda-hasTest",
+      "to" : [
+        "urn:spdx:hummingbird-lambda:HummingbirdLambdaTests"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:hummingbird-lambda:HBLambdaTest",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:hummingbird-lambda:HBLambdaTest-dependsOn",
+      "to" : [
+        "urn:spdx:hummingbird:Hummingbird",
+        "urn:spdx:swift-aws-lambda-events:AWSLambdaEvents",
+        "urn:spdx:swift-aws-lambda-runtime:AWSLambdaRuntime",
+        "urn:spdx:swift-extras-base64:ExtrasBase64"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:hummingbird-lambda:HummingbirdLambda",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:hummingbird-lambda:HummingbirdLambda-dependsOn",
+      "to" : [
+        "urn:spdx:hummingbird:Hummingbird",
+        "urn:spdx:swift-aws-lambda-events:AWSLambdaEvents",
+        "urn:spdx:swift-aws-lambda-runtime:AWSLambdaRuntime",
+        "urn:spdx:swift-extras-base64:ExtrasBase64"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:hummingbird-lambda:HummingbirdLambdaTesting",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:hummingbird-lambda:HummingbirdLambdaTesting-dependsOn",
+      "to" : [
+        "urn:spdx:hummingbird:Hummingbird",
+        "urn:spdx:swift-aws-lambda-events:AWSLambdaEvents",
+        "urn:spdx:swift-aws-lambda-runtime:AWSLambdaRuntime",
+        "urn:spdx:swift-extras-base64:ExtrasBase64"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:hummingbird:Hummingbird",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:hummingbird:Hummingbird-dependsOn",
+      "to" : [
+        "urn:spdx:swift-async-algorithms:AsyncAlgorithms",
+        "urn:spdx:swift-atomics:Atomics",
+        "urn:spdx:swift-collections:DequeModule",
+        "urn:spdx:swift-distributed-tracing:Tracing",
+        "urn:spdx:swift-http-types:HTTPTypes",
+        "urn:spdx:swift-log:Logging",
+        "urn:spdx:swift-metrics:Metrics",
+        "urn:spdx:swift-nio-extras:NIOExtras",
+        "urn:spdx:swift-nio-extras:NIOHTTPTypes",
+        "urn:spdx:swift-nio-extras:NIOHTTPTypesHTTP1",
+        "urn:spdx:swift-nio:NIOConcurrencyHelpers",
+        "urn:spdx:swift-nio:NIOCore",
+        "urn:spdx:swift-nio:NIOFoundationEssentialsCompat",
+        "urn:spdx:swift-nio:NIOPosix",
+        "urn:spdx:swift-nio:_NIOFileSystem",
+        "urn:spdx:swift-service-lifecycle:ServiceLifecycle"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-async-algorithms",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-async-algorithms-dependsOn",
+      "to" : [
+        "urn:spdx:swift-async-algorithms:AsyncAlgorithms",
+        "urn:spdx:swift-collections"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-async-algorithms:AsyncAlgorithms",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-async-algorithms:AsyncAlgorithms-dependsOn",
+      "to" : [
+        "urn:spdx:swift-collections:DequeModule",
+        "urn:spdx:swift-collections:OrderedCollections"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-atomics",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-atomics-dependsOn",
+      "to" : [
+        "urn:spdx:swift-atomics:Atomics"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-aws-lambda-events",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-aws-lambda-events-dependsOn",
+      "to" : [
+        "urn:spdx:swift-aws-lambda-events:AWSLambdaEvents",
+        "urn:spdx:swift-http-types"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-aws-lambda-events:AWSLambdaEvents",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-aws-lambda-events:AWSLambdaEvents-dependsOn",
+      "to" : [
+        "urn:spdx:swift-http-types:HTTPTypes"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-aws-lambda-runtime",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-aws-lambda-runtime-dependsOn",
+      "to" : [
+        "urn:spdx:swift-aws-lambda-runtime:AWSLambdaRuntime",
+        "urn:spdx:swift-collections",
+        "urn:spdx:swift-log",
+        "urn:spdx:swift-nio",
+        "urn:spdx:swift-service-lifecycle"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-aws-lambda-runtime:AWSLambdaRuntime",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-aws-lambda-runtime:AWSLambdaRuntime-dependsOn",
+      "to" : [
+        "urn:spdx:swift-collections:DequeModule",
+        "urn:spdx:swift-log:Logging",
+        "urn:spdx:swift-nio:NIOCore",
+        "urn:spdx:swift-nio:NIOHTTP1",
+        "urn:spdx:swift-nio:NIOPosix",
+        "urn:spdx:swift-service-lifecycle:ServiceLifecycle"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-collections",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-collections-dependsOn",
+      "to" : [
+        "urn:spdx:swift-collections:DequeModule",
+        "urn:spdx:swift-collections:OrderedCollections"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-distributed-tracing",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-distributed-tracing-dependsOn",
+      "to" : [
+        "urn:spdx:swift-distributed-tracing:Tracing",
+        "urn:spdx:swift-service-context"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-distributed-tracing:Tracing",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-distributed-tracing:Tracing-dependsOn",
+      "to" : [
+        "urn:spdx:swift-service-context:ServiceContextModule"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-extras-base64",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-extras-base64-dependsOn",
+      "to" : [
+        "urn:spdx:swift-extras-base64:ExtrasBase64"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-http-types",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-http-types-dependsOn",
+      "to" : [
+        "urn:spdx:swift-http-types:HTTPTypes"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-log",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-log-dependsOn",
+      "to" : [
+        "urn:spdx:swift-log:Logging"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-metrics",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-metrics-dependsOn",
+      "to" : [
+        "urn:spdx:swift-metrics:Metrics"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-nio",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-nio-dependsOn",
+      "to" : [
+        "urn:spdx:swift-atomics",
+        "urn:spdx:swift-collections",
+        "urn:spdx:swift-nio:NIO",
+        "urn:spdx:swift-nio:NIOConcurrencyHelpers",
+        "urn:spdx:swift-nio:NIOCore",
+        "urn:spdx:swift-nio:NIOFoundationEssentialsCompat",
+        "urn:spdx:swift-nio:NIOHTTP1",
+        "urn:spdx:swift-nio:NIOPosix",
+        "urn:spdx:swift-nio:_NIOFileSystem",
+        "urn:spdx:swift-system"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-nio-extras",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-nio-extras-dependsOn",
+      "to" : [
+        "urn:spdx:swift-http-types",
+        "urn:spdx:swift-nio",
+        "urn:spdx:swift-nio-extras:NIOExtras",
+        "urn:spdx:swift-nio-extras:NIOHTTPTypes",
+        "urn:spdx:swift-nio-extras:NIOHTTPTypesHTTP1"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-nio-extras:NIOExtras",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-nio-extras:NIOExtras-dependsOn",
+      "to" : [
+        "urn:spdx:swift-nio:NIO",
+        "urn:spdx:swift-nio:NIOCore",
+        "urn:spdx:swift-nio:NIOHTTP1"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-nio-extras:NIOHTTPTypes",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-nio-extras:NIOHTTPTypes-dependsOn",
+      "to" : [
+        "urn:spdx:swift-http-types:HTTPTypes",
+        "urn:spdx:swift-nio:NIOCore"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-nio-extras:NIOHTTPTypesHTTP1",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-nio-extras:NIOHTTPTypesHTTP1-dependsOn",
+      "to" : [
+        "urn:spdx:swift-http-types:HTTPTypes",
+        "urn:spdx:swift-nio:NIOCore",
+        "urn:spdx:swift-nio:NIOHTTP1"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-nio:NIO",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-nio:NIO-dependsOn",
+      "to" : [
+        "urn:spdx:swift-atomics:Atomics",
+        "urn:spdx:swift-collections:DequeModule"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-nio:NIOCore",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-nio:NIOCore-dependsOn",
+      "to" : [
+        "urn:spdx:swift-atomics:Atomics",
+        "urn:spdx:swift-collections:DequeModule"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-nio:NIOFoundationEssentialsCompat",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-nio:NIOFoundationEssentialsCompat-dependsOn",
+      "to" : [
+        "urn:spdx:swift-atomics:Atomics",
+        "urn:spdx:swift-collections:DequeModule"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-nio:NIOHTTP1",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-nio:NIOHTTP1-dependsOn",
+      "to" : [
+        "urn:spdx:swift-atomics:Atomics",
+        "urn:spdx:swift-collections:DequeModule"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-nio:NIOPosix",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-nio:NIOPosix-dependsOn",
+      "to" : [
+        "urn:spdx:swift-atomics:Atomics",
+        "urn:spdx:swift-collections:DequeModule"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-nio:_NIOFileSystem",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-nio:_NIOFileSystem-dependsOn",
+      "to" : [
+        "urn:spdx:swift-atomics:Atomics",
+        "urn:spdx:swift-collections:DequeModule",
+        "urn:spdx:swift-system:SystemPackage"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-service-context",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-service-context-dependsOn",
+      "to" : [
+        "urn:spdx:swift-service-context:ServiceContextModule"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-service-lifecycle",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-service-lifecycle-dependsOn",
+      "to" : [
+        "urn:spdx:swift-async-algorithms",
+        "urn:spdx:swift-log",
+        "urn:spdx:swift-service-lifecycle:ServiceLifecycle"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-service-lifecycle:ServiceLifecycle",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-service-lifecycle:ServiceLifecycle-dependsOn",
+      "to" : [
+        "urn:spdx:swift-async-algorithms:AsyncAlgorithms",
+        "urn:spdx:swift-log:Logging"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:swift-system",
+      "relationshipType" : "dependsOn",
+      "spdxId" : "urn:spdx:swift-system-dependsOn",
+      "to" : [
+        "urn:spdx:swift-system:SystemPackage"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:0442cb5a3f98ab802acb777929fdb446bda11a34",
+      "identifierLocator" : [
+        "https://github.com/apple/swift-atomics.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:13713a4ffdee8abd929f92568ee9462a46ae26e0",
+      "identifierLocator" : [
+        "https://github.com/apple/swift-async-algorithms.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:3b69cedbaa49957e97c092ae400bb57602ef941f",
+      "identifierLocator" : [
+        "https://github.com/apple/swift-collections.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:4038b6a4f74a1426f47eb1dd5b4bb5628a15d597",
+      "identifierLocator" : [
+        "https://github.com/apple/swift-log.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:41449336c8ecfadac6b4b5be75f9c3c306e61ced",
+      "identifierLocator" : [
+        "https://github.com/apple/swift-nio-extras.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:6db9d9abd92ad7399b8a564cafbb87d3507245fa",
+      "identifierLocator" : [
+        "https://github.com/apple/swift-nio.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:869129b7bf4ecc57b97d0193ad29690ca2134750",
+      "identifierLocator" : [
+        "https://github.com/apple/swift-system.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:8abd464310c7e052c481f74e52dcd05da5f915d1",
+      "identifierLocator" : [
+        "https://github.com/awslabs/swift-aws-lambda-runtime.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:9467f9cc3c32b4386fad1ecc4618328887ef5758",
+      "identifierLocator" : [
+        "https://github.com/apple/swift-metrics.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:bff4b6903cdc99dda49649dd52f46c11cfd3ed50",
+      "identifierLocator" : [
+        "https://github.com/apple/swift-http-types.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:c55297914e26ce3085b73ca88c521ef99136f6ad",
+      "identifierLocator" : [
+        "https://github.com/swift-server/swift-service-lifecycle.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:c803790ffc55c4b4f297f52ee6fbd5b0b3d046ef",
+      "identifierLocator" : [
+        "https://github.com/swift-extras/swift-extras-base64.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:cc504a45f6ce73ce6067837d7ac19fa67b229a56",
+      "identifierLocator" : [
+        "https://github.com/apple/swift-distributed-tracing.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:d0997351b0c7779017f88e7a93bc30a1878d7f29",
+      "identifierLocator" : [
+        "https://github.com/apple/swift-service-context.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:d18360e63624019bddf418de28d83007acd60956",
+      "identifierLocator" : [
+        "https://github.com/awslabs/swift-aws-lambda-events.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "externalIdentifierType" : "gitoid",
+      "identifier" : "urn:spdx:f2a7f918ac422cbac049c4b5169c59b9d5a778a1",
+      "identifierLocator" : [
+        "https://github.com/hummingbird-project/hummingbird.git"
+      ],
+      "type" : "ExternalIdentifier"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:0442cb5a3f98ab802acb777929fdb446bda11a34",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:0442cb5a3f98ab802acb777929fdb446bda11a34-generates",
+      "to" : [
+        "urn:spdx:swift-atomics",
+        "urn:spdx:swift-atomics:Atomics"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:13713a4ffdee8abd929f92568ee9462a46ae26e0",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:13713a4ffdee8abd929f92568ee9462a46ae26e0-generates",
+      "to" : [
+        "urn:spdx:swift-async-algorithms",
+        "urn:spdx:swift-async-algorithms:AsyncAlgorithms"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:3b69cedbaa49957e97c092ae400bb57602ef941f",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:3b69cedbaa49957e97c092ae400bb57602ef941f-generates",
+      "to" : [
+        "urn:spdx:swift-collections",
+        "urn:spdx:swift-collections:DequeModule",
+        "urn:spdx:swift-collections:OrderedCollections"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:4038b6a4f74a1426f47eb1dd5b4bb5628a15d597",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:4038b6a4f74a1426f47eb1dd5b4bb5628a15d597-generates",
+      "to" : [
+        "urn:spdx:swift-log",
+        "urn:spdx:swift-log:Logging"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:41449336c8ecfadac6b4b5be75f9c3c306e61ced",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:41449336c8ecfadac6b4b5be75f9c3c306e61ced-generates",
+      "to" : [
+        "urn:spdx:swift-nio-extras",
+        "urn:spdx:swift-nio-extras:NIOExtras",
+        "urn:spdx:swift-nio-extras:NIOHTTPTypes",
+        "urn:spdx:swift-nio-extras:NIOHTTPTypesHTTP1"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:6db9d9abd92ad7399b8a564cafbb87d3507245fa",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:6db9d9abd92ad7399b8a564cafbb87d3507245fa-generates",
+      "to" : [
+        "urn:spdx:swift-nio",
+        "urn:spdx:swift-nio:NIO",
+        "urn:spdx:swift-nio:NIOConcurrencyHelpers",
+        "urn:spdx:swift-nio:NIOCore",
+        "urn:spdx:swift-nio:NIOFoundationEssentialsCompat",
+        "urn:spdx:swift-nio:NIOHTTP1",
+        "urn:spdx:swift-nio:NIOPosix",
+        "urn:spdx:swift-nio:_NIOFileSystem"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:869129b7bf4ecc57b97d0193ad29690ca2134750",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:869129b7bf4ecc57b97d0193ad29690ca2134750-generates",
+      "to" : [
+        "urn:spdx:swift-system",
+        "urn:spdx:swift-system:SystemPackage"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:8abd464310c7e052c481f74e52dcd05da5f915d1",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:8abd464310c7e052c481f74e52dcd05da5f915d1-generates",
+      "to" : [
+        "urn:spdx:swift-aws-lambda-runtime",
+        "urn:spdx:swift-aws-lambda-runtime:AWSLambdaRuntime"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:9467f9cc3c32b4386fad1ecc4618328887ef5758",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:9467f9cc3c32b4386fad1ecc4618328887ef5758-generates",
+      "to" : [
+        "urn:spdx:swift-metrics",
+        "urn:spdx:swift-metrics:Metrics"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:bff4b6903cdc99dda49649dd52f46c11cfd3ed50",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:bff4b6903cdc99dda49649dd52f46c11cfd3ed50-generates",
+      "to" : [
+        "urn:spdx:swift-http-types",
+        "urn:spdx:swift-http-types:HTTPTypes"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:c55297914e26ce3085b73ca88c521ef99136f6ad",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:c55297914e26ce3085b73ca88c521ef99136f6ad-generates",
+      "to" : [
+        "urn:spdx:swift-service-lifecycle",
+        "urn:spdx:swift-service-lifecycle:ServiceLifecycle"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:c803790ffc55c4b4f297f52ee6fbd5b0b3d046ef",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:c803790ffc55c4b4f297f52ee6fbd5b0b3d046ef-generates",
+      "to" : [
+        "urn:spdx:swift-extras-base64",
+        "urn:spdx:swift-extras-base64:ExtrasBase64"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:cc504a45f6ce73ce6067837d7ac19fa67b229a56",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:cc504a45f6ce73ce6067837d7ac19fa67b229a56-generates",
+      "to" : [
+        "urn:spdx:swift-distributed-tracing",
+        "urn:spdx:swift-distributed-tracing:Tracing"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:d0997351b0c7779017f88e7a93bc30a1878d7f29",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:d0997351b0c7779017f88e7a93bc30a1878d7f29-generates",
+      "to" : [
+        "urn:spdx:swift-service-context",
+        "urn:spdx:swift-service-context:ServiceContextModule"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:d18360e63624019bddf418de28d83007acd60956",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:d18360e63624019bddf418de28d83007acd60956-generates",
+      "to" : [
+        "urn:spdx:swift-aws-lambda-events",
+        "urn:spdx:swift-aws-lambda-events:AWSLambdaEvents"
+      ],
+      "type" : "Relationship"
+    },
+    {
+      "creationInfo" : "_:creationInfo",
+      "from" : "urn:spdx:f2a7f918ac422cbac049c4b5169c59b9d5a778a1",
+      "relationshipType" : "generates",
+      "spdxId" : "urn:spdx:f2a7f918ac422cbac049c4b5169c59b9d5a778a1-generates",
+      "to" : [
+        "urn:spdx:hummingbird",
+        "urn:spdx:hummingbird:Hummingbird"
+      ],
+      "type" : "Relationship"
+    }
+  ]
+}
