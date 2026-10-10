@@ -12,10 +12,10 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             Handler: swift.bootstrap
-            Runtime: provided.al2
+            Runtime: provided.al2023
             Architectures:
                 - arm64
-            CodeUri: ../.build/plugins/AWSLambdaPackager/outputs/AWSLambdaPackager/HBLambdaTest/HBLambdaTest.zip
+            CodeUri: ../.build/plugins/AWSLambdaBuilder/outputs/AWSLambdaBuilder/HBLambdaTest/HBLambdaTest.zip
             Environment:
                 Variables:
                     # by default, AWS Lambda runtime produces no log
@@ -23,12 +23,39 @@ Resources:
                     # use `LOG_LEVEL: trace` for detailed input event information
                     LOG_LEVEL: trace
             # Instructs new versions to be published to an alias named "live".
-            # AutoPublishAlias: live
+            AutoPublishAlias: live
             Events:
-                HttpApiEvent:
-                    Type: HttpApi
+                Add:
+                    Type: Api
+                    Properties:
+                        Path: /add
+                        Method: post
+                Subtract:
+                    Type: Api
+                    Properties:
+                        Path: /subtract
+                        Method: post
+                Multiply:
+                    Type: Api
+                    Properties:
+                        Path: /multiply
+                        Method: post
+                Divide:
+                    Type: Api
+                    Properties:
+                        Path: /divide
+                        Method: post
 
 Outputs:
-    HttpApi:
-        Description: "API Gateway endpoint URL for Prod stage"
-        Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
+    AddFunctionApi:
+        Description: "API Gateway endpoint URL for Prod stage for Add function"
+        Value: !Sub "https://${hbLambdaTestFunction}.execute-api.${AWS::Region}.amazonaws.com/add"
+    SubtractFunctionApi:
+        Description: "API Gateway endpoint URL for Prod stage for Subtract function"
+        Value: !Sub "https://${hbLambdaTestFunction}.execute-api.${AWS::Region}.amazonaws.com/subtract"
+    MulitplyFunctionApi:
+        Description: "API Gateway endpoint URL for Prod stage for Multiply function"
+        Value: !Sub "https://${hbLambdaTestFunction}.execute-api.${AWS::Region}.amazonaws.com/multiply"
+    DivideFunctionApi:
+        Description: "API Gateway endpoint URL for Prod stage for Divide function"
+        Value: !Sub "https://${hbLambdaTestFunction}.execute-api.${AWS::Region}.amazonaws.com/divide"
