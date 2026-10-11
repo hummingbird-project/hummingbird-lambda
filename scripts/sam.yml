@@ -11,6 +11,7 @@ Resources:
     hbLambdaTestFunction:
         Type: AWS::Serverless::Function
         Properties:
+            FunctionName: "hb-lambda-test"
             Handler: swift.bootstrap
             Runtime: provided.al2023
             Architectures:
@@ -23,39 +24,11 @@ Resources:
                     # use `LOG_LEVEL: trace` for detailed input event information
                     LOG_LEVEL: trace
             # Instructs new versions to be published to an alias named "live".
-            AutoPublishAlias: live
-            Events:
-                Add:
-                    Type: Api
-                    Properties:
-                        Path: /add
-                        Method: post
-                Subtract:
-                    Type: Api
-                    Properties:
-                        Path: /subtract
-                        Method: post
-                Multiply:
-                    Type: Api
-                    Properties:
-                        Path: /multiply
-                        Method: post
-                Divide:
-                    Type: Api
-                    Properties:
-                        Path: /divide
-                        Method: post
+            FunctionUrlConfig:
+                AuthType: NONE
+                InvokeMode: BUFFERED
 
 Outputs:
-    AddFunctionApi:
-        Description: "API Gateway endpoint URL for Prod stage for Add function"
-        Value: !Sub "https://${hbLambdaTestFunction}.execute-api.${AWS::Region}.amazonaws.com/add"
-    SubtractFunctionApi:
-        Description: "API Gateway endpoint URL for Prod stage for Subtract function"
-        Value: !Sub "https://${hbLambdaTestFunction}.execute-api.${AWS::Region}.amazonaws.com/subtract"
-    MulitplyFunctionApi:
-        Description: "API Gateway endpoint URL for Prod stage for Multiply function"
-        Value: !Sub "https://${hbLambdaTestFunction}.execute-api.${AWS::Region}.amazonaws.com/multiply"
-    DivideFunctionApi:
-        Description: "API Gateway endpoint URL for Prod stage for Divide function"
-        Value: !Sub "https://${hbLambdaTestFunction}.execute-api.${AWS::Region}.amazonaws.com/divide"
+    hbLambdaTestFunctionEndpoint:
+        Description: "My Lambda Function URL Endpoint"
+        Value: !GetAtt hbLambdaTestFunctionUrl.FunctionUrl

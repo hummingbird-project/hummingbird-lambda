@@ -12,7 +12,7 @@ import Hummingbird
 import HummingbirdLambda
 import Logging
 
-typealias AppRequestContext = BasicLambdaRequestContext<APIGatewayRequest>
+typealias AppRequestContext = BasicLambdaRequestContext<FunctionURLRequest>
 
 struct DebugMiddleware: RouterMiddleware {
     typealias Context = AppRequestContext
@@ -58,7 +58,7 @@ struct MathsLambda {
             let operands = try await request.decode(as: Operands.self, context: context)
             return Result(result: operands.lhs / operands.rhs)
         }
-        let lambda = APIGatewayLambdaFunction(
+        let lambda = FunctionURLLambdaFunction(
             router: router
         )
         try await lambda.runService()
